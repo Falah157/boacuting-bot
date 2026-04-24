@@ -3,20 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>BOA CUTING TRADING | Auto Login with Phone</title>
+    <title>BOA CUTING TRADING | Google Login</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0e17; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 12px; color: #eef5ff; }
         .container { max-width: 100%; margin: 0 auto; }
+        
+        /* LOGIN SCREEN */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e17, #05080f);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .login-box {
+            background: #111a24;
+            border-radius: 32px;
+            padding: 40px 24px;
+            text-align: center;
+            border: 1px solid #00ffcc;
+            max-width: 320px;
+            margin: 20px;
+        }
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ffcc, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+        .login-sub {
+            font-size: 12px;
+            color: #8a9bb0;
+            margin-bottom: 24px;
+        }
+        .google-btn {
+            background: #00ffcc10;
+            border: 1px solid #00ffcc;
+            padding: 14px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ffcc;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+        .telegram-btn {
+            background: #0088cc20;
+            border: 1px solid #0088cc;
+            padding: 14px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #0088cc;
+            width: 100%;
+        }
+        .login-footer {
+            font-size: 10px;
+            color: #8a9bb0;
+            margin-top: 20px;
+        }
+        
+        /* Main App (hidden until login) */
+        .main-app {
+            display: none;
+        }
+        .main-app.show {
+            display: block;
+        }
+        
         .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 20px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; }
         .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
         .user-info { flex: 1; }
         .user-name { font-size: 16px; font-weight: 800; }
-        .user-phone { font-size: 10px; color: #00ffcc; font-family: monospace; }
-        .tg-badge { background: #00ffcc20; padding: 4px 12px; border-radius: 20px; font-size: 10px; color: #00ffcc; }
-        .phone-badge { background: #ffd70020; padding: 2px 8px; border-radius: 12px; font-size: 8px; color: #ffd700; margin-left: 6px; }
+        .user-email { font-size: 10px; color: #00ffcc; }
+        .logout-btn { background: #ff336620; padding: 6px 12px; border-radius: 20px; font-size: 10px; cursor: pointer; border: none; color: #ff3366; }
         .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
         .sym-btn { flex: 1; background: #111a24; padding: 12px; border-radius: 40px; text-align: center; font-weight: 700; cursor: pointer; border: 1px solid #00ffcc; }
         .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
@@ -62,14 +142,31 @@
     </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <div class="login-logo">🚀</div>
+        <div class="login-title">BOA CUTING TRADING</div>
+        <div class="login-sub">One click login to start trading</div>
+        
+        <div id="googleLoginDiv"></div>
+        <button class="telegram-btn" onclick="loginWithTelegram()">📱 Login with Telegram</button>
+        
+        <div class="login-footer">🔒 Secure • Free • No spam</div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="main-app">
 <div class="container">
     <div class="user-card">
-        <div class="avatar" id="userAvatar">📱</div>
+        <div class="avatar" id="userAvatar">👤</div>
         <div class="user-info">
-            <div class="user-name" id="userName">Loading...</div>
-            <div class="user-phone" id="userPhone">Auto-login with Telegram</div>
+            <div class="user-name" id="userName">Trader</div>
+            <div class="user-email" id="userEmail">Logged in</div>
         </div>
-        <div class="tg-badge">✅ AUTO LOGIN</div>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </div>
     <div class="symbol-row">
         <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD</div>
@@ -96,8 +193,7 @@
     <div class="chat-section">
         <div class="chat-header"><span>💬 COMMUNITY CHAT</span><span id="onlineCount">👥 1</span></div>
         <div class="chat-messages" id="chatMessages">
-            <div class="message message-system">📱 You're automatically logged in with your Telegram account!</div>
-            <div class="message message-system">🔒 Your phone number is visible to admin only</div>
+            <div class="message message-system">✅ Logged in with Google!</div>
             <div class="message message-system">🎙️ Voice announces BUY/SELL signals</div>
         </div>
         <div class="chat-input-area">
@@ -114,68 +210,109 @@
         <div class="trade-row"><span>📊 MY TRADE</span><span id="tradeStatus">None</span></div>
         <div id="tradeDetails"></div>
     </div>
-    <div class="admin-toggle" onclick="toggleAdmin()">👑 ADMIN (see all messages & phone numbers)</div>
-    <div class="admin-panel" id="adminPanel"><div id="adminMessages"></div></div>
-    <div class="footer">✅ AUTO LOGIN | @BOACUTING_bot | Your phone number is private</div>
+    <div class="footer">✅ GOOGLE LOGIN | @BOACUTING_bot | One click access</div>
 </div>
+</div>
+
 <script>
-    // ==================== TELEGRAM AUTO LOGIN WITH PHONE ====================
-    let tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.enableClosingConfirmation();
+    // ==================== GOOGLE LOGIN ====================
+    let currentUser = null;
     
-    // Request contact permission to get phone number
-    tg.requestContact = function() {
-        console.log("Requesting contact permission...");
-    };
+    // Initialize Google Login
+    function initializeGoogleLogin() {
+        google.accounts.id.initialize({
+            client_id: '1080627952279-6jsdfp3g5g9v2h6k0rkf7s8d1c3q2n6t.apps.googleusercontent.com',
+            callback: handleGoogleLogin
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("googleLoginDiv"),
+            { theme: "dark", size: "large", text: "continue_with", shape: "pill" }
+        );
+    }
     
-    let user = tg.initDataUnsafe?.user;
-    let telegramId = null;
-    let telegramName = "Trader";
-    let phoneNumber = null;
-    
-    if (user) {
-        telegramId = user.id;
-        telegramName = user.first_name || "Trader";
-        document.getElementById("userName").innerHTML = user.first_name || "Trader";
-        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "📱";
+    function handleGoogleLogin(response) {
+        // Decode JWT token to get user info
+        const decoded = JSON.parse(atob(response.credential.split('.')[1]));
+        currentUser = {
+            name: decoded.name,
+            email: decoded.email,
+            picture: decoded.picture,
+            id: decoded.sub
+        };
         
-        // Phone number comes from contact data if user shares
-        let contact = tg.initDataUnsafe?.contact;
-        if (contact && contact.phone_number) {
-            phoneNumber = contact.phone_number;
-            document.getElementById("userPhone").innerHTML = `📞 +${phoneNumber}`;
-        } else {
-            document.getElementById("userPhone").innerHTML = `🆔 ID: ${telegramId}`;
-        }
+        // Save to localStorage
+        localStorage.setItem('tradingUser', JSON.stringify(currentUser));
         
-        // Send welcome to bot owner with user info
-        fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                chat_id: telegramId, 
-                text: `✅ Welcome to BOA CUTING Trading Bot!\n\n👤 Name: ${user.first_name}\n🆔 ID: ${telegramId}\n📞 Phone: ${phoneNumber || 'Not shared'}\n\n🎙️ Voice robot active\n📊 Real-time signals for XAUUSD & BTCUSD\n💬 Chat with community\n\nGood luck trading! 🚀` 
-            })
-        }).catch(e => console.log);
+        // Show main app
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").classList.add("show");
         
-        // Also send to admin (you)
+        // Update UI with user info
+        document.getElementById("userName").innerHTML = currentUser.name;
+        document.getElementById("userEmail").innerHTML = currentUser.email;
+        document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
+        
+        // Send welcome to Telegram admin
         fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 chat_id: "1402725694", 
-                text: `🆕 NEW USER LOGGED IN!\n\n👤 Name: ${user.first_name}\n🆔 ID: ${telegramId}\n📞 Phone: ${phoneNumber || 'Not shared'}\n@${user.username || 'no username'}` 
+                text: `🆕 NEW GOOGLE LOGIN!\n\n👤 Name: ${currentUser.name}\n📧 Email: ${currentUser.email}\n🆔 ID: ${currentUser.id}` 
             })
         }).catch(e => console.log);
-    } else {
-        document.getElementById("userName").innerHTML = "Demo Mode";
-        document.getElementById("userPhone").innerHTML = "ⓘ Demo - No login";
+        
+        addSystemMessage(`✅ Welcome ${currentUser.name}! You're logged in with Google.`);
+        speak(`Welcome ${currentUser.name}`);
+    }
+    
+    function loginWithTelegram() {
+        let tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.expand();
+            let user = tg.initDataUnsafe?.user;
+            if (user) {
+                currentUser = {
+                    name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                    email: user.username ? `${user.username}@telegram.com` : `${user.id}@telegram.com`,
+                    id: user.id
+                };
+                localStorage.setItem('tradingUser', JSON.stringify(currentUser));
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("mainApp").classList.add("show");
+                document.getElementById("userName").innerHTML = currentUser.name;
+                document.getElementById("userEmail").innerHTML = `Telegram: @${user.username || user.id}`;
+                document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
+                addSystemMessage(`✅ Welcome ${currentUser.name}! You're logged in with Telegram.`);
+            }
+        }
+    }
+    
+    function logout() {
+        localStorage.removeItem('tradingUser');
+        currentUser = null;
+        document.getElementById("loginScreen").style.display = "flex";
+        document.getElementById("mainApp").classList.remove("show");
+        addSystemMessage("Logged out. Come back soon!");
+    }
+    
+    // Check for saved login
+    function checkSavedLogin() {
+        const saved = localStorage.getItem('tradingUser');
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("mainApp").classList.add("show");
+            document.getElementById("userName").innerHTML = currentUser.name;
+            document.getElementById("userEmail").innerHTML = currentUser.email;
+            document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
+        }
     }
     
     // ==================== TRADING ENGINE ====================
     let symbol = "XAUUSD";
     let price = null, prevPrice = null, history = [], trade = null, chart = null;
     let voiceEnabled = true, lastAnnounceTime = 0;
-    let userName = telegramName, allMessages = [], adminMessages = [];
+    let allMessages = [], adminMessages = [];
     
     const config = { 
         XAUUSD: { sl: 15, tp: 30, fmt: 2, mult: 1, name: "Gold", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", priceKey: "tether-gold" },
@@ -212,19 +349,17 @@
     function ema(p){ if(history.length<p)return price||0; let k=2/(p+1); let val=history[0]; for(let i=1;i<history.length;i++)val=history[i]*k+val*(1-k); return val; }
     function getSignal(){ if(!price||history.length<20)return{dir:"🟡 WAITING",color:"#ffd700",type:"WAIT"}; let e9=ema(9),e21=ema(21),r=rsi(); if(e9>e21&&r<65)return{dir:"🟢 BUY",color:"#00ffcc",type:"BUY"}; if(e9<e21&&r>35)return{dir:"🔴 SELL",color:"#ff3366",type:"SELL"}; if(r<35)return{dir:"🟢 BUY",color:"#00ffcc",type:"BUY"}; if(r>65)return{dir:"🔴 SELL",color:"#ff3366",type:"SELL"}; return{dir:"🟡 WAIT",color:"#ffd700",type:"WAIT"}; }
     
-    function updateSignalWithVoice(){ let sig=getSignal(); let old=document.getElementById("signalDir").innerText; document.getElementById("signalDir").innerHTML=sig.dir; document.getElementById("signalDir").style.color=sig.color; document.getElementById("signalBox").style.borderColor=sig.color; let now=Date.now(); if(sig.type!=="WAIT"&&old!==sig.dir&&(now-lastAnnounceTime)>30000){ lastAnnounceTime=now; let pm=config[symbol].fmt===2?`${price.toFixed(2)}`:`${price.toFixed(0)}`; speak(`${sig.type} signal for ${config[symbol].name} at ${pm}`); addSystemMessage(`🔔 ${sig.dir} ${symbol} at $${pm}`); if(telegramId){ fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`,{ method:'POST',headers:{'Content-Type':'application/json'}, body:JSON.stringify({chat_id:telegramId,text:`🔔 NEW SIGNAL\n${sig.dir} ${symbol}\nPrice: $${pm}\n\nTrade wisely!`}) }).catch(e=>console.log); } } return sig; }
+    function updateSignalWithVoice(){ let sig=getSignal(); let old=document.getElementById("signalDir").innerText; document.getElementById("signalDir").innerHTML=sig.dir; document.getElementById("signalDir").style.color=sig.color; document.getElementById("signalBox").style.borderColor=sig.color; let now=Date.now(); if(sig.type!=="WAIT"&&old!==sig.dir&&(now-lastAnnounceTime)>30000){ lastAnnounceTime=now; let pm=config[symbol].fmt===2?`${price.toFixed(2)}`:`${price.toFixed(0)}`; speak(`${sig.type} signal for ${config[symbol].name} at ${pm}`); addSystemMessage(`🔔 ${sig.dir} ${symbol} at $${pm}`); } return sig; }
     
-    function openTrade(type){ if(trade){ addSystemMessage(`Close ${trade.type} first`); return; } let sig=getSignal(); if(type!==sig.type&&sig.type!=="WAIT"){ addSystemMessage(`⚠️ Signal is ${sig.type}`); speak(`Signal is ${sig.type}`); return; } let c=config[symbol]; let sl=type==="BUY"?price-(c.sl*c.mult):price+(c.sl*c.mult); let tp=type==="BUY"?price+(c.tp*c.mult):price-(c.tp*c.mult); trade={type,entry:price,sl,tp}; addSystemMessage(`✅ ${type} opened at $${price.toFixed(c.fmt)}`); speak(`${type} trade opened at ${price.toFixed(c.fmt)}`); addUserMessage(userName,`🟢 OPENED ${type} ${symbol}`,"trade"); updateTrade(); }
-    function closeTrade(){ if(!trade){ addSystemMessage("No trade open"); return; } let c=config[symbol]; let pnl=trade.type==="BUY"?price-trade.entry:trade.entry-price; let pips=c.mult===1?pnl*100:pnl; let result=pips>=0?"PROFIT":"LOSS"; addSystemMessage(`✅ Closed | ${result}: ${pips>=0?'+':''}${pips.toFixed(1)} pips`); speak(`Trade closed. ${result} ${Math.abs(pips).toFixed(1)} pips`); addUserMessage(userName,`📊 CLOSED ${trade.type} | ${result}: ${pips.toFixed(1)} pips`,"trade"); trade=null; updateTrade(); }
+    function openTrade(type){ if(trade){ addSystemMessage(`Close ${trade.type} first`); return; } let sig=getSignal(); if(type!==sig.type&&sig.type!=="WAIT"){ addSystemMessage(`⚠️ Signal is ${sig.type}`); speak(`Signal is ${sig.type}`); return; } let c=config[symbol]; let sl=type==="BUY"?price-(c.sl*c.mult):price+(c.sl*c.mult); let tp=type==="BUY"?price+(c.tp*c.mult):price-(c.tp*c.mult); trade={type,entry:price,sl,tp}; addSystemMessage(`✅ ${type} opened at $${price.toFixed(c.fmt)}`); speak(`${type} trade opened at ${price.toFixed(c.fmt)}`); addUserMessage(currentUser?.name || "User",`🟢 OPENED ${type} ${symbol}`,"trade"); updateTrade(); }
+    function closeTrade(){ if(!trade){ addSystemMessage("No trade open"); return; } let c=config[symbol]; let pnl=trade.type==="BUY"?price-trade.entry:trade.entry-price; let pips=c.mult===1?pnl*100:pnl; let result=pips>=0?"PROFIT":"LOSS"; addSystemMessage(`✅ Closed | ${result}: ${pips>=0?'+':''}${pips.toFixed(1)} pips`); speak(`Trade closed. ${result} ${Math.abs(pips).toFixed(1)} pips`); addUserMessage(currentUser?.name || "User",`📊 CLOSED ${trade.type} | ${result}: ${pips.toFixed(1)} pips`,"trade"); trade=null; updateTrade(); }
     function updateTrade(){ if(trade){ let c=config[symbol]; let pnl=trade.type==="BUY"?price-trade.entry:trade.entry-price; let pips=c.mult===1?pnl*100:pnl; let fmt=c.fmt; document.getElementById("tradeStatus").innerHTML=`${trade.type} OPEN`; document.getElementById("tradeDetails").innerHTML=`<div class="trade-row"><span>Entry:</span><span class="green">$${trade.entry.toFixed(fmt)}</span></div><div class="trade-row"><span>Now:</span><span>$${price.toFixed(fmt)}</span></div><div class="trade-row"><span>PnL:</span><span class="${pips>=0?'green':'red'}">${pips>=0?'+':''}${pips.toFixed(1)} pips</span></div>`; if(trade.type==="BUY"){ if(price>=trade.tp){ speak("Take profit!"); closeTrade(); }else if(price<=trade.sl){ speak("Stop loss!"); closeTrade(); } }else{ if(price<=trade.tp){ speak("Take profit!"); closeTrade(); }else if(price>=trade.sl){ speak("Stop loss!"); closeTrade(); } } }else{ document.getElementById("tradeStatus").innerHTML="None"; document.getElementById("tradeDetails").innerHTML=""; } }
     
-    function addUserMessage(name,text,type="user"){ let msg={id:Date.now(),name,text,time:new Date().toLocaleTimeString(),phone:phoneNumber}; allMessages.unshift(msg); adminMessages.unshift(msg); let chatDiv=document.getElementById("chatMessages"); chatDiv.innerHTML+=`<div class="message message-user"><div class="message-name">${name}${phoneNumber?` 📞${phoneNumber.slice(-4)}`:''}</div><div class="message-text">${text}</div><div class="message-time">${msg.time}</div></div>`; chatDiv.scrollTop=chatDiv.scrollHeight; updateAdminPanel(); }
+    function addUserMessage(name,text,type="user"){ let msg={id:Date.now(),name,text,time:new Date().toLocaleTimeString()}; let chatDiv=document.getElementById("chatMessages"); chatDiv.innerHTML+=`<div class="message message-user"><div class="message-name">${name}</div><div class="message-text">${text}</div><div class="message-time">${msg.time}</div></div>`; chatDiv.scrollTop=chatDiv.scrollHeight; }
     function addSystemMessage(text){ let chatDiv=document.getElementById("chatMessages"); chatDiv.innerHTML+=`<div class="message message-system"><div class="message-text">🤖 ${text}</div><div class="message-time">${new Date().toLocaleTimeString()}</div></div>`; chatDiv.scrollTop=chatDiv.scrollHeight; }
-    function sendMessage(){ let input=document.getElementById("chatInput"); let text=input.value.trim(); if(!text)return; addUserMessage(userName,text); input.value=""; let lower=text.toLowerCase(); if(lower.includes("buy"))speak(`${userName} bought ${config[symbol].name}`); else if(lower.includes("sell"))speak(`${userName} sold ${config[symbol].name}`); else if(lower.includes("profit"))speak(`Nice profit ${userName}!`); else if(lower.includes("loss"))speak(`Next time ${userName}!`); }
-    function shareResult(type){ let resultText=type==="profit"?`✅ I made PROFIT on ${symbol}! 🎉`:`❌ I took a LOSS on ${symbol}`; addUserMessage(userName,resultText,"trade"); addSystemMessage(`📊 ${userName} shared ${type.toUpperCase()} result!`); if(type==="profit")speak(`Nice profit on ${config[symbol].name}!`); else speak(`Loss on ${config[symbol].name}. Next time!`); }
-    function shareManualSignal(type){ let c=config[symbol]; addUserMessage(userName,`🔺 I ${type==="BUY"?"BOUGHT":"SOLD"} ${symbol} at $${price.toFixed(c.fmt)}!`,"trade"); addSystemMessage(`📢 ${userName} ${type==="BUY"?"BOUGHT":"SOLD"} ${symbol}!`); speak(`${userName} ${type==="BUY"?"bought":"sold"} ${config[symbol].name}`); }
-    function updateAdminPanel(){ let div=document.getElementById("adminMessages"); let html=`<div style="padding:4px; background:#00ffcc10; margin-bottom:6px;">📞 Admin View - User Phone Numbers Visible</div>`; for(let i=0;i<Math.min(20,adminMessages.length);i++){ let m=adminMessages[i]; html+=`<div style="padding:3px 0; border-bottom:1px solid #333; font-size:9px;">[${m.time}] ${m.name} ${m.phone?`📞${m.phone}`:''}: ${m.text}</div>`; } div.innerHTML=html||"No messages"; }
-    function toggleAdmin(){ document.getElementById("adminPanel").classList.toggle("show"); }
+    function sendMessage(){ let input=document.getElementById("chatInput"); let text=input.value.trim(); if(!text)return; addUserMessage(currentUser?.name || "User",text); input.value=""; let lower=text.toLowerCase(); if(lower.includes("buy"))speak(`${currentUser?.name} bought ${config[symbol].name}`); else if(lower.includes("sell"))speak(`${currentUser?.name} sold ${config[symbol].name}`); else if(lower.includes("profit"))speak(`Nice profit!`); else if(lower.includes("loss"))speak(`Next time!`); }
+    function shareResult(type){ let resultText=type==="profit"?`✅ I made PROFIT on ${symbol}! 🎉`:`❌ I took a LOSS on ${symbol}`; addUserMessage(currentUser?.name || "User",resultText,"trade"); addSystemMessage(`📊 ${currentUser?.name} shared ${type.toUpperCase()} result!`); if(type==="profit")speak(`Nice profit!`); else speak(`Next time!`); }
+    function shareManualSignal(type){ let c=config[symbol]; addUserMessage(currentUser?.name || "User",`🔺 I ${type==="BUY"?"BOUGHT":"SOLD"} ${symbol} at $${price.toFixed(c.fmt)}!`,"trade"); addSystemMessage(`📢 ${currentUser?.name} ${type==="BUY"?"BOUGHT":"SOLD"} ${symbol}!`); speak(`${currentUser?.name} ${type==="BUY"?"bought":"sold"} ${config[symbol].name}`); }
     function initChart(){ if(chart)try{chart.remove();}catch(e){} let tvSym=symbol==="XAUUSD"?"FX_IDC:XAUUSD":"BINANCE:BTCUSDT"; chart=new TradingView.widget({container_id:"chart",width:"100%",height:220,symbol:tvSym,interval:"15",theme:"dark",style:"1",locale:"en",toolbar_bg:"#000",studies:[]}); }
     async function main(){ await fetchPrice(); updateSignalWithVoice(); updateTrade(); }
     
@@ -234,9 +369,12 @@
     document.getElementById("voiceToggleBtn").onclick=toggleVoice;
     document.querySelectorAll(".sym-btn").forEach(btn=>{ btn.onclick=()=>{ document.querySelectorAll(".sym-btn").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); symbol=btn.getAttribute("data-sym"); price=null;history=[];trade=null; initChart(); main(); addSystemMessage(`Switched to ${symbol}`); speak(`Switched to ${config[symbol].name}`); }; });
     
-    initChart(); main(); setInterval(main,3000);
-    setTimeout(()=>{ speak("BOA CUTING trading bot ready"); addSystemMessage(`✅ Auto-login active! Welcome ${userName}${phoneNumber?` (${phoneNumber})`:''}`); },1000);
-    tg.ready();
+    checkSavedLogin();
+    initializeGoogleLogin();
+    initChart(); 
+    main(); 
+    setInterval(main,3000);
+    setTimeout(()=>{ if(!currentUser) addSystemMessage(`🔐 Please login with Google or Telegram to start trading`); },1000);
 </script>
 </body>
 </html>
