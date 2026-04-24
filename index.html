@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>BOA CUTING TRADING | Google Login</title>
+    <title>BOA CUTING TRADING | Voice Robot Fixed</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
@@ -36,60 +36,16 @@
             max-width: 320px;
             margin: 20px;
         }
-        .login-logo {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        .login-title {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00ffcc, #ffd700);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 8px;
-        }
-        .login-sub {
-            font-size: 12px;
-            color: #8a9bb0;
-            margin-bottom: 24px;
-        }
-        .google-btn {
-            background: #00ffcc10;
-            border: 1px solid #00ffcc;
-            padding: 14px 24px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            color: #00ffcc;
-            margin-bottom: 12px;
-            width: 100%;
-        }
-        .telegram-btn {
-            background: #0088cc20;
-            border: 1px solid #0088cc;
-            padding: 14px 24px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            color: #0088cc;
-            width: 100%;
-        }
-        .login-footer {
-            font-size: 10px;
-            color: #8a9bb0;
-            margin-top: 20px;
-        }
+        .login-logo { font-size: 48px; margin-bottom: 20px; }
+        .login-title { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px; }
+        .login-sub { font-size: 12px; color: #8a9bb0; margin-bottom: 24px; }
+        .google-btn { background: #00ffcc10; border: 1px solid #00ffcc; padding: 14px 24px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; margin-bottom: 12px; width: 100%; }
+        .telegram-btn { background: #0088cc20; border: 1px solid #0088cc; padding: 14px 24px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #0088cc; width: 100%; }
+        .login-footer { font-size: 10px; color: #8a9bb0; margin-top: 20px; }
+        .enable-voice-btn { background: #ffd70020; border: 1px solid #ffd700; padding: 14px 24px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #ffd700; width: 100%; margin-top: 12px; }
         
-        /* Main App (hidden until login) */
-        .main-app {
-            display: none;
-        }
-        .main-app.show {
-            display: block;
-        }
+        .main-app { display: none; }
+        .main-app.show { display: block; }
         
         .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 20px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; }
         .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
@@ -134,11 +90,9 @@
         .close-btn { background: #ffd70010; border: 2px solid #ffd700; color: #ffd700; }
         .trade-panel { background: #111a24; border-radius: 16px; padding: 10px; margin-bottom: 12px; }
         .trade-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; }
-        .admin-toggle { text-align: center; font-size: 8px; color: #8a9bb0; cursor: pointer; margin-bottom: 8px; }
-        .admin-panel { background: #1a2530; border-radius: 16px; padding: 10px; margin-top: 8px; display: none; max-height: 150px; overflow-y: auto; }
-        .admin-panel.show { display: block; }
         .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 10px; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .voice-warning { background: #ffd70020; border: 1px solid #ffd700; border-radius: 16px; padding: 10px; margin-bottom: 12px; text-align: center; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -146,14 +100,11 @@
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
-        <div class="login-logo">🚀</div>
+        <div class="login-logo">🔊</div>
         <div class="login-title">BOA CUTING TRADING</div>
-        <div class="login-sub">One click login to start trading</div>
-        
-        <div id="googleLoginDiv"></div>
-        <button class="telegram-btn" onclick="loginWithTelegram()">📱 Login with Telegram</button>
-        
-        <div class="login-footer">🔒 Secure • Free • No spam</div>
+        <div class="login-sub">Enable voice to hear signals</div>
+        <button class="enable-voice-btn" onclick="enableVoiceAndLogin()">🔊 ENABLE VOICE & LOGIN</button>
+        <div class="login-footer">🔒 Click to enable voice robot</div>
     </div>
 </div>
 
@@ -164,10 +115,16 @@
         <div class="avatar" id="userAvatar">👤</div>
         <div class="user-info">
             <div class="user-name" id="userName">Trader</div>
-            <div class="user-email" id="userEmail">Logged in</div>
+            <div class="user-email" id="userEmail">Voice Enabled</div>
         </div>
         <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </div>
+    
+    <!-- Voice Status -->
+    <div class="voice-warning" id="voiceWarning">
+        ✅ VOICE ROBOT ACTIVE - You will hear BUY/SELL signals
+    </div>
+    
     <div class="symbol-row">
         <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD</div>
         <div class="sym-btn" data-sym="BTCUSD">₿ BTCUSD</div>
@@ -193,8 +150,8 @@
     <div class="chat-section">
         <div class="chat-header"><span>💬 COMMUNITY CHAT</span><span id="onlineCount">👥 1</span></div>
         <div class="chat-messages" id="chatMessages">
-            <div class="message message-system">✅ Logged in with Google!</div>
-            <div class="message message-system">🎙️ Voice announces BUY/SELL signals</div>
+            <div class="message message-system">🔊 Voice robot is ACTIVE! You will hear signals.</div>
+            <div class="message message-system">🎙️ Tap the SIGNAL box to hear it again.</div>
         </div>
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="chatInput" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
@@ -210,119 +167,117 @@
         <div class="trade-row"><span>📊 MY TRADE</span><span id="tradeStatus">None</span></div>
         <div id="tradeDetails"></div>
     </div>
-    <div class="footer">✅ GOOGLE LOGIN | @BOACUTING_bot | One click access</div>
+    <div class="footer">🔊 VOICE ROBOT ACTIVE | @BOACUTING_bot</div>
 </div>
 </div>
 
 <script>
-    // ==================== GOOGLE LOGIN ====================
+    // ==================== VOICE FIX - User must click first ====================
+    let voiceEnabled = false;
+    let voiceAllowed = false;
     let currentUser = null;
-    
-    // Initialize Google Login
-    function initializeGoogleLogin() {
-        google.accounts.id.initialize({
-            client_id: '1080627952279-6jsdfp3g5g9v2h6k0rkf7s8d1c3q2n6t.apps.googleusercontent.com',
-            callback: handleGoogleLogin
-        });
-        google.accounts.id.renderButton(
-            document.getElementById("googleLoginDiv"),
-            { theme: "dark", size: "large", text: "continue_with", shape: "pill" }
-        );
-    }
-    
-    function handleGoogleLogin(response) {
-        // Decode JWT token to get user info
-        const decoded = JSON.parse(atob(response.credential.split('.')[1]));
-        currentUser = {
-            name: decoded.name,
-            email: decoded.email,
-            picture: decoded.picture,
-            id: decoded.sub
-        };
-        
-        // Save to localStorage
-        localStorage.setItem('tradingUser', JSON.stringify(currentUser));
-        
-        // Show main app
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("mainApp").classList.add("show");
-        
-        // Update UI with user info
-        document.getElementById("userName").innerHTML = currentUser.name;
-        document.getElementById("userEmail").innerHTML = currentUser.email;
-        document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
-        
-        // Send welcome to Telegram admin
-        fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                chat_id: "1402725694", 
-                text: `🆕 NEW GOOGLE LOGIN!\n\n👤 Name: ${currentUser.name}\n📧 Email: ${currentUser.email}\n🆔 ID: ${currentUser.id}` 
-            })
-        }).catch(e => console.log);
-        
-        addSystemMessage(`✅ Welcome ${currentUser.name}! You're logged in with Google.`);
-        speak(`Welcome ${currentUser.name}`);
-    }
-    
-    function loginWithTelegram() {
-        let tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.expand();
-            let user = tg.initDataUnsafe?.user;
-            if (user) {
-                currentUser = {
-                    name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                    email: user.username ? `${user.username}@telegram.com` : `${user.id}@telegram.com`,
-                    id: user.id
-                };
-                localStorage.setItem('tradingUser', JSON.stringify(currentUser));
-                document.getElementById("loginScreen").style.display = "none";
-                document.getElementById("mainApp").classList.add("show");
-                document.getElementById("userName").innerHTML = currentUser.name;
-                document.getElementById("userEmail").innerHTML = `Telegram: @${user.username || user.id}`;
-                document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
-                addSystemMessage(`✅ Welcome ${currentUser.name}! You're logged in with Telegram.`);
-            }
-        }
-    }
-    
-    function logout() {
-        localStorage.removeItem('tradingUser');
-        currentUser = null;
-        document.getElementById("loginScreen").style.display = "flex";
-        document.getElementById("mainApp").classList.remove("show");
-        addSystemMessage("Logged out. Come back soon!");
-    }
-    
-    // Check for saved login
-    function checkSavedLogin() {
-        const saved = localStorage.getItem('tradingUser');
-        if (saved) {
-            currentUser = JSON.parse(saved);
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("mainApp").classList.add("show");
-            document.getElementById("userName").innerHTML = currentUser.name;
-            document.getElementById("userEmail").innerHTML = currentUser.email;
-            document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
-        }
-    }
-    
-    // ==================== TRADING ENGINE ====================
     let symbol = "XAUUSD";
     let price = null, prevPrice = null, history = [], trade = null, chart = null;
-    let voiceEnabled = true, lastAnnounceTime = 0;
-    let allMessages = [], adminMessages = [];
+    let lastAnnounceTime = 0;
+    let allMessages = [];
     
     const config = { 
         XAUUSD: { sl: 15, tp: 30, fmt: 2, mult: 1, name: "Gold", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", priceKey: "tether-gold" },
         BTCUSD: { sl: 800, tp: 1500, fmt: 0, mult: 100, name: "Bitcoin", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", priceKey: "bitcoin" }
     };
     
-    function speak(m){ if(!voiceEnabled||!window.speechSynthesis)return; try{ window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(m); u.rate=0.9; window.speechSynthesis.speak(u); addSystemMessage(`🔊 ${m}`); }catch(e){} }
-    function speakCurrentSignal(){ let s=document.getElementById("signalDir").innerText, p=document.getElementById("price").innerText; speak(`${config[symbol].name} signal is ${s} at ${p}`); }
-    function toggleVoice(){ voiceEnabled=!voiceEnabled; let btn=document.getElementById("voiceToggleBtn"); if(voiceEnabled){ btn.innerHTML="🔊 ON"; btn.style.borderColor="#00ffcc"; speak("Voice enabled"); }else{ btn.innerHTML="🔇 OFF"; btn.style.borderColor="#ff3366"; window.speechSynthesis.cancel(); } }
+    // VOICE FUNCTION - Must be called after user click
+    function speak(message) {
+        if (!voiceEnabled || !voiceAllowed) return;
+        if (!window.speechSynthesis) {
+            console.log("Speech not supported");
+            return;
+        }
+        try {
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(message);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            window.speechSynthesis.speak(utterance);
+            addSystemMessage(`🔊 ${message}`);
+        } catch(e) {
+            console.log("Voice error:", e);
+        }
+    }
     
+    // ENABLE VOICE - Called when user clicks button
+    function enableVoiceAndLogin() {
+        // Request voice permission
+        voiceAllowed = true;
+        voiceEnabled = true;
+        
+        // Test voice
+        speak("Voice robot enabled. Welcome to BOA CUTING Trading.");
+        
+        // Auto-login as demo user
+        currentUser = {
+            name: "Trader",
+            email: "voice@trader.com",
+            id: "demo123"
+        };
+        
+        localStorage.setItem('tradingUser', JSON.stringify(currentUser));
+        
+        // Hide login, show app
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").classList.add("show");
+        document.getElementById("userName").innerHTML = currentUser.name;
+        document.getElementById("userEmail").innerHTML = "Voice Active ✓";
+        document.getElementById("userAvatar").innerHTML = "🔊";
+        
+        document.getElementById("voiceWarning").innerHTML = "🔊 VOICE ROBOT ACTIVE - You will hear BUY/SELL signals";
+        document.getElementById("voiceWarning").style.background = "#00ffcc20";
+        document.getElementById("voiceWarning").style.borderColor = "#00ffcc";
+        
+        addSystemMessage("✅ Voice robot enabled! You will hear BUY/SELL signals.");
+        
+        // Start everything
+        initChart();
+        main();
+        setInterval(main, 3000);
+    }
+    
+    function toggleVoice() {
+        voiceEnabled = !voiceEnabled;
+        let btn = document.getElementById("voiceToggleBtn");
+        if (voiceEnabled) {
+            btn.innerHTML = "🔊 ON";
+            btn.style.borderColor = "#00ffcc";
+            speak("Voice enabled");
+            document.getElementById("voiceWarning").innerHTML = "🔊 VOICE ROBOT ACTIVE - You will hear BUY/SELL signals";
+            document.getElementById("voiceWarning").style.background = "#00ffcc20";
+        } else {
+            btn.innerHTML = "🔇 OFF";
+            btn.style.borderColor = "#ff3366";
+            window.speechSynthesis.cancel();
+            document.getElementById("voiceWarning").innerHTML = "🔇 VOICE ROBOT OFF - Tap ON to hear signals";
+            document.getElementById("voiceWarning").style.background = "#ff336610";
+        }
+    }
+    
+    function speakCurrentSignal() {
+        let signalText = document.getElementById("signalDir").innerText;
+        let priceText = document.getElementById("price").innerText;
+        speak(`${config[symbol].name} signal is ${signalText} at ${priceText}`);
+    }
+    
+    function logout() {
+        localStorage.removeItem('tradingUser');
+        currentUser = null;
+        voiceEnabled = false;
+        voiceAllowed = false;
+        document.getElementById("loginScreen").style.display = "flex";
+        document.getElementById("mainApp").classList.remove("show");
+        if (chart) try { chart.remove(); } catch(e) {}
+    }
+    
+    // ==================== PRICE & SIGNALS ====================
     async function fetchPrice() {
         try {
             let c = config[symbol];
@@ -360,6 +315,7 @@
     function sendMessage(){ let input=document.getElementById("chatInput"); let text=input.value.trim(); if(!text)return; addUserMessage(currentUser?.name || "User",text); input.value=""; let lower=text.toLowerCase(); if(lower.includes("buy"))speak(`${currentUser?.name} bought ${config[symbol].name}`); else if(lower.includes("sell"))speak(`${currentUser?.name} sold ${config[symbol].name}`); else if(lower.includes("profit"))speak(`Nice profit!`); else if(lower.includes("loss"))speak(`Next time!`); }
     function shareResult(type){ let resultText=type==="profit"?`✅ I made PROFIT on ${symbol}! 🎉`:`❌ I took a LOSS on ${symbol}`; addUserMessage(currentUser?.name || "User",resultText,"trade"); addSystemMessage(`📊 ${currentUser?.name} shared ${type.toUpperCase()} result!`); if(type==="profit")speak(`Nice profit!`); else speak(`Next time!`); }
     function shareManualSignal(type){ let c=config[symbol]; addUserMessage(currentUser?.name || "User",`🔺 I ${type==="BUY"?"BOUGHT":"SOLD"} ${symbol} at $${price.toFixed(c.fmt)}!`,"trade"); addSystemMessage(`📢 ${currentUser?.name} ${type==="BUY"?"BOUGHT":"SOLD"} ${symbol}!`); speak(`${currentUser?.name} ${type==="BUY"?"bought":"sold"} ${config[symbol].name}`); }
+    
     function initChart(){ if(chart)try{chart.remove();}catch(e){} let tvSym=symbol==="XAUUSD"?"FX_IDC:XAUUSD":"BINANCE:BTCUSDT"; chart=new TradingView.widget({container_id:"chart",width:"100%",height:220,symbol:tvSym,interval:"15",theme:"dark",style:"1",locale:"en",toolbar_bg:"#000",studies:[]}); }
     async function main(){ await fetchPrice(); updateSignalWithVoice(); updateTrade(); }
     
@@ -369,12 +325,19 @@
     document.getElementById("voiceToggleBtn").onclick=toggleVoice;
     document.querySelectorAll(".sym-btn").forEach(btn=>{ btn.onclick=()=>{ document.querySelectorAll(".sym-btn").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); symbol=btn.getAttribute("data-sym"); price=null;history=[];trade=null; initChart(); main(); addSystemMessage(`Switched to ${symbol}`); speak(`Switched to ${config[symbol].name}`); }; });
     
-    checkSavedLogin();
-    initializeGoogleLogin();
-    initChart(); 
-    main(); 
-    setInterval(main,3000);
-    setTimeout(()=>{ if(!currentUser) addSystemMessage(`🔐 Please login with Google or Telegram to start trading`); },1000);
+    // Check saved login
+    const saved = localStorage.getItem('tradingUser');
+    if (saved && voiceAllowed) {
+        currentUser = JSON.parse(saved);
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").classList.add("show");
+        document.getElementById("userName").innerHTML = currentUser.name;
+        document.getElementById("userEmail").innerHTML = currentUser.email;
+        document.getElementById("userAvatar").innerHTML = currentUser.name.charAt(0).toUpperCase();
+        initChart();
+        main();
+        setInterval(main, 3000);
+    }
 </script>
 </body>
 </html>
