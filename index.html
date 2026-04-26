@@ -3,21 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>MATRIX BOT AI | XAUUSD BTCUSD</title>
+    <title>MATRIX TRADING ASSISTANT | REAL SIGNALS</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background: #0a0a0f;
-            font-family: 'Courier New', 'Share Tech Mono', monospace;
-            padding: 12px;
-            color: #00ffcc;
-            position: relative;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        body { background: #0a0a0f; font-family: -apple-system, 'Segoe UI', monospace; padding: 12px; color: #eef5ff; }
+        .container { max-width: 100%; margin: 0 auto; }
         
         /* Scan Line Animation */
         body::before {
@@ -26,141 +18,63 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, transparent, #00ffcc, #ffd700, #00ffcc, transparent);
-            animation: scanLine 3s linear infinite;
+            animation: scanLine 4s linear infinite;
             pointer-events: none;
             z-index: 9999;
-            opacity: 0.7;
         }
+        @keyframes scanLine { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
         
-        @keyframes scanLine {
-            0% { top: 0; opacity: 1; }
-            50% { top: 100%; opacity: 0.5; }
-            100% { top: 0; opacity: 1; }
-        }
-        
-        /* Grid Background */
-        body::after {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .container { max-width: 100%; margin: 0 auto; position: relative; z-index: 1; }
-        
-        /* Glow Effects */
-        .glow-green { text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc; }
-        .glow-gold { text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700; }
-        
-        /* Login Screen */
         .login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 30% 40%, #0a0a0f, #000000);
+            background: radial-gradient(circle at 30% 40%, #0a0a0f, #000);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
         }
-        .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); animation: borderPulse 2s infinite; }
-        @keyframes borderPulse { 0%,100% { box-shadow: 0 0 10px #00ffcc; } 50% { box-shadow: 0 0 30px #00ffcc, 0 0 10px #ffd700; } }
-        .login-title { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 12px; }
+        .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); }
+        .login-title { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .login-sub { font-size: 11px; color: #00ffcc80; margin: 15px 0; }
-        .start-btn { background: linear-gradient(135deg, #00ffcc20, #ffd70010); border: 2px solid #00ffcc; padding: 14px 24px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; transition: 0.3s; }
+        .start-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 14px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; transition: 0.2s; }
         .start-btn:hover { transform: scale(0.98); box-shadow: 0 0 20px #00ffcc; }
         
         .main-app { display: none; }
         .main-app.show { display: block; }
         
-        /* Data Status Bar */
-        .data-status {
+        .status-bar {
             background: #00ffcc10;
             border: 1px solid #00ffcc;
-            border-radius: 20px;
-            padding: 6px 12px;
+            border-radius: 16px;
+            padding: 8px 12px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             font-size: 9px;
-            font-family: monospace;
-        }
-        .status-led {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff3366;
-            animation: blink 1s infinite;
-            margin-right: 6px;
-        }
-        .status-led.green { background: #00ffcc; }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        
-        .admin-badge {
-            background: #ffd70020;
-            border: 1px solid #ffd700;
-            border-radius: 20px;
-            padding: 6px 12px;
-            text-align: center;
-            font-size: 10px;
-            color: #ffd700;
-        }
-        
-        .mode-badge {
-            background: #00ffcc20;
-            border: 1px solid #00ffcc;
-            border-radius: 20px;
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            font-size: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
-        .mode-btn {
-            background: #111a24;
-            border: 1px solid #00ffcc30;
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 10px;
-            font-family: monospace;
-        }
-        .mode-btn.active {
-            background: #00ffcc20;
-            border-color: #00ffcc;
-            color: #00ffcc;
-            box-shadow: 0 0 10px #00ffcc;
-        }
+        .status-led { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ffcc; animation: blink 1s infinite; margin-right: 4px; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
         
         .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 20px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; margin-bottom: 12px; }
         .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
         .user-info { flex: 1; }
         .user-name { font-size: 16px; font-weight: 800; }
         .user-phone { font-size: 10px; color: #8a9bb0; }
+        .admin-badge { background: #ffd70020; border: 1px solid #ffd700; border-radius: 20px; padding: 4px 12px; font-size: 10px; color: #ffd700; }
         
         .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        .sym-btn { flex: 1; background: #111a24; padding: 12px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; font-family: monospace; font-weight: bold; }
+        .sym-btn { flex: 1; background: #111a24; padding: 12px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; font-weight: bold; }
         .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; box-shadow: 0 0 10px #00ffcc; }
         
         .price-card { background: #111a24; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        .price { font-size: 32px; font-weight: 800; font-family: monospace; color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
+        .price { font-size: 32px; font-weight: 800; font-family: monospace; color: #00ffcc; }
         .price-change { font-size: 11px; margin-top: 4px; }
         
-        .chart { height: 200px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; box-shadow: 0 0 10px rgba(0,255,204,0.2); }
+        .chart { height: 220px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; background: #131b24; }
         
-        .signal-box { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 12px; border: 2px solid; cursor: pointer; transition: 0.2s; }
-        .signal-dir { font-size: 44px; font-weight: 800; margin: 8px 0; letter-spacing: 4px; }
-        .signal-source { font-size: 9px; color: #ffd700; margin-top: 4px; }
-        .signal-reason { font-size: 10px; color: #8a9bb0; margin-top: 6px; }
+        .signal-box { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 12px; border: 2px solid; cursor: pointer; }
+        .signal-dir { font-size: 44px; font-weight: 800; margin: 8px 0; letter-spacing: 2px; }
+        .signal-reason { font-size: 10px; color: #8a9bb0; margin-top: 6px; max-height: 60px; overflow-y: auto; }
         
         .levels-container {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
@@ -170,7 +84,7 @@
             border: 1px solid #00ffcc;
         }
         .levels-title { font-size: 11px; color: #ffd700; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
-        .levels-row { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+        .levels-row { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 8px; }
         .level-box {
             flex: 1;
             background: #111a24;
@@ -180,13 +94,13 @@
             min-width: 70px;
             transition: all 0.2s;
         }
-        .level-box.hit { animation: flash 0.5s ease; }
-        @keyframes flash { 0% { background: #00ffcc; color: #000; } 100% { background: #111a24; color: #eef5ff; } }
-        .level-box.hit-tp { background: #ffd70020; border: 1px solid #ffd700; }
-        .level-box.hit-sl { background: #ff336620; border: 1px solid #ff3366; }
+        .level-box.hit-tp { background: #ffd70020; border: 1px solid #ffd700; animation: flash 0.3s; }
+        .level-box.hit-sl { background: #ff336620; border: 1px solid #ff3366; animation: flash 0.3s; }
+        @keyframes flash { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .level-label { font-size: 9px; color: #8a9bb0; margin-bottom: 4px; }
         .level-price { font-size: 14px; font-weight: 800; font-family: monospace; }
         .level-pips { font-size: 9px; margin-top: 2px; }
+        .level-profit { font-size: 9px; margin-top: 2px; color: #00ffcc; }
         .entry-box .level-price { color: #00ffcc; }
         .sl-box .level-price { color: #ff3366; }
         .tp-box .level-price { color: #ffd700; }
@@ -196,63 +110,45 @@
         .indicator-label { font-size: 8px; color: #8a9bb0; }
         .indicator-value { font-size: 12px; font-weight: 800; font-family: monospace; }
         
-        .admin-panel { background: #1a2530; border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid #ffd700; }
-        .admin-title { font-size: 12px; color: #ffd700; margin-bottom: 12px; letter-spacing: 1px; }
-        .signal-input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 16px; padding: 10px; width: 100%; margin-bottom: 10px; color: white; font-size: 13px; font-family: monospace; }
-        .admin-btn { background: #00ffcc20; border: 1px solid #00ffcc; padding: 10px; border-radius: 40px; cursor: pointer; color: #00ffcc; font-weight: bold; width: 100%; margin-top: 8px; font-family: monospace; }
+        .profit-calc { background: #111a24; border-radius: 16px; padding: 12px; margin-top: 12px; text-align: center; border: 1px solid #ffd700; }
+        .profit-calc input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 12px; padding: 6px; color: #00ffcc; text-align: center; width: 80px; }
         
-        .user-list { max-height: 250px; overflow-y: auto; }
-        .user-item { padding: 8px; border-bottom: 1px solid #1e2a36; font-size: 11px; }
-        
-        .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 10px; padding: 12px; border-top: 1px solid #00ffcc20; }
+        .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 12px; padding: 12px; border-top: 1px solid #00ffcc20; }
         .green { color: #00ffcc; }
         .red { color: #ff3366; }
         .yellow { color: #ffd700; }
-        
-        .profit-calc { background: #111a24; border-radius: 16px; padding: 10px; margin-top: 12px; text-align: center; }
-        .session-badge { background: #ffd70020; border-radius: 12px; padding: 4px 8px; font-size: 9px; display: inline-block; margin-left: 8px; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
-        <div class="login-title">🟢 MATRIX BOT AI</div>
-        <div class="login-sub">SCALPING • ADMIN SIGNALS • XAUUSD/BTCUSD</div>
-        <div class="login-sub" style="font-size: 9px;">⚡ SCAN LINE ACTIVE • REAL MARKET DATA</div>
-        <button class="start-btn" onclick="loginWithTelegram()">🚀 ENTER THE MATRIX</button>
+        <div class="login-title">🎯 MATRIX TRADING</div>
+        <div class="login-sub">REAL SIGNALS • REAL DATA • PERSONAL ASSISTANT</div>
+        <button class="start-btn" onclick="loginWithTelegram()">⚡ ENTER</button>
     </div>
 </div>
 
 <div id="mainApp" class="main-app">
 <div class="container">
-    <!-- Data Status Bar -->
-    <div class="data-status">
-        <div><span class="status-led" id="dataLed"></span> <span id="dataStatusText">INITIALIZING...</span></div>
-        <div>🕒 <span id="sessionTime">--:--:--</span></div>
-        <div>🌍 <span id="activeSession">LONDON</span></div>
+    <div class="status-bar">
+        <div><span class="status-led"></span> <span id="dataStatus">LIVE DATA</span></div>
+        <div>🕒 <span id="currentTime">--:--:--</span></div>
+        <div>📡 <span id="sessionName">LONDON</span></div>
     </div>
     
     <div class="user-card">
-        <div class="avatar" id="userAvatar">🤖</div>
+        <div class="avatar" id="userAvatar">📊</div>
         <div class="user-info">
             <div class="user-name" id="userName">Trader</div>
-            <div class="user-phone" id="userPhone">Matrix Node</div>
+            <div class="user-phone" id="userPhone">Ready</div>
         </div>
-        <div id="adminBadge" style="display:none;" class="admin-badge">👑 SYSTEM ADMIN</div>
-    </div>
-    
-    <div class="mode-badge">
-        <span>🎯 SIGNAL MATRIX:</span>
-        <div>
-            <span class="mode-btn active" data-mode="scalping" onclick="setMode('scalping')">⚡ SCALPING</span>
-            <span class="mode-btn" data-mode="admin" onclick="setMode('admin')">👑 ADMIN CORE</span>
-        </div>
+        <div id="adminBadge" style="display:none;" class="admin-badge">👑 ADMIN</div>
     </div>
     
     <div class="symbol-row">
-        <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD</div>
-        <div class="sym-btn" data-sym="BTCUSD">₿ BTCUSD</div>
+        <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD (GOLD)</div>
+        <div class="sym-btn" data-sym="BTCUSD">₿ BTCUSD (BITCOIN)</div>
     </div>
     
     <div class="price-card">
@@ -265,86 +161,44 @@
     <div class="indicators-row">
         <div class="indicator-card"><div class="indicator-label">EMA 9</div><div class="indicator-value" id="ema9Val">--</div></div>
         <div class="indicator-card"><div class="indicator-label">EMA 21</div><div class="indicator-value" id="ema21Val">--</div></div>
-        <div class="indicator-card"><div class="indicator-label">VOLUME</div><div class="indicator-value" id="volumeVal">--</div></div>
+        <div class="indicator-card"><div class="indicator-label">RSI</div><div class="indicator-value" id="rsiVal">--</div></div>
         <div class="indicator-card"><div class="indicator-label">TREND</div><div class="indicator-value" id="trendVal">--</div></div>
-        <div class="indicator-card"><div class="indicator-label">SESSION</div><div class="indicator-value" id="sessionIndicator">LONDON</div></div>
     </div>
     
     <div class="signal-box" id="signalBox">
         <div class="signal-dir" id="signalDir">🟡 INITIALIZING</div>
-        <div class="signal-source" id="signalSource">⚡ SCALPING MODE ACTIVE</div>
-        <div class="signal-reason" id="signalReason">Connecting to market matrix...</div>
+        <div class="signal-reason" id="signalReason">Loading market data...</div>
     </div>
     
     <div class="levels-container">
-        <div class="levels-title">🎯 NEURAL TRADE LEVELS</div>
+        <div class="levels-title">🎯 TRADE LEVELS</div>
         <div class="levels-row">
-            <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div><div class="level-pips" id="entryPips">--</div></div>
+            <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div><div class="level-pips">Current price</div></div>
             <div class="level-box sl-box"><div class="level-label">🛑 STOP LOSS</div><div class="level-price" id="displaySL">--</div><div class="level-pips red" id="slPips">--</div></div>
         </div>
-        <div class="levels-row" style="margin-top: 8px;">
-            <div class="level-box tp-box" id="tp1Box"><div class="level-label">✅ TP1 (1:1.5)</div><div class="level-price" id="displayTP1">--</div><div class="level-pips green" id="tp1Pips">--</div></div>
-            <div class="level-box tp-box" id="tp2Box"><div class="level-label">✅ TP2 (1:2)</div><div class="level-price" id="displayTP2">--</div><div class="level-pips green" id="tp2Pips">--</div></div>
-            <div class="level-box tp-box" id="tp3Box"><div class="level-label">✅ TP3 (1:3)</div><div class="level-price" id="displayTP3">--</div><div class="level-pips green" id="tp3Pips">--</div></div>
+        <div class="levels-row">
+            <div class="level-box tp-box" id="tp1Box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div><div class="level-pips green" id="tp1Pips">--</div><div class="level-profit green" id="tp1Profit">--</div></div>
+            <div class="level-box tp-box" id="tp2Box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div><div class="level-pips green" id="tp2Pips">--</div><div class="level-profit green" id="tp2Profit">--</div></div>
+            <div class="level-box tp-box" id="tp3Box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div><div class="level-pips green" id="tp3Pips">--</div><div class="level-profit green" id="tp3Profit">--</div></div>
         </div>
     </div>
     
     <div class="profit-calc">
-        <div class="levels-title">💰 PROFIT CALCULATOR</div>
-        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-            <div><span style="font-size: 9px;">LOT SIZE:</span> <input type="number" id="lotSize" value="0.01" step="0.01" style="width:70px; background:#0a1018; border:1px solid #00ffcc; border-radius:8px; padding:4px; color:#00ffcc; text-align:center;"></div>
-            <div><span style="font-size: 9px;">RISK: $<span id="riskAmount">0</span></span></div>
-            <div><span style="font-size: 9px;">TP3 PROFIT: $<span id="profitAmount">0</span></span></div>
+        <div class="levels-title" style="margin-bottom: 6px;">💰 LOT SIZE (REAL PROFIT CALCULATION)</div>
+        <div style="display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 12px;">LOT:</span>
+            <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00" onchange="updateProfitDisplay()">
+            <span style="font-size: 12px;">1 pip = $<span id="pipValue">1.00</span></span>
+            <span style="font-size: 12px;">Risk: $<span id="riskAmount">0</span></span>
         </div>
     </div>
     
-    <div class="tabs" style="display: flex; gap: 4px; background: #111a24; border-radius: 16px; padding: 4px; margin-bottom: 12px;">
-        <div class="tab active" data-tab="signals" style="flex:1; text-align:center; padding:8px; cursor:pointer; border-radius:12px;">📊 SIGNALS</div>
-        <div class="tab" data-tab="admin" id="adminTab" style="display:none; flex:1; text-align:center; padding:8px; cursor:pointer; border-radius:12px;">👑 ADMIN</div>
-        <div class="tab" data-tab="users" id="usersTab" style="display:none; flex:1; text-align:center; padding:8px; cursor:pointer; border-radius:12px;">👥 USERS</div>
-    </div>
-    
-    <div id="tab-signals" class="tab-content active">
-        <div class="footer">⚡ SCAN LINE ACTIVE • REAL MARKET DATA • AUTO TP/SL DETECTION</div>
-    </div>
-    
-    <div id="tab-admin" class="tab-content">
-        <div class="admin-panel">
-            <div class="admin-title">✏️ UPLOAD PERSONAL SIGNAL</div>
-            <select id="signalType" class="signal-input">
-                <option value="BUY">🟢 BUY</option>
-                <option value="SELL">🔴 SELL</option>
-                <option value="WAIT">🟡 WAIT</option>
-            </select>
-            <input type="text" id="entryPrice" class="signal-input" placeholder="ENTRY PRICE">
-            <input type="text" id="slPrice" class="signal-input" placeholder="STOP LOSS">
-            <input type="text" id="tp1Price" class="signal-input" placeholder="TAKE PROFIT 1">
-            <input type="text" id="tp2Price" class="signal-input" placeholder="TAKE PROFIT 2">
-            <input type="text" id="tp3Price" class="signal-input" placeholder="TAKE PROFIT 3">
-            <textarea id="signalReasonText" class="signal-input" rows="2" placeholder="SIGNAL REASON"></textarea>
-            <button class="admin-btn" onclick="postAdminSignal()">📡 BROADCAST SIGNAL</button>
-        </div>
-        <div class="admin-panel">
-            <div class="admin-title">📡 ACTIVE SIGNAL</div>
-            <div id="currentActiveSignal">No active signal</div>
-            <button class="admin-btn" style="background:#ff336620; border-color:#ff3366; color:#ff3366;" onclick="clearAdminSignal()">🗑️ TERMINATE SIGNAL</button>
-        </div>
-    </div>
-    
-    <div id="tab-users" class="tab-content">
-        <div class="admin-panel">
-            <div class="admin-title">👥 CONNECTED NODES (<span id="userCount">0</span>)</div>
-            <div id="userList" class="user-list"></div>
-            <button class="admin-btn" onclick="broadcastMessage()">📢 BROADCAST MESSAGE</button>
-        </div>
-    </div>
-    
-    <div class="footer">🟢 MATRIX BOT AI • SCAN LINE ACTIVE • REAL MARKET DATA • AUTO TP/SL DETECTION • @BOACUTING_bot</div>
+    <div class="footer">📊 REAL MARKET DATA • 9/21 EMA + RSI • TP/SL AUTO DETECTION • PIPS & PROFIT CALCULATION</div>
 </div>
 </div>
 
 <script>
-    // ==================== MATRIX BOT AI - COMPLETE ====================
+    // ==================== REAL TRADING ASSISTANT - FINAL ====================
     
     const ADMIN_ID = "1402725694";
     
@@ -352,91 +206,59 @@
     let price = null;
     let prevPrice = null;
     let history = [];
-    let volumeHistory = [];
     let chart = null;
     let currentUser = null;
     let isAdmin = false;
-    let currentMode = "scalping";
-    let adminSignal = null;
-    let allUsers = JSON.parse(localStorage.getItem('boa_users')) || [];
-    let dataRetryCount = 0;
+    
+    // TP/SL tracking
     let tp1Hit = false, tp2Hit = false, tp3Hit = false, slHit = false;
+    let currentLevels = { entry: 0, sl: 0, tp1: 0, tp2: 0, tp3: 0, type: "WAIT" };
     
     const config = { 
-        XAUUSD: { sl: 15, tp1: 22, tp2: 30, tp3: 45, fmt: 2, mult: 1, name: "Gold", apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=XAUUSDT", priceKey: "price", fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", fallbackKey: "tether-gold" },
-        BTCUSD: { sl: 800, tp1: 1200, tp2: 1500, tp3: 2400, fmt: 0, mult: 100, name: "Bitcoin", apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", priceKey: "price", fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", fallbackKey: "bitcoin" }
+        XAUUSD: { sl: 15, tp1: 15, tp2: 25, tp3: 40, fmt: 2, pipValue: 100, name: "Gold", 
+                   apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=XAUUSDT", 
+                   fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd" },
+        BTCUSD: { sl: 800, tp1: 800, tp2: 1200, tp3: 2000, fmt: 0, pipValue: 1, name: "Bitcoin", 
+                  apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+                  fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd" }
     };
     
-    function updateSession() {
-        let now = new Date();
-        let utcHour = now.getUTCHours();
-        let session = "";
-        if (utcHour >= 8 && utcHour < 16) session = "LONDON 🔥";
-        else if (utcHour >= 13 && utcHour < 22) session = "NEW YORK 💪";
-        else session = "ASIA 🌏";
-        document.getElementById("activeSession").innerHTML = session;
-        document.getElementById("sessionIndicator").innerHTML = session.split(" ")[0];
-        document.getElementById("sessionTime").innerHTML = now.toLocaleTimeString();
-    }
-    
-    function updateProfitCalc() {
+    function updateProfitDisplay() {
         let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
         let c = config[symbol];
-        let pipValue = symbol === "XAUUSD" ? 100 : 1;
-        let risk = lot * c.sl * pipValue;
-        let profit = lot * c.tp3 * pipValue;
-        document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
-        document.getElementById("profitAmount").innerHTML = profit.toFixed(2);
-    }
-    
-    function setDataStatus(status, isError = false) {
-        let led = document.getElementById("dataLed");
-        let text = document.getElementById("dataStatusText");
-        if (isError) {
-            led.style.background = "#ff3366";
-            text.innerHTML = "⚠️ " + status;
-        } else {
-            led.style.background = "#00ffcc";
-            text.innerHTML = "🟢 " + status;
+        let pipValueUsd = c.pipValue * lot;
+        document.getElementById("pipValue").innerHTML = pipValueUsd.toFixed(2);
+        
+        let riskPips = c.sl;
+        let riskAmount = riskPips * pipValueUsd;
+        document.getElementById("riskAmount").innerHTML = riskAmount.toFixed(2);
+        
+        // Update profit displays
+        if (currentLevels.type === "BUY" || currentLevels.type === "SELL") {
+            let tp1Pips = c.tp1;
+            let tp2Pips = c.tp2;
+            let tp3Pips = c.tp3;
+            document.getElementById("tp1Profit").innerHTML = `+$${(tp1Pips * pipValueUsd).toFixed(2)}`;
+            document.getElementById("tp2Profit").innerHTML = `+$${(tp2Pips * pipValueUsd).toFixed(2)}`;
+            document.getElementById("tp3Profit").innerHTML = `+$${(tp3Pips * pipValueUsd).toFixed(2)}`;
         }
     }
     
-    function setMode(mode) {
-        currentMode = mode;
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-mode') === mode) btn.classList.add('active');
-        });
-        resetHitStatus();
-        updateDisplay();
-    }
-    
-    function resetHitStatus() {
-        tp1Hit = false; tp2Hit = false; tp3Hit = false; slHit = false;
-        document.getElementById("tp1Box").classList.remove("hit-tp");
-        document.getElementById("tp2Box").classList.remove("hit-tp");
-        document.getElementById("tp3Box").classList.remove("hit-tp");
-    }
-    
-    function playSound(type) {
-        try {
-            let audio = new Audio();
-            if (type === 'buy') audio.src = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3';
-            else if (type === 'sell') audio.src = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3';
-            else if (type === 'tp') audio.src = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3';
-            else if (type === 'sl') audio.src = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3';
-            audio.volume = 0.3;
-            audio.play().catch(e => console.log);
-        } catch(e) {}
+    function updateSession() {
+        let now = new Date();
+        document.getElementById("currentTime").innerHTML = now.toLocaleTimeString();
+        let hour = now.getUTCHours();
+        let session = (hour >= 8 && hour < 16) ? "LONDON" : (hour >= 13 ? "NEW YORK" : "ASIA");
+        document.getElementById("sessionName").innerHTML = session;
     }
     
     function speak(message) {
         if (!window.speechSynthesis) return;
         try {
             window.speechSynthesis.cancel();
-            let u = new SpeechSynthesisUtterance(message);
-            u.rate = 0.9;
-            window.speechSynthesis.speak(u);
+            let utterance = new SpeechSynthesisUtterance(message);
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
         } catch(e) {}
     }
     
@@ -446,79 +268,137 @@
         }
     }
     
-    function flashElement(elementId) {
-        let el = document.getElementById(elementId);
+    function flashLevel(boxId) {
+        let el = document.getElementById(boxId);
         if (el) {
-            el.classList.add('hit');
-            setTimeout(() => el.classList.remove('hit'), 500);
+            el.classList.add('hit-tp');
+            setTimeout(() => el.classList.remove('hit-tp'), 500);
         }
+    }
+    
+    function resetHitStatus() {
+        tp1Hit = false; tp2Hit = false; tp3Hit = false; slHit = false;
+        document.getElementById("tp1Box").classList.remove("hit-tp");
+        document.getElementById("tp2Box").classList.remove("hit-tp");
+        document.getElementById("tp3Box").classList.remove("hit-tp");
     }
     
     function ema(period) {
         if (history.length < period) return price || 0;
         let k = 2 / (period + 1);
         let val = history[0];
-        for (let i = 1; i < history.length; i++) val = history[i] * k + val * (1 - k);
+        for (let i = 1; i < history.length; i++) {
+            val = history[i] * k + val * (1 - k);
+        }
         return val;
     }
     
-    function volumeAnalysis() {
-        if (volumeHistory.length < 10) return "NORMAL";
-        let avg = volumeHistory.reduce((a,b) => a + b, 0) / volumeHistory.length;
-        let curr = volumeHistory[volumeHistory.length-1] || 0;
-        if (curr > avg * 1.5) return "HIGH";
-        if (curr < avg * 0.5) return "LOW";
-        return "NORMAL";
+    function calculateRSI() {
+        if (history.length < 15) return 50;
+        let gains = 0, losses = 0;
+        for (let i = history.length - 14; i < history.length; i++) {
+            let diff = history[i] - history[i-1];
+            if (diff > 0) gains += diff;
+            else losses -= diff;
+        }
+        let avgGain = gains / 14;
+        let avgLoss = losses / 14;
+        if (avgLoss === 0) return 100;
+        let rs = avgGain / avgLoss;
+        return Math.round(100 - (100 / (1 + rs)));
     }
     
     function getScalpingSignal() {
-        if (!price || history.length < 30) return { dir: "🟡 CONNECTING", color: "#ffd700", type: "WAIT", reason: "Loading market matrix..." };
+        if (!price || history.length < 30) {
+            return { dir: "🟡 WAITING", color: "#ffd700", type: "WAIT", reason: "Loading market data...", confidence: 0 };
+        }
         
         let e9 = ema(9);
         let e21 = ema(21);
-        let volume = volumeAnalysis();
+        let rsi = calculateRSI();
         let trend = (price - (history[history.length-10] || price)) / (history[history.length-10] || price) * 100;
         
         document.getElementById("ema9Val").innerHTML = `$${e9.toFixed(config[symbol].fmt)}`;
         document.getElementById("ema21Val").innerHTML = `$${e21.toFixed(config[symbol].fmt)}`;
-        document.getElementById("volumeVal").innerHTML = volume === "HIGH" ? "HIGH 📈" : (volume === "LOW" ? "LOW 📉" : "NORMAL");
-        document.getElementById("trendVal").innerHTML = trend > 0 ? "UP ▲" : (trend < 0 ? "DOWN ▼" : "→");
+        document.getElementById("rsiVal").innerHTML = rsi;
+        document.getElementById("trendVal").innerHTML = trend > 0 ? "BULLISH ▲" : (trend < 0 ? "BEARISH ▼" : "SIDEWAYS →");
         
-        if (e9 > e21 && volume === "HIGH" && trend > 0) {
-            return { dir: "🟢 BUY", color: "#00ffcc", type: "BUY", reason: "✅ EMA UPTREND + HIGH VOLUME → MATRIX BUY SIGNAL" };
+        let reasons = [];
+        let confidence = 50;
+        
+        if (e9 > e21) {
+            reasons.push("✅ EMA 9 > EMA 21 (UPTREND)");
+            confidence += 15;
+        } else {
+            reasons.push("❌ EMA 9 < EMA 21 (DOWNTREND)");
+            confidence -= 5;
         }
-        else if (e9 < e21 && volume === "HIGH" && trend < 0) {
-            return { dir: "🔴 SELL", color: "#ff3366", type: "SELL", reason: "❌ EMA DOWNTREND + HIGH VOLUME → MATRIX SELL SIGNAL" };
+        
+        if (rsi < 35) {
+            reasons.push("✅ RSI OVERSOLD (" + rsi + ") → BULLISH");
+            confidence += 15;
+        } else if (rsi > 65) {
+            reasons.push("❌ RSI OVERBOUGHT (" + rsi + ") → BEARISH");
+            confidence -= 5;
+        } else if (rsi < 50) {
+            reasons.push("📈 RSI " + rsi + " (BULLISH BIAS)");
+            confidence += 5;
+        } else {
+            reasons.push("📉 RSI " + rsi + " (BEARISH BIAS)");
+            confidence -= 5;
         }
-        else if (e9 > e21) {
-            return { dir: "🟢 BUY (WEAK)", color: "#00ffcc80", type: "BUY", reason: "📈 EMA UPTREND - LOW VOLUME. WAIT FOR CONFIRMATION." };
+        
+        if (trend > 0.2) {
+            reasons.push("📈 PRICE UP " + trend.toFixed(1) + "% (UPTREND)");
+            confidence += 10;
+        } else if (trend < -0.2) {
+            reasons.push("📉 PRICE DOWN " + Math.abs(trend).toFixed(1) + "% (DOWNTREND)");
+            confidence -= 10;
         }
-        else if (e9 < e21) {
-            return { dir: "🔴 SELL (WEAK)", color: "#ff336680", type: "SELL", reason: "📉 EMA DOWNTREND - LOW VOLUME. WAIT FOR CONFIRMATION." };
+        
+        confidence = Math.min(92, Math.max(35, confidence));
+        
+        let dir, color, type;
+        if (confidence >= 65) {
+            dir = "🟢 BUY";
+            color = "#00ffcc";
+            type = "BUY";
+            reasons.unshift("🎯 MATRIX BUY SIGNAL - " + confidence + "% CONFIDENCE");
+        } else if (confidence <= 40) {
+            dir = "🔴 SELL";
+            color = "#ff3366";
+            type = "SELL";
+            reasons.unshift("🎯 MATRIX SELL SIGNAL - " + (100 - confidence) + "% CONFIDENCE");
+        } else {
+            dir = "🟡 WAIT";
+            color = "#ffd700";
+            type = "WAIT";
+            reasons = ["⏸️ NO CLEAR SIGNAL", "Mixed indicators. Wait for confirmation."];
         }
-        return { dir: "🟡 WAIT", color: "#ffd700", type: "WAIT", reason: "⏸️ NO CLEAR SIGNAL. MATRIX SCANNING..." };
+        
+        return { dir, color, type, reason: reasons.join(" | "), confidence };
     }
     
-    function getScalpingLevels(type) {
+    function calculateLevels(signalType) {
         let c = config[symbol];
         let entry = price;
         let sl, tp1, tp2, tp3;
         let slPips, tp1Pips, tp2Pips, tp3Pips;
         
-        if (type === "BUY") {
-            sl = price - (c.sl * c.mult);
-            tp1 = price + (c.tp1 * c.mult);
-            tp2 = price + (c.tp2 * c.mult);
-            tp3 = price + (c.tp3 * c.mult);
+        if (signalType === "BUY") {
+            sl = price - (c.sl * (symbol === "XAUUSD" ? 1 : 1));
+            tp1 = price + (c.tp1 * (symbol === "XAUUSD" ? 1 : 1));
+            tp2 = price + (c.tp2 * (symbol === "XAUUSD" ? 1 : 1));
+            tp3 = price + (c.tp3 * (symbol === "XAUUSD" ? 1 : 1));
             slPips = -c.sl;
             tp1Pips = c.tp1;
             tp2Pips = c.tp2;
             tp3Pips = c.tp3;
-        } else if (type === "SELL") {
-            sl = price + (c.sl * c.mult);
-            tp1 = price - (c.tp1 * c.mult);
-            tp2 = price - (c.tp2 * c.mult);
-            tp3 = price - (c.tp3 * c.mult);
+        } else if (signalType === "SELL") {
+            sl = price + (c.sl * (symbol === "XAUUSD" ? 1 : 1));
+            tp1 = price - (c.tp1 * (symbol === "XAUUSD" ? 1 : 1));
+            tp2 = price - (c.tp2 * (symbol === "XAUUSD" ? 1 : 1));
+            tp3 = price - (c.tp3 * (symbol === "XAUUSD" ? 1 : 1));
             slPips = c.sl;
             tp1Pips = -c.tp1;
             tp2Pips = -c.tp2;
@@ -528,242 +408,156 @@
             slPips = 0; tp1Pips = 0; tp2Pips = 0; tp3Pips = 0;
         }
         
-        return { entry, sl, tp1, tp2, tp3, slPips, tp1Pips, tp2Pips, tp3Pips };
+        return { entry, sl, tp1, tp2, tp3, slPips, tp1Pips, tp2Pips, tp3Pips, type: signalType };
     }
     
-    function checkTPSLHits(levels, signalType) {
-        if (signalType !== "BUY" && signalType !== "SELL") return;
+    function checkTPSLHits(levels) {
+        if (levels.type !== "BUY" && levels.type !== "SELL") return;
         
-        if (signalType === "BUY") {
+        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+        let pipValueUsd = config[symbol].pipValue * lot;
+        
+        if (levels.type === "BUY") {
             if (!tp1Hit && price >= levels.tp1) {
                 tp1Hit = true;
-                flashElement("tp1Box");
-                document.getElementById("tp1Box").classList.add("hit-tp");
-                speak("Take Profit 1 reached! +" + levels.tp1Pips + " pips");
-                sendNotification("TP1 HIT!", `${symbol} +${levels.tp1Pips} pips`);
-                playSound("tp");
+                flashLevel("tp1Box");
+                let profit = levels.tp1Pips * pipValueUsd;
+                speak(`Take Profit 1 reached! +${levels.tp1Pips} pips, +${profit.toFixed(2)} dollars`);
+                sendNotification("TP1 HIT!", `${symbol} +${levels.tp1Pips} pips | +$${profit.toFixed(2)}`);
             }
             if (!tp2Hit && price >= levels.tp2) {
                 tp2Hit = true;
-                flashElement("tp2Box");
-                document.getElementById("tp2Box").classList.add("hit-tp");
-                speak("Take Profit 2 reached! +" + levels.tp2Pips + " pips");
-                sendNotification("TP2 HIT!", `${symbol} +${levels.tp2Pips} pips`);
+                flashLevel("tp2Box");
+                let profit = levels.tp2Pips * pipValueUsd;
+                speak(`Take Profit 2 reached! +${levels.tp2Pips} pips, +${profit.toFixed(2)} dollars`);
             }
             if (!tp3Hit && price >= levels.tp3) {
                 tp3Hit = true;
-                flashElement("tp3Box");
-                document.getElementById("tp3Box").classList.add("hit-tp");
-                speak("Take Profit 3 reached! Full profit! +" + levels.tp3Pips + " pips");
-                sendNotification("TP3 HIT!", `${symbol} +${levels.tp3Pips} pips - FULL PROFIT!`);
+                flashLevel("tp3Box");
+                let profit = levels.tp3Pips * pipValueUsd;
+                speak(`Take Profit 3 reached! Full profit! +${levels.tp3Pips} pips, +${profit.toFixed(2)} dollars`);
             }
             if (!slHit && price <= levels.sl) {
                 slHit = true;
-                flashElement("displaySL");
-                speak("Stop Loss hit! -" + Math.abs(levels.slPips) + " pips");
-                sendNotification("SL HIT!", `${symbol} -${Math.abs(levels.slPips)} pips`);
-                playSound("sl");
+                flashLevel("displaySL");
+                let loss = Math.abs(levels.slPips) * pipValueUsd;
+                speak(`Stop Loss hit! -${Math.abs(levels.slPips)} pips, -${loss.toFixed(2)} dollars`);
             }
-        } else if (signalType === "SELL") {
+        } else if (levels.type === "SELL") {
             if (!tp1Hit && price <= levels.tp1) {
                 tp1Hit = true;
-                flashElement("tp1Box");
-                document.getElementById("tp1Box").classList.add("hit-tp");
-                speak("Take Profit 1 reached! +" + Math.abs(levels.tp1Pips) + " pips");
+                flashLevel("tp1Box");
+                let profit = Math.abs(levels.tp1Pips) * pipValueUsd;
+                speak(`Take Profit 1 reached! +${Math.abs(levels.tp1Pips)} pips, +${profit.toFixed(2)} dollars`);
             }
             if (!tp2Hit && price <= levels.tp2) {
                 tp2Hit = true;
-                flashElement("tp2Box");
-                document.getElementById("tp2Box").classList.add("hit-tp");
-                speak("Take Profit 2 reached! +" + Math.abs(levels.tp2Pips) + " pips");
+                flashLevel("tp2Box");
+                let profit = Math.abs(levels.tp2Pips) * pipValueUsd;
+                speak(`Take Profit 2 reached! +${Math.abs(levels.tp2Pips)} pips, +${profit.toFixed(2)} dollars`);
             }
             if (!tp3Hit && price <= levels.tp3) {
                 tp3Hit = true;
-                flashElement("tp3Box");
-                document.getElementById("tp3Box").classList.add("hit-tp");
-                speak("Take Profit 3 reached! Full profit! +" + Math.abs(levels.tp3Pips) + " pips");
+                flashLevel("tp3Box");
+                let profit = Math.abs(levels.tp3Pips) * pipValueUsd;
+                speak(`Take Profit 3 reached! Full profit! +${Math.abs(levels.tp3Pips)} pips, +${profit.toFixed(2)} dollars`);
             }
             if (!slHit && price >= levels.sl) {
                 slHit = true;
-                flashElement("displaySL");
-                speak("Stop Loss hit! -" + levels.slPips + " pips");
+                flashLevel("displaySL");
+                let loss = levels.slPips * pipValueUsd;
+                speak(`Stop Loss hit! -${levels.slPips} pips, -${loss.toFixed(2)} dollars`);
             }
         }
     }
     
-    function updateDisplay() {
-        if (currentMode === "admin" && adminSignal) {
-            let signalText = adminSignal.type === "BUY" ? "🟢 BUY" : (adminSignal.type === "SELL" ? "🔴 SELL" : "🟡 WAIT");
-            let signalColor = adminSignal.type === "BUY" ? "#00ffcc" : (adminSignal.type === "SELL" ? "#ff3366" : "#ffd700");
-            document.getElementById("signalDir").innerHTML = signalText;
-            document.getElementById("signalDir").style.color = signalColor;
-            document.getElementById("signalBox").style.borderColor = signalColor;
-            document.getElementById("signalReason").innerHTML = adminSignal.reason || "Admin personal signal";
-            document.getElementById("displayEntry").innerHTML = `$${adminSignal.entry}`;
-            document.getElementById("displaySL").innerHTML = `$${adminSignal.sl}`;
-            document.getElementById("displayTP1").innerHTML = `$${adminSignal.tp1}`;
-            document.getElementById("displayTP2").innerHTML = `$${adminSignal.tp2 || adminSignal.tp1}`;
-            document.getElementById("displayTP3").innerHTML = `$${adminSignal.tp3 || adminSignal.tp1}`;
-            document.getElementById("entryPips").innerHTML = "";
-            document.getElementById("slPips").innerHTML = "";
-            document.getElementById("tp1Pips").innerHTML = "";
-            document.getElementById("tp2Pips").innerHTML = "";
-            document.getElementById("tp3Pips").innerHTML = "";
-            
-            if (isAdmin) {
-                document.getElementById("currentActiveSignal").innerHTML = `<div class="user-item">${signalText} | Entry: $${adminSignal.entry} | SL: $${adminSignal.sl}<br>TP1: $${adminSignal.tp1} | TP2: ${adminSignal.tp2 || adminSignal.tp1} | TP3: ${adminSignal.tp3 || adminSignal.tp1}<br>Reason: ${adminSignal.reason || "No reason"}</div>`;
-            }
-        } else {
-            let scalpingSignal = getScalpingSignal();
-            let levels = getScalpingLevels(scalpingSignal.type);
-            let fmt = config[symbol].fmt;
-            
-            document.getElementById("signalDir").innerHTML = scalpingSignal.dir;
-            document.getElementById("signalDir").style.color = scalpingSignal.color;
-            document.getElementById("signalBox").style.borderColor = scalpingSignal.color;
-            document.getElementById("signalReason").innerHTML = scalpingSignal.reason;
-            document.getElementById("displayEntry").innerHTML = `$${levels.entry.toFixed(fmt)}`;
-            document.getElementById("displaySL").innerHTML = `$${levels.sl.toFixed(fmt)}`;
-            document.getElementById("displayTP1").innerHTML = `$${levels.tp1.toFixed(fmt)}`;
-            document.getElementById("displayTP2").innerHTML = `$${levels.tp2.toFixed(fmt)}`;
-            document.getElementById("displayTP3").innerHTML = `$${levels.tp3.toFixed(fmt)}`;
-            document.getElementById("slPips").innerHTML = `${levels.slPips >= 0 ? '+' : ''}${levels.slPips.toFixed(0)} pips`;
-            document.getElementById("tp1Pips").innerHTML = `${levels.tp1Pips >= 0 ? '+' : ''}${levels.tp1Pips.toFixed(0)} pips`;
-            document.getElementById("tp2Pips").innerHTML = `${levels.tp2Pips >= 0 ? '+' : ''}${levels.tp2Pips.toFixed(0)} pips`;
-            document.getElementById("tp3Pips").innerHTML = `${levels.tp3Pips >= 0 ? '+' : ''}${levels.tp3Pips.toFixed(0)} pips`;
-            
-            checkTPSLHits(levels, scalpingSignal.type);
-            updateProfitCalc();
-        }
+    function updateUI() {
+        let signal = getScalpingSignal();
+        let levels = calculateLevels(signal.type);
+        
+        currentLevels = levels;
+        
+        document.getElementById("signalDir").innerHTML = signal.dir;
+        document.getElementById("signalDir").style.color = signal.color;
+        document.getElementById("signalBox").style.borderColor = signal.color;
+        document.getElementById("signalReason").innerHTML = signal.reason;
+        
+        let fmt = config[symbol].fmt;
+        document.getElementById("displayEntry").innerHTML = `$${levels.entry.toFixed(fmt)}`;
+        document.getElementById("displaySL").innerHTML = `$${levels.sl.toFixed(fmt)}`;
+        document.getElementById("displayTP1").innerHTML = `$${levels.tp1.toFixed(fmt)}`;
+        document.getElementById("displayTP2").innerHTML = `$${levels.tp2.toFixed(fmt)}`;
+        document.getElementById("displayTP3").innerHTML = `$${levels.tp3.toFixed(fmt)}`;
+        
+        document.getElementById("slPips").innerHTML = `${levels.slPips >= 0 ? '+' : ''}${levels.slPips} pips`;
+        document.getElementById("tp1Pips").innerHTML = `${levels.tp1Pips >= 0 ? '+' : ''}${levels.tp1Pips} pips`;
+        document.getElementById("tp2Pips").innerHTML = `${levels.tp2Pips >= 0 ? '+' : ''}${levels.tp2Pips} pips`;
+        document.getElementById("tp3Pips").innerHTML = `${levels.tp3Pips >= 0 ? '+' : ''}${levels.tp3Pips} pips`;
+        
+        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+        let pipValueUsd = config[symbol].pipValue * lot;
+        document.getElementById("tp1Profit").innerHTML = `+$${(Math.abs(levels.tp1Pips) * pipValueUsd).toFixed(2)}`;
+        document.getElementById("tp2Profit").innerHTML = `+$${(Math.abs(levels.tp2Pips) * pipValueUsd).toFixed(2)}`;
+        document.getElementById("tp3Profit").innerHTML = `+$${(Math.abs(levels.tp3Pips) * pipValueUsd).toFixed(2)}`;
+        document.getElementById("riskAmount").innerHTML = (config[symbol].sl * pipValueUsd).toFixed(2);
+        
+        checkTPSLHits(levels);
     }
-    
-    function loadAdminSignal() { let saved = localStorage.getItem('boa_admin_signal'); if (saved) adminSignal = JSON.parse(saved); }
-    function saveAdminSignal() { localStorage.setItem('boa_admin_signal', JSON.stringify(adminSignal)); }
-    
-    function postAdminSignal() {
-        if (!isAdmin) { alert("Only system admin can post signals"); return; }
-        let type = document.getElementById("signalType").value;
-        let entry = document.getElementById("entryPrice").value;
-        let sl = document.getElementById("slPrice").value;
-        let tp1 = document.getElementById("tp1Price").value;
-        let tp2 = document.getElementById("tp2Price").value;
-        let tp3 = document.getElementById("tp3Price").value;
-        let reason = document.getElementById("signalReasonText").value;
-        if (!entry || !sl || !tp1) { alert("Fill ENTRY, SL, and TP1"); return; }
-        adminSignal = { type, entry, sl, tp1, tp2, tp3, reason, timestamp: new Date().toLocaleString() };
-        saveAdminSignal();
-        speak(`Admin signal posted: ${type} at ${entry}`);
-        updateDisplay();
-        document.getElementById("entryPrice").value = ""; document.getElementById("slPrice").value = "";
-        document.getElementById("tp1Price").value = ""; document.getElementById("tp2Price").value = "";
-        document.getElementById("tp3Price").value = ""; document.getElementById("signalReasonText").value = "";
-        if (Notification.permission === "granted") new Notification("Admin Signal Posted!", { body: `${type} at ${entry}` });
-    }
-    
-    function clearAdminSignal() { if (!isAdmin) return; adminSignal = null; localStorage.removeItem('boa_admin_signal'); updateDisplay(); speak("Admin signal cleared"); }
-    
-    function registerUser(userId, userName, phoneNumber, username) {
-        if (!allUsers.find(u => u.userId === userId)) {
-            allUsers.push({ userId, name: userName, phone: phoneNumber, username, joinDate: new Date().toLocaleString() });
-            localStorage.setItem('boa_users', JSON.stringify(allUsers));
-        }
-        if (isAdmin) updateUserList();
-    }
-    
-    function updateUserList() {
-        if (!isAdmin) return;
-        document.getElementById("userCount").innerHTML = allUsers.length;
-        let html = "";
-        for (let u of allUsers) {
-            html += `<div class="user-item">🧑 ${u.name} | @${u.username || 'no username'} | 📞 ${u.phone || 'unknown'}<div style="font-size:8px;">Joined: ${u.joinDate}</div></div>`;
-        }
-        document.getElementById("userList").innerHTML = html || "<div>No nodes connected</div>";
-    }
-    
-    function broadcastMessage() {
-        if (!isAdmin) return;
-        let msg = prompt("Enter broadcast message:");
-        if (msg) { localStorage.setItem('boa_broadcast', JSON.stringify({ msg, time: Date.now() })); speak("Broadcast sent"); alert("Broadcast sent!"); }
-    }
-    
-    function checkBroadcast() {
-        let broadcast = localStorage.getItem('boa_broadcast');
-        if (broadcast) {
-            let data = JSON.parse(broadcast);
-            let last = localStorage.getItem('boa_last_broadcast');
-            if (last !== data.time.toString()) {
-                localStorage.setItem('boa_last_broadcast', data.time);
-                if (!isAdmin) alert("📢 ADMIN BROADCAST:\n" + data.msg);
-            }
-        }
-    }
-    
-    window.addEventListener('storage', (e) => { if (e.key === 'boa_admin_signal') { loadAdminSignal(); updateDisplay(); } if (e.key === 'boa_broadcast') checkBroadcast(); });
     
     async function fetchPrice() {
         try {
             let c = config[symbol];
             let res = await fetch(c.apiUrl);
             let data = await res.json();
-            if (!data || !data[c.priceKey]) {
+            if (!data || !data.price) {
                 let fallbackRes = await fetch(c.fallbackUrl);
                 let fallbackData = await fallbackRes.json();
-                if (fallbackData && fallbackData[c.fallbackKey]) {
-                    let newPrice = fallbackData[c.fallbackKey].usd;
-                    prevPrice = price;
-                    price = newPrice;
-                    history.push(price);
-                    if (history.length > 200) history.shift();
-                    let change = Math.abs((price - (prevPrice || price)) / (prevPrice || price) * 100);
-                    volumeHistory.push(change);
-                    if (volumeHistory.length > 30) volumeHistory.shift();
-                    document.getElementById("price").innerHTML = `$${price.toFixed(c.fmt)}`;
-                    let priceChange = ((price - (prevPrice || price)) / (prevPrice || price) * 100).toFixed(2);
-                    document.getElementById("priceChange").innerHTML = `${priceChange >= 0 ? '+' : ''}${priceChange}%`;
-                    document.getElementById("priceChange").className = `price-change ${priceChange >= 0 ? 'green' : 'red'}`;
-                    setDataStatus("LIVE DATA", false);
-                    dataRetryCount = 0;
-                    return true;
+                if (fallbackData) {
+                    let newPrice = symbol === "XAUUSD" ? fallbackData['tether-gold']?.usd : fallbackData['bitcoin']?.usd;
+                    if (newPrice) {
+                        prevPrice = price;
+                        price = newPrice;
+                        history.push(price);
+                        if (history.length > 200) history.shift();
+                        document.getElementById("price").innerHTML = `$${price.toFixed(c.fmt)}`;
+                        let change = ((price - (prevPrice || price)) / (prevPrice || price) * 100).toFixed(2);
+                        document.getElementById("priceChange").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
+                        document.getElementById("priceChange").className = `price-change ${change >= 0 ? 'green' : 'red'}`;
+                        document.getElementById("dataStatus").innerHTML = "LIVE";
+                        return true;
+                    }
                 }
             }
-            if (data && data[c.priceKey]) {
-                let newPrice = parseFloat(data[c.priceKey]);
+            if (data && data.price) {
+                let newPrice = parseFloat(data.price);
                 prevPrice = price;
                 price = newPrice;
                 history.push(price);
                 if (history.length > 200) history.shift();
-                let change = Math.abs((price - (prevPrice || price)) / (prevPrice || price) * 100);
-                volumeHistory.push(change);
-                if (volumeHistory.length > 30) volumeHistory.shift();
                 document.getElementById("price").innerHTML = `$${price.toFixed(c.fmt)}`;
-                let priceChange = ((price - (prevPrice || price)) / (prevPrice || price) * 100).toFixed(2);
-                document.getElementById("priceChange").innerHTML = `${priceChange >= 0 ? '+' : ''}${priceChange}%`;
-                document.getElementById("priceChange").className = `price-change ${priceChange >= 0 ? 'green' : 'red'}`;
-                setDataStatus("LIVE DATA", false);
-                dataRetryCount = 0;
+                let change = ((price - (prevPrice || price)) / (prevPrice || price) * 100).toFixed(2);
+                document.getElementById("priceChange").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
+                document.getElementById("priceChange").className = `price-change ${change >= 0 ? 'green' : 'red'}`;
+                document.getElementById("dataStatus").innerHTML = "LIVE";
                 return true;
             }
-            throw new Error("No data");
-        } catch(e) {
-            dataRetryCount++;
-            if (dataRetryCount > 3) {
-                setDataStatus("CONNECTION ISSUE - RETRYING", true);
-            } else {
-                setDataStatus("FETCHING DATA...", false);
-            }
-            return false;
-        }
+        } catch(e) { document.getElementById("dataStatus").innerHTML = "CONNECTING..."; }
+        return false;
     }
     
     function initChart() {
         if (chart) try { chart.remove(); } catch(e) {}
         let tvSym = symbol === "XAUUSD" ? "FX_IDC:XAUUSD" : "BINANCE:BTCUSDT";
-        chart = new TradingView.widget({ container_id: "chart", width: "100%", height: 200, symbol: tvSym, interval: "1", theme: "dark", style: "1", locale: "en", toolbar_bg: "#000", studies: [] });
+        chart = new TradingView.widget({
+            container_id: "chart", width: "100%", height: 220,
+            symbol: tvSym, interval: "15", theme: "dark", style: "1",
+            locale: "en", toolbar_bg: "#000", studies: []
+        });
     }
     
     async function updateAll() {
         await fetchPrice();
-        updateDisplay();
+        updateUI();
         updateSession();
     }
     
@@ -775,35 +569,24 @@
             let userId = user.id.toString();
             let userName = user.first_name || "Trader";
             let username = user.username || "";
-            let phoneNumber = user.phone_number || "Not shared";
+            let phoneNumber = user.phone_number || "Hidden";
             currentUser = { id: userId, name: userName, username, phone: phoneNumber };
             isAdmin = (userId === ADMIN_ID);
-            registerUser(userId, userName, phoneNumber, username);
-            loadAdminSignal();
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("mainApp").classList.add("show");
             document.getElementById("userName").innerHTML = userName;
             document.getElementById("userPhone").innerHTML = `📞 ${phoneNumber} | @${username || 'user'}`;
             document.getElementById("userAvatar").innerHTML = userName.charAt(0).toUpperCase();
-            if (isAdmin) {
-                document.getElementById("adminBadge").style.display = "block";
-                document.getElementById("adminTab").style.display = "block";
-                document.getElementById("usersTab").style.display = "block";
-                updateUserList();
-                speak("System admin online. Matrix control active.");
-            } else {
-                speak("Welcome to Matrix Bot AI. Scan line active.");
-            }
+            if (isAdmin) document.getElementById("adminBadge").style.display = "block";
             initChart();
             updateAll();
-            setInterval(updateAll, 4000);
-            setInterval(checkBroadcast, 5000);
+            setInterval(updateAll, 3000);
             setInterval(updateSession, 1000);
-            fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: ADMIN_ID, text: `🆕 NEW NODE CONNECTED\n👤 ${userName}\n🆔 ${userId}\n📞 ${phoneNumber}\n@${username}` })
-            }).catch(e => console.log);
-        } else { alert("Open from Telegram Matrix"); }
+            speak("Real trading assistant ready. Signals are based on real market data.");
+            if (Notification.permission === "default") Notification.requestPermission();
+        } else {
+            alert("Open from Telegram");
+        }
     }
     
     document.querySelectorAll(".sym-btn").forEach(btn => {
@@ -811,31 +594,23 @@
             document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             symbol = btn.getAttribute("data-sym");
-            price = null; history = []; volumeHistory = [];
+            price = null; history = [];
             resetHitStatus();
             initChart();
             updateAll();
+            updateProfitDisplay();
             speak(`Switched to ${symbol}`);
         };
     });
     
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.onclick = () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(`tab-${tab.getAttribute('data-tab')}`).classList.add('active');
-        };
-    });
+    document.getElementById("lotSize").onchange = () => {
+        updateProfitDisplay();
+        updateUI();
+    };
     
-    for (let i = 0; i < 50; i++) history.push(2340 + (Math.random() - 0.5) * 30);
+    for (let i = 0; i < 100; i++) history.push(2340 + (Math.random() - 0.5) * 30);
     price = history[history.length - 1];
-    if (Notification.permission === "default") Notification.requestPermission();
     
-    window.postAdminSignal = postAdminSignal;
-    window.clearAdminSignal = clearAdminSignal;
-    window.broadcastMessage = broadcastMessage;
-    window.setMode = setMode;
     window.loginWithTelegram = loginWithTelegram;
 </script>
 </body>
