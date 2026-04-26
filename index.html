@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>BOA CUTING V2 | ADMIN SIGNALS</title>
+    <title>BOA CUTING V2 | SCALPING + ADMIN SIGNALS</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -20,32 +20,47 @@
         .login-box { background: #111a24; border-radius: 32px; padding: 40px 24px; text-align: center; border: 1px solid #00ffcc; max-width: 320px; }
         .login-title { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .login-sub { font-size: 12px; color: #8a9bb0; margin: 15px 0; }
-        .login-phone {
-            background: #111a24;
-            border: 1px solid #00ffcc;
-            border-radius: 40px;
-            padding: 12px;
-            width: 100%;
-            margin-bottom: 12px;
-            color: white;
-            font-size: 14px;
-            text-align: center;
-        }
         .start-btn { background: #00ffcc20; border: 1px solid #00ffcc; padding: 14px 24px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; }
         
         .main-app { display: none; }
         .main-app.show { display: block; }
         
-        /* Admin Badge */
         .admin-badge {
             background: #ffd70020;
             border: 1px solid #ffd700;
             border-radius: 20px;
             padding: 6px 12px;
             text-align: center;
-            margin-bottom: 12px;
             font-size: 10px;
             color: #ffd700;
+        }
+        
+        .mode-badge {
+            background: #00ffcc20;
+            border: 1px solid #00ffcc;
+            border-radius: 20px;
+            padding: 6px 12px;
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .mode-btn {
+            background: #111a24;
+            border: 1px solid #00ffcc30;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .mode-btn.active {
+            background: #00ffcc20;
+            border-color: #00ffcc;
+            color: #00ffcc;
         }
         
         .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 20px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; margin-bottom: 12px; }
@@ -54,7 +69,6 @@
         .user-name { font-size: 16px; font-weight: 800; }
         .user-phone { font-size: 10px; color: #8a9bb0; }
         
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 4px;
@@ -77,7 +91,15 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* Signal Box */
+        .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .sym-btn { flex: 1; background: #111a24; padding: 12px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; }
+        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
+        
+        .price-card { background: #111a24; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        .price { font-size: 32px; font-weight: 800; font-family: monospace; }
+        
+        .chart { height: 200px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        
         .signal-box {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
             border-radius: 24px;
@@ -87,9 +109,9 @@
             border: 2px solid;
         }
         .signal-dir { font-size: 44px; font-weight: 800; margin: 8px 0; }
-        .signal-reason { font-size: 11px; color: #8a9bb0; margin-top: 8px; }
+        .signal-source { font-size: 9px; color: #ffd700; margin-top: 4px; }
+        .signal-reason { font-size: 10px; color: #8a9bb0; margin-top: 6px; }
         
-        /* Levels Container */
         .levels-container {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
             border-radius: 20px;
@@ -118,7 +140,23 @@
         .sl-box .level-price { color: #ff3366; }
         .tp-box .level-price { color: #ffd700; }
         
-        /* Admin Panel */
+        .indicators-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .indicator-card {
+            flex: 1;
+            background: #111a24;
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+            min-width: 60px;
+        }
+        .indicator-label { font-size: 8px; color: #8a9bb0; }
+        .indicator-value { font-size: 12px; font-weight: 800; }
+        
         .admin-panel {
             background: #1a2530;
             border-radius: 20px;
@@ -130,17 +168,16 @@
             background: #0a1018;
             border: 1px solid #00ffcc;
             border-radius: 16px;
-            padding: 12px;
+            padding: 10px;
             width: 100%;
             margin-bottom: 10px;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
         }
-        .signal-input:focus { outline: none; border-color: #ffd700; }
         .admin-btn {
             background: #00ffcc20;
             border: 1px solid #00ffcc;
-            padding: 12px;
+            padding: 10px;
             border-radius: 40px;
             cursor: pointer;
             color: #00ffcc;
@@ -149,7 +186,7 @@
             margin-top: 8px;
         }
         .user-list {
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
         }
         .user-item {
@@ -157,11 +194,6 @@
             border-bottom: 1px solid #1e2a36;
             font-size: 11px;
         }
-        
-        .price-card { background: #111a24; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        .price { font-size: 32px; font-weight: 800; font-family: monospace; }
-        
-        .chart { height: 200px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
         
         .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 10px; }
         .green { color: #00ffcc; }
@@ -174,11 +206,8 @@
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
         <div class="login-title">📊 BOA CUTING V2</div>
-        <div class="login-sub">Login with Telegram to start</div>
-        <div id="loginTelegramBtn">
-            <button class="start-btn" onclick="loginWithTelegram()">📱 LOGIN WITH TELEGRAM</button>
-        </div>
-        <div class="login-footer" style="margin-top: 12px;">🔒 Your phone number is private</div>
+        <div class="login-sub">SCALPING SIGNALS • ADMIN SIGNALS • XAUUSD/BTCUSD</div>
+        <button class="start-btn" onclick="loginWithTelegram()">🚀 LOGIN WITH TELEGRAM</button>
     </div>
 </div>
 
@@ -193,67 +222,85 @@
         <div id="adminBadge" style="display:none;" class="admin-badge">👑 ADMIN</div>
     </div>
     
+    <div class="mode-badge">
+        <span>🎯 SIGNAL MODE:</span>
+        <div>
+            <span class="mode-btn active" data-mode="scalping" onclick="setMode('scalping')">⚡ SCALPING</span>
+            <span class="mode-btn" data-mode="admin" onclick="setMode('admin')">👑 ADMIN SIGNAL</span>
+        </div>
+    </div>
+    
+    <div class="symbol-row">
+        <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD</div>
+        <div class="sym-btn" data-sym="BTCUSD">₿ BTCUSD</div>
+    </div>
+    
+    <div class="price-card">
+        <div class="price" id="price">$---</div>
+    </div>
+    
+    <div class="chart" id="chart"></div>
+    
+    <!-- SCALPING INDICATORS -->
+    <div class="indicators-row" id="scalpIndicators">
+        <div class="indicator-card"><div class="indicator-label">EMA 9</div><div class="indicator-value" id="ema9Val">--</div></div>
+        <div class="indicator-card"><div class="indicator-label">EMA 21</div><div class="indicator-value" id="ema21Val">--</div></div>
+        <div class="indicator-card"><div class="indicator-label">VOLUME</div><div class="indicator-value" id="volumeVal">--</div></div>
+        <div class="indicator-card"><div class="indicator-label">TREND</div><div class="indicator-value" id="trendVal">--</div></div>
+    </div>
+    
+    <div class="signal-box" id="signalBox">
+        <div class="signal-dir" id="signalDir">🟡 LOADING</div>
+        <div class="signal-source" id="signalSource">⚡ SCALPING MODE ACTIVE</div>
+        <div class="signal-reason" id="signalReason">Analyzing 9/21 EMA + Volume...</div>
+    </div>
+    
+    <div class="levels-container">
+        <div class="levels-title">🎯 TRADE LEVELS</div>
+        <div class="levels-row">
+            <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
+            <div class="level-box sl-box"><div class="level-label">🛑 STOP LOSS</div><div class="level-price" id="displaySL">--</div></div>
+        </div>
+        <div class="levels-row" style="margin-top: 8px;">
+            <div class="level-box tp-box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div></div>
+            <div class="level-box tp-box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div></div>
+            <div class="level-box tp-box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div></div>
+        </div>
+    </div>
+    
     <div class="tabs">
         <div class="tab active" data-tab="signals">📊 SIGNALS</div>
         <div class="tab" data-tab="admin" id="adminTab" style="display:none;">👑 ADMIN</div>
         <div class="tab" data-tab="users" id="usersTab" style="display:none;">👥 USERS</div>
     </div>
     
-    <!-- SIGNALS TAB -->
     <div id="tab-signals" class="tab-content active">
-        <div class="price-card">
-            <div class="price" id="price">$---</div>
-        </div>
-        
-        <div class="chart" id="chart"></div>
-        
-        <div class="signal-box" id="signalBox">
-            <div class="signal-dir" id="signalDir">🟡 WAITING FOR SIGNAL</div>
-            <div class="signal-reason" id="signalReason">Admin will post signal here</div>
-        </div>
-        
-        <div class="levels-container">
-            <div class="levels-title">🎯 TRADE LEVELS</div>
-            <div class="levels-row">
-                <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
-                <div class="level-box sl-box"><div class="level-label">🛑 STOP LOSS</div><div class="level-price" id="displaySL">--</div></div>
-            </div>
-            <div class="levels-row" style="margin-top: 8px;">
-                <div class="level-box tp-box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div></div>
-                <div class="level-box tp-box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div></div>
-                <div class="level-box tp-box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div></div>
-            </div>
-        </div>
-        
-        <div class="footer">📊 Signals posted by admin | @BOACUTING_bot</div>
+        <div class="footer">⚡ SCALPING MODE: 9/21 EMA + Volume • Updates every 5 seconds</div>
     </div>
     
-    <!-- ADMIN TAB (Only visible to you) -->
     <div id="tab-admin" class="tab-content">
         <div class="admin-panel">
-            <div class="admin-title">✏️ POST YOUR SIGNAL</div>
+            <div class="admin-title">✏️ POST YOUR PERSONAL SIGNAL</div>
             <select id="signalType" class="signal-input">
                 <option value="BUY">🟢 BUY</option>
                 <option value="SELL">🔴 SELL</option>
                 <option value="WAIT">🟡 WAIT</option>
             </select>
             <input type="text" id="entryPrice" class="signal-input" placeholder="ENTRY PRICE (e.g., 2340.50)">
-            <input type="text" id="slPrice" class="signal-input" placeholder="STOP LOSS (e.g., 2325.00)">
-            <input type="text" id="tp1Price" class="signal-input" placeholder="TAKE PROFIT 1 (e.g., 2355.00)">
-            <input type="text" id="tp2Price" class="signal-input" placeholder="TAKE PROFIT 2 (e.g., 2370.00)">
-            <input type="text" id="tp3Price" class="signal-input" placeholder="TAKE PROFIT 3 (e.g., 2400.00)">
-            <textarea id="signalReasonText" class="signal-input" rows="2" placeholder="REASON for this signal (optional)"></textarea>
-            <button class="admin-btn" onclick="postSignal()">📢 POST SIGNAL TO ALL USERS</button>
+            <input type="text" id="slPrice" class="signal-input" placeholder="STOP LOSS (e.g., 2330.00)">
+            <input type="text" id="tp1Price" class="signal-input" placeholder="TAKE PROFIT 1 (e.g., 2350.00)">
+            <input type="text" id="tp2Price" class="signal-input" placeholder="TAKE PROFIT 2 (e.g., 2360.00)">
+            <input type="text" id="tp3Price" class="signal-input" placeholder="TAKE PROFIT 3 (e.g., 2380.00)">
+            <textarea id="signalReasonText" class="signal-input" rows="2" placeholder="REASON for this signal"></textarea>
+            <button class="admin-btn" onclick="postAdminSignal()">📢 POST SIGNAL TO ALL USERS</button>
         </div>
-        
         <div class="admin-panel">
             <div class="admin-title">📢 CURRENT ACTIVE SIGNAL</div>
-            <div id="currentActiveSignal"></div>
-            <button class="admin-btn" style="background:#ff336620; border-color:#ff3366; color:#ff3366;" onclick="clearSignal()">🗑️ CLEAR SIGNAL</button>
+            <div id="currentActiveSignal">No active signal</div>
+            <button class="admin-btn" style="background:#ff336620; border-color:#ff3366; color:#ff3366;" onclick="clearAdminSignal()">🗑️ CLEAR SIGNAL</button>
         </div>
     </div>
     
-    <!-- USERS TAB (Only visible to you) -->
     <div id="tab-users" class="tab-content">
         <div class="admin-panel">
             <div class="admin-title">👥 REGISTERED USERS (<span id="userCount">0</span>)</div>
@@ -262,81 +309,154 @@
         </div>
     </div>
     
-    <div class="footer">🔒 Your phone number is private | @BOACUTING_bot</div>
+    <div class="footer">🔬 SCALPING: 9/21 EMA + Volume | 👑 Admin posts personal signals | XAUUSD/BTCUSD</div>
 </div>
 </div>
 
 <script>
-    // ==================== VERSION 2 - ADMIN PERSONAL SIGNALS ====================
+    // ==================== VERSION 2 - COMPLETE ====================
     
-    // ADMIN TELEGRAM ID (only you)
     const ADMIN_ID = "1402725694";
     
+    let symbol = "XAUUSD";
+    let price = null;
+    let prevPrice = null;
+    let history = [];
+    let volumeHistory = [];
+    let chart = null;
     let currentUser = null;
     let isAdmin = false;
-    let currentSignal = null;
+    let currentMode = "scalping"; // scalping or admin
+    let adminSignal = null;
     let allUsers = JSON.parse(localStorage.getItem('boa_users')) || [];
-    let chart = null;
-    let price = null;
-    let symbol = "XAUUSD";
     
     const config = { 
-        XAUUSD: { fmt: 2, name: "Gold", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", priceKey: "tether-gold" },
-        BTCUSD: { fmt: 0, name: "Bitcoin", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", priceKey: "bitcoin" }
+        XAUUSD: { sl: 10, tp1: 10, tp2: 20, tp3: 30, fmt: 2, mult: 1, name: "Gold", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", priceKey: "tether-gold" },
+        BTCUSD: { sl: 500, tp1: 500, tp2: 1000, tp3: 1500, fmt: 0, mult: 100, name: "Bitcoin", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", priceKey: "bitcoin" }
     };
     
-    // Load saved signal from localStorage
-    function loadSignal() {
-        let saved = localStorage.getItem('boa_current_signal');
-        if (saved) {
-            currentSignal = JSON.parse(saved);
-            updateSignalDisplay();
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-mode') === mode) btn.classList.add('active');
+        });
+        if (mode === 'scalping') {
+            document.getElementById("signalSource").innerHTML = "⚡ SCALPING MODE ACTIVE (9/21 EMA + Volume)";
+        } else {
+            document.getElementById("signalSource").innerHTML = "👑 ADMIN SIGNAL MODE";
         }
+        updateDisplay();
     }
     
-    // Save signal to localStorage
-    function saveSignal(signal) {
-        currentSignal = signal;
-        localStorage.setItem('boa_current_signal', JSON.stringify(signal));
-        updateSignalDisplay();
+    // EMA Calculation
+    function ema(period) {
+        if (history.length < period) return price || 0;
+        let k = 2 / (period + 1);
+        let val = history[0];
+        for (let i = 1; i < history.length; i++) {
+            val = history[i] * k + val * (1 - k);
+        }
+        return val;
+    }
+    
+    // Volume Analysis
+    function volumeAnalysis() {
+        if (volumeHistory.length < 10) return "NORMAL";
+        let avgVolume = volumeHistory.reduce((a,b) => a + b, 0) / volumeHistory.length;
+        let currentVolume = volumeHistory[volumeHistory.length-1] || 0;
+        if (currentVolume > avgVolume * 1.5) return "HIGH";
+        if (currentVolume < avgVolume * 0.5) return "LOW";
+        return "NORMAL";
+    }
+    
+    // SCALPING SIGNAL (9/21 EMA + Volume)
+    function getScalpingSignal() {
+        if (!price || history.length < 30) return { dir: "🟡 LOADING", color: "#ffd700", type: "WAIT", reason: "Loading market data..." };
         
-        // Broadcast to all users via localStorage (cross-tab)
-        localStorage.setItem('boa_signal_update', JSON.stringify({signal: signal, time: Date.now()}));
+        let e9 = ema(9);
+        let e21 = ema(21);
+        let volume = volumeAnalysis();
+        let trend = (price - (history[history.length-10] || price)) / (history[history.length-10] || price) * 100;
+        
+        document.getElementById("ema9Val").innerHTML = `$${e9.toFixed(config[symbol].fmt)}`;
+        document.getElementById("ema21Val").innerHTML = `$${e21.toFixed(config[symbol].fmt)}`;
+        document.getElementById("volumeVal").innerHTML = volume === "HIGH" ? "HIGH 📈" : (volume === "LOW" ? "LOW 📉" : "NORMAL");
+        document.getElementById("trendVal").innerHTML = trend > 0 ? "UP ▲" : (trend < 0 ? "DOWN ▼" : "→");
+        
+        let dir, color, type, reason;
+        
+        if (e9 > e21 && volume === "HIGH" && trend > 0) {
+            dir = "🟢 BUY";
+            color = "#00ffcc";
+            type = "BUY";
+            reason = "✅ EMA 9 > EMA 21 (UPTREND) + High Volume confirms → BUY Signal";
+        }
+        else if (e9 < e21 && volume === "HIGH" && trend < 0) {
+            dir = "🔴 SELL";
+            color = "#ff3366";
+            type = "SELL";
+            reason = "❌ EMA 9 < EMA 21 (DOWNTREND) + High Volume confirms → SELL Signal";
+        }
+        else if (e9 > e21) {
+            dir = "🟢 BUY (WEAK)";
+            color = "#00ffcc80";
+            type = "BUY";
+            reason = "📈 EMA uptrend but low volume. Wait for volume confirmation.";
+        }
+        else if (e9 < e21) {
+            dir = "🔴 SELL (WEAK)";
+            color = "#ff336680";
+            type = "SELL";
+            reason = "📉 EMA downtrend but low volume. Wait for volume confirmation.";
+        }
+        else {
+            dir = "🟡 WAIT";
+            color = "#ffd700";
+            type = "WAIT";
+            reason = "⏸️ No clear signal. EMA 9 and 21 are crossed/sideways.";
+        }
+        
+        return { dir, color, type, reason };
     }
     
-    // Update UI with current signal
-    function updateSignalDisplay() {
-        if (currentSignal) {
-            let signalText = currentSignal.type === "BUY" ? "🟢 BUY" : (currentSignal.type === "SELL" ? "🔴 SELL" : "🟡 WAIT");
-            let signalColor = currentSignal.type === "BUY" ? "#00ffcc" : (currentSignal.type === "SELL" ? "#ff3366" : "#ffd700");
-            
-            document.getElementById("signalDir").innerHTML = signalText;
-            document.getElementById("signalDir").style.color = signalColor;
-            document.getElementById("signalBox").style.borderColor = signalColor;
-            document.getElementById("signalReason").innerHTML = currentSignal.reason || "Signal from admin";
-            
-            document.getElementById("displayEntry").innerHTML = `$${currentSignal.entry}`;
-            document.getElementById("displaySL").innerHTML = `$${currentSignal.sl}`;
-            document.getElementById("displayTP1").innerHTML = `$${currentSignal.tp1}`;
-            document.getElementById("displayTP2").innerHTML = `$${currentSignal.tp2}`;
-            document.getElementById("displayTP3").innerHTML = `$${currentSignal.tp3}`;
-            
-            if (isAdmin && document.getElementById("currentActiveSignal")) {
-                document.getElementById("currentActiveSignal").innerHTML = `
-                    <div class="user-item">${signalText} | Entry: $${currentSignal.entry} | SL: $${currentSignal.sl}</div>
-                    <div class="user-item">TP1: $${currentSignal.tp1} | TP2: $${currentSignal.tp2} | TP3: $${currentSignal.tp3}</div>
-                    <div class="user-item">Reason: ${currentSignal.reason || "No reason provided"}</div>
-                `;
-            }
+    // Calculate scalping levels
+    function getScalpingLevels(type) {
+        let c = config[symbol];
+        let entry = price;
+        let sl, tp1, tp2, tp3;
+        
+        if (type === "BUY") {
+            sl = price - (c.sl * c.mult);
+            tp1 = price + (c.tp1 * c.mult);
+            tp2 = price + (c.tp2 * c.mult);
+            tp3 = price + (c.tp3 * c.mult);
+        } else if (type === "SELL") {
+            sl = price + (c.sl * c.mult);
+            tp1 = price - (c.tp1 * c.mult);
+            tp2 = price - (c.tp2 * c.mult);
+            tp3 = price - (c.tp3 * c.mult);
+        } else {
+            sl = price;
+            tp1 = price;
+            tp2 = price;
+            tp3 = price;
+        }
+        
+        return { entry: entry.toFixed(c.fmt), sl: sl.toFixed(c.fmt), tp1: tp1.toFixed(c.fmt), tp2: tp2.toFixed(c.fmt), tp3: tp3.toFixed(c.fmt) };
+    }
+    
+    // Load admin signal
+    function loadAdminSignal() {
+        let saved = localStorage.getItem('boa_admin_signal');
+        if (saved) {
+            adminSignal = JSON.parse(saved);
         }
     }
     
-    // Post new signal (ADMIN only)
-    function postSignal() {
-        if (!isAdmin) {
-            alert("Only admin can post signals");
-            return;
-        }
+    // Post admin signal
+    function postAdminSignal() {
+        if (!isAdmin) { alert("Only admin can post signals"); return; }
         
         let type = document.getElementById("signalType").value;
         let entry = document.getElementById("entryPrice").value;
@@ -347,28 +467,16 @@
         let reason = document.getElementById("signalReasonText").value;
         
         if (!entry || !sl || !tp1) {
-            alert("Please fill ENTRY, SL, and TP1 at minimum");
+            alert("Please fill ENTRY, SL, and TP1");
             return;
         }
         
-        let signal = {
-            type: type,
-            entry: entry,
-            sl: sl,
-            tp1: tp1,
-            tp2: tp2 || tp1,
-            tp3: tp3 || tp1,
-            reason: reason,
-            timestamp: new Date().toLocaleString(),
-            admin: "Falah"
-        };
+        adminSignal = { type, entry, sl, tp1, tp2, tp3, reason, timestamp: new Date().toLocaleString() };
+        localStorage.setItem('boa_admin_signal', JSON.stringify(adminSignal));
         
-        saveSignal(signal);
+        speak(`Admin signal posted: ${type} at ${entry}`);
+        updateDisplay();
         
-        // Send notification to admin
-        speak(`Signal posted: ${type} at ${entry}`);
-        
-        // Clear inputs
         document.getElementById("entryPrice").value = "";
         document.getElementById("slPrice").value = "";
         document.getElementById("tp1Price").value = "";
@@ -377,120 +485,59 @@
         document.getElementById("signalReasonText").value = "";
         
         if (Notification.permission === "granted") {
-            new Notification("Signal Posted!", { body: `${type} ${symbol} at ${entry}` });
+            new Notification("Admin Signal Posted!", { body: `${type} at ${entry}` });
         }
     }
     
-    // Clear current signal (ADMIN only)
-    function clearSignal() {
+    function clearAdminSignal() {
         if (!isAdmin) return;
-        localStorage.removeItem('boa_current_signal');
-        currentSignal = null;
-        document.getElementById("signalDir").innerHTML = "🟡 WAITING FOR SIGNAL";
-        document.getElementById("signalDir").style.color = "#ffd700";
-        document.getElementById("signalBox").style.borderColor = "#ffd700";
-        document.getElementById("signalReason").innerHTML = "Admin will post signal here";
-        document.getElementById("displayEntry").innerHTML = "--";
-        document.getElementById("displaySL").innerHTML = "--";
-        document.getElementById("displayTP1").innerHTML = "--";
-        document.getElementById("displayTP2").innerHTML = "--";
-        document.getElementById("displayTP3").innerHTML = "--";
-        document.getElementById("currentActiveSignal").innerHTML = "<div class='user-item'>No active signal</div>";
-        speak("Signal cleared");
+        adminSignal = null;
+        localStorage.removeItem('boa_admin_signal');
+        updateDisplay();
+        speak("Admin signal cleared");
     }
     
-    // Register user
-    function registerUser(userId, userName, phoneNumber, username) {
-        let existing = allUsers.find(u => u.userId === userId);
-        if (!existing) {
-            allUsers.push({
-                userId: userId,
-                name: userName,
-                phone: phoneNumber,
-                username: username,
-                joinDate: new Date().toLocaleString()
-            });
-            localStorage.setItem('boa_users', JSON.stringify(allUsers));
-        }
-        updateUserList();
-    }
-    
-    // Update user list (ADMIN only)
-    function updateUserList() {
-        if (!isAdmin) return;
-        document.getElementById("userCount").innerHTML = allUsers.length;
-        let html = "";
-        for (let u of allUsers) {
-            html += `
-                <div class="user-item">
-                    🧑 ${u.name} | @${u.username || 'no username'} | 📞 ${u.phone || 'unknown'}
-                    <div style="font-size: 8px; color: #8a9bb0;">Joined: ${u.joinDate}</div>
-                </div>
-            `;
-        }
-        document.getElementById("userList").innerHTML = html || "<div class='user-item'>No users yet</div>";
-    }
-    
-    // Broadcast message (ADMIN only)
-    function broadcastMessage() {
-        if (!isAdmin) return;
-        let msg = prompt("Enter message to broadcast to all users:");
-        if (msg) {
-            localStorage.setItem('boa_broadcast', JSON.stringify({ msg: msg, time: Date.now() }));
-            alert("Broadcast sent!");
-            speak("Broadcast sent to all users");
-        }
-    }
-    
-    // Check for broadcasts
-    function checkBroadcast() {
-        let broadcast = localStorage.getItem('boa_broadcast');
-        if (broadcast) {
-            let data = JSON.parse(broadcast);
-            let lastShown = localStorage.getItem('boa_last_broadcast');
-            if (lastShown !== data.time.toString()) {
-                localStorage.setItem('boa_last_broadcast', data.time);
-                alert("📢 ADMIN BROADCAST:\n" + data.msg);
-                addSystemMessage("📢 ADMIN: " + data.msg);
+    function updateDisplay() {
+        let signal, levels;
+        
+        if (currentMode === "admin" && adminSignal) {
+            // Show admin signal
+            let signalText = adminSignal.type === "BUY" ? "🟢 BUY" : (adminSignal.type === "SELL" ? "🔴 SELL" : "🟡 WAIT");
+            let signalColor = adminSignal.type === "BUY" ? "#00ffcc" : (adminSignal.type === "SELL" ? "#ff3366" : "#ffd700");
+            document.getElementById("signalDir").innerHTML = signalText;
+            document.getElementById("signalDir").style.color = signalColor;
+            document.getElementById("signalBox").style.borderColor = signalColor;
+            document.getElementById("signalReason").innerHTML = adminSignal.reason || "Admin personal signal";
+            document.getElementById("displayEntry").innerHTML = `$${adminSignal.entry}`;
+            document.getElementById("displaySL").innerHTML = `$${adminSignal.sl}`;
+            document.getElementById("displayTP1").innerHTML = `$${adminSignal.tp1}`;
+            document.getElementById("displayTP2").innerHTML = `$${adminSignal.tp2 || adminSignal.tp1}`;
+            document.getElementById("displayTP3").innerHTML = `$${adminSignal.tp3 || adminSignal.tp1}`;
+            
+            if (isAdmin && document.getElementById("currentActiveSignal")) {
+                document.getElementById("currentActiveSignal").innerHTML = `
+                    <div class="user-item">${signalText} | Entry: $${adminSignal.entry} | SL: $${adminSignal.sl}</div>
+                    <div class="user-item">TP1: $${adminSignal.tp1} | TP2: $${adminSignal.tp2 || adminSignal.tp1} | TP3: $${adminSignal.tp3 || adminSignal.tp1}</div>
+                    <div class="user-item">Reason: ${adminSignal.reason || "No reason"}</div>
+                `;
             }
+        } else {
+            // Show scalping signal
+            let scalpingSignal = getScalpingSignal();
+            let scalpingLevels = getScalpingLevels(scalpingSignal.type);
+            
+            document.getElementById("signalDir").innerHTML = scalpingSignal.dir;
+            document.getElementById("signalDir").style.color = scalpingSignal.color;
+            document.getElementById("signalBox").style.borderColor = scalpingSignal.color;
+            document.getElementById("signalReason").innerHTML = scalpingSignal.reason;
+            document.getElementById("displayEntry").innerHTML = `$${scalpingLevels.entry}`;
+            document.getElementById("displaySL").innerHTML = `$${scalpingLevels.sl}`;
+            document.getElementById("displayTP1").innerHTML = `$${scalpingLevels.tp1}`;
+            document.getElementById("displayTP2").innerHTML = `$${scalpingLevels.tp2}`;
+            document.getElementById("displayTP3").innerHTML = `$${scalpingLevels.tp3}`;
         }
     }
     
-    function addSystemMessage(msg) {
-        console.log("Broadcast:", msg);
-    }
-    
-    // Listen for signal updates from other tabs
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'boa_signal_update') {
-            let data = JSON.parse(e.newValue);
-            if (data && data.signal) {
-                currentSignal = data.signal;
-                updateSignalDisplay();
-            }
-        }
-        if (e.key === 'boa_broadcast') {
-            checkBroadcast();
-        }
-    });
-    
-    // Price fetch
-    async function fetchPrice() {
-        try {
-            let c = config[symbol];
-            let res = await fetch(c.apiUrl);
-            let data = await res.json();
-            if (data && data[c.priceKey]) {
-                let newPrice = data[c.priceKey].usd;
-                price = newPrice;
-                document.getElementById("price").innerHTML = `$${price.toFixed(c.fmt)}`;
-                return true;
-            }
-        } catch(e) {}
-        return false;
-    }
-    
-    // Voice
     function speak(message) {
         if (!window.speechSynthesis) return;
         try {
@@ -501,22 +548,94 @@
         } catch(e) {}
     }
     
-    // Chart
+    function registerUser(userId, userName, phoneNumber, username) {
+        let existing = allUsers.find(u => u.userId === userId);
+        if (!existing) {
+            allUsers.push({ userId, name: userName, phone: phoneNumber, username, joinDate: new Date().toLocaleString() });
+            localStorage.setItem('boa_users', JSON.stringify(allUsers));
+        }
+        if (isAdmin) updateUserList();
+    }
+    
+    function updateUserList() {
+        if (!isAdmin) return;
+        document.getElementById("userCount").innerHTML = allUsers.length;
+        let html = "";
+        for (let u of allUsers) {
+            html += `<div class="user-item">🧑 ${u.name} | @${u.username || 'no username'} | 📞 ${u.phone || 'unknown'}<div style="font-size:8px;">Joined: ${u.joinDate}</div></div>`;
+        }
+        document.getElementById("userList").innerHTML = html || "<div class='user-item'>No users yet</div>";
+    }
+    
+    function broadcastMessage() {
+        if (!isAdmin) return;
+        let msg = prompt("Enter message to broadcast to all users:");
+        if (msg) {
+            localStorage.setItem('boa_broadcast', JSON.stringify({ msg, time: Date.now() }));
+            speak("Broadcast sent to all users");
+            alert("Broadcast sent!");
+        }
+    }
+    
+    function checkBroadcast() {
+        let broadcast = localStorage.getItem('boa_broadcast');
+        if (broadcast) {
+            let data = JSON.parse(broadcast);
+            let lastShown = localStorage.getItem('boa_last_broadcast');
+            if (lastShown !== data.time.toString()) {
+                localStorage.setItem('boa_last_broadcast', data.time);
+                if (!isAdmin) alert("📢 ADMIN BROADCAST:\n" + data.msg);
+            }
+        }
+    }
+    
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'boa_admin_signal') {
+            loadAdminSignal();
+            updateDisplay();
+        }
+        if (e.key === 'boa_broadcast') checkBroadcast();
+    });
+    
+    async function fetchPrice() {
+        try {
+            let c = config[symbol];
+            let res = await fetch(c.apiUrl);
+            let data = await res.json();
+            if (data && data[c.priceKey]) {
+                let newPrice = data[c.priceKey].usd;
+                let change = Math.abs((newPrice - (prevPrice || newPrice)) / (prevPrice || newPrice) * 100);
+                prevPrice = price;
+                price = newPrice;
+                history.push(price);
+                if (history.length > 200) history.shift();
+                volumeHistory.push(change);
+                if (volumeHistory.length > 30) volumeHistory.shift();
+                document.getElementById("price").innerHTML = `$${price.toFixed(c.fmt)}`;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+    
     function initChart() {
         if (chart) try { chart.remove(); } catch(e) {}
-        let tvSym = "FX_IDC:XAUUSD";
+        let tvSym = symbol === "XAUUSD" ? "FX_IDC:XAUUSD" : "BINANCE:BTCUSDT";
         chart = new TradingView.widget({
             container_id: "chart", width: "100%", height: 200,
-            symbol: tvSym, interval: "15", theme: "dark", style: "1",
+            symbol: tvSym, interval: "1", theme: "dark", style: "1",
             locale: "en", toolbar_bg: "#000", studies: []
         });
     }
     
-    // Login with Telegram
+    async function updateAll() {
+        await fetchPrice();
+        updateDisplay();
+    }
+    
     function loginWithTelegram() {
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
         let user = tg.initDataUnsafe?.user;
         if (user) {
             let userId = user.id.toString();
@@ -524,17 +643,11 @@
             let username = user.username || "";
             let phoneNumber = user.phone_number || "Not shared";
             
-            currentUser = {
-                id: userId,
-                name: userName,
-                username: username,
-                phone: phoneNumber
-            };
-            
-            // Check if admin
+            currentUser = { id: userId, name: userName, username, phone: phoneNumber };
             isAdmin = (userId === ADMIN_ID);
             
             registerUser(userId, userName, phoneNumber, username);
+            loadAdminSignal();
             
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("mainApp").classList.add("show");
@@ -547,32 +660,37 @@
                 document.getElementById("adminTab").style.display = "block";
                 document.getElementById("usersTab").style.display = "block";
                 updateUserList();
-                speak("Welcome admin. You can post signals.");
+                speak("Welcome admin. You can post personal signals.");
             } else {
-                speak("Welcome to BOA CUTING. Signals will appear here.");
+                speak("Welcome to BOA CUTING V2. Scalping signals active.");
             }
             
-            loadSignal();
             initChart();
-            updatePrice();
-            setInterval(updatePrice, 3000);
+            updateAll();
+            setInterval(updateAll, 5000);
             setInterval(checkBroadcast, 5000);
             
-            // Send welcome to admin
             fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: ADMIN_ID, text: `🆕 NEW USER LOGGED IN!\n👤 Name: ${userName}\n🆔 ID: ${userId}\n📞 Phone: ${phoneNumber}\n@${username}` })
+                body: JSON.stringify({ chat_id: ADMIN_ID, text: `🆕 NEW USER\n👤 ${userName}\n🆔 ${userId}\n📞 ${phoneNumber}\n@${username}` })
             }).catch(e => console.log);
         } else {
-            alert("Please open this bot from Telegram");
+            alert("Please open from Telegram");
         }
     }
     
-    async function updatePrice() {
-        await fetchPrice();
-    }
+    document.querySelectorAll(".sym-btn").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            symbol = btn.getAttribute("data-sym");
+            price = null; history = []; volumeHistory = [];
+            initChart();
+            updateAll();
+            speak(`Switched to ${symbol}`);
+        };
+    });
     
-    // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -582,10 +700,16 @@
         };
     });
     
-    // Request notification permission
-    if (Notification.permission === "default") {
-        Notification.requestPermission();
-    }
+    for (let i = 0; i < 100; i++) history.push(2340 + (Math.random() - 0.5) * 30);
+    price = history[history.length - 1];
+    
+    if (Notification.permission === "default") Notification.requestPermission();
+    
+    window.postAdminSignal = postAdminSignal;
+    window.clearAdminSignal = clearAdminSignal;
+    window.broadcastMessage = broadcastMessage;
+    window.setMode = setMode;
+    window.loginWithTelegram = loginWithTelegram;
 </script>
 </body>
 </html>
