@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>BOA CUTING | FULLY FUNCTIONAL</title>
+    <title>BOA CUTING V2 | ADMIN SIGNALS</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -11,6 +11,7 @@
         body { background: #0a0e17; font-family: -apple-system, sans-serif; padding: 12px; color: #eef5ff; }
         .container { max-width: 100%; margin: 0 auto; }
         
+        /* Login Screen */
         .login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #0a0e17, #05080f);
@@ -19,33 +20,76 @@
         .login-box { background: #111a24; border-radius: 32px; padding: 40px 24px; text-align: center; border: 1px solid #00ffcc; max-width: 320px; }
         .login-title { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .login-sub { font-size: 12px; color: #8a9bb0; margin: 15px 0; }
+        .login-phone {
+            background: #111a24;
+            border: 1px solid #00ffcc;
+            border-radius: 40px;
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
         .start-btn { background: #00ffcc20; border: 1px solid #00ffcc; padding: 14px 24px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; }
         
         .main-app { display: none; }
         .main-app.show { display: block; }
         
-        .disclaimer {
-            background: #ff336620;
-            border: 1px solid #ff3366;
-            border-radius: 16px;
-            padding: 10px;
-            margin-bottom: 12px;
+        /* Admin Badge */
+        .admin-badge {
+            background: #ffd70020;
+            border: 1px solid #ffd700;
+            border-radius: 20px;
+            padding: 6px 12px;
             text-align: center;
-            font-size: 9px;
+            margin-bottom: 12px;
+            font-size: 10px;
+            color: #ffd700;
         }
         
         .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 20px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; margin-bottom: 12px; }
         .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .user-info { flex: 1; }
         .user-name { font-size: 16px; font-weight: 800; }
+        .user-phone { font-size: 10px; color: #8a9bb0; }
         
-        .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        .sym-btn { flex: 1; background: #111a24; padding: 12px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; }
-        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #111a24;
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .tab.active { background: #00ffcc20; color: #00ffcc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         
-        .price-card { background: #111a24; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        .price { font-size: 32px; font-weight: 800; font-family: monospace; }
+        /* Signal Box */
+        .signal-box {
+            background: linear-gradient(135deg, #0f1622, #0a0e17);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 12px;
+            border: 2px solid;
+        }
+        .signal-dir { font-size: 44px; font-weight: 800; margin: 8px 0; }
+        .signal-reason { font-size: 11px; color: #8a9bb0; margin-top: 8px; }
         
+        /* Levels Container */
         .levels-container {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
             border-radius: 20px;
@@ -74,50 +118,52 @@
         .sl-box .level-price { color: #ff3366; }
         .tp-box .level-price { color: #ffd700; }
         
-        .chart { height: 200px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        
-        .signal-box { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 24px; padding: 16px; text-align: center; margin-bottom: 12px; border: 2px solid; cursor: pointer; }
-        .signal-dir { font-size: 44px; font-weight: 800; margin: 8px 0; }
-        
-        .confidence-box {
-            background: #111a24;
-            border-radius: 16px;
-            padding: 10px;
+        /* Admin Panel */
+        .admin-panel {
+            background: #1a2530;
+            border-radius: 20px;
+            padding: 16px;
             margin-bottom: 12px;
-            text-align: center;
-            border: 1px solid #00ffcc;
         }
-        .confidence-value { font-size: 24px; font-weight: 800; }
-        .confidence-bar { height: 6px; background: #1e2a36; border-radius: 3px; margin-top: 6px; overflow: hidden; }
-        .confidence-fill { height: 100%; width: 0%; background: #00ffcc; border-radius: 3px; }
-        
-        .signal-reasons {
-            background: #111a24;
+        .admin-title { font-size: 12px; color: #ffd700; margin-bottom: 12px; }
+        .signal-input {
+            background: #0a1018;
+            border: 1px solid #00ffcc;
             border-radius: 16px;
             padding: 12px;
-            margin-bottom: 12px;
+            width: 100%;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 14px;
         }
-        .reason-title { font-size: 10px; color: #ffd700; margin-bottom: 8px; }
-        .reason-item { font-size: 9px; padding: 4px 0; border-bottom: 1px solid #1e2a36; }
-        
-        .indicators {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
+        .signal-input:focus { outline: none; border-color: #ffd700; }
+        .admin-btn {
+            background: #00ffcc20;
+            border: 1px solid #00ffcc;
+            padding: 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            color: #00ffcc;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 8px;
         }
-        .indicator {
-            flex: 1;
-            background: #111a24;
-            border-radius: 12px;
+        .user-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .user-item {
             padding: 8px;
-            text-align: center;
-            min-width: 70px;
+            border-bottom: 1px solid #1e2a36;
+            font-size: 11px;
         }
-        .indicator-label { font-size: 8px; color: #8a9bb0; }
-        .indicator-value { font-size: 12px; font-weight: 800; }
         
-        .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 10px; padding-bottom: 20px; }
+        .price-card { background: #111a24; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        .price { font-size: 32px; font-weight: 800; font-family: monospace; }
+        
+        .chart { height: 200px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        
+        .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 10px; }
         .green { color: #00ffcc; }
         .red { color: #ff3366; }
         .yellow { color: #ffd700; }
@@ -127,158 +173,308 @@
 
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
-        <div class="login-title">📊 BOA CUTING</div>
-        <div class="login-sub">ENTRY + SL + TP1/TP2/TP3 • 7 INDICATORS</div>
-        <button class="start-btn" onclick="startTrading()">🚀 START</button>
+        <div class="login-title">📊 BOA CUTING V2</div>
+        <div class="login-sub">Login with Telegram to start</div>
+        <div id="loginTelegramBtn">
+            <button class="start-btn" onclick="loginWithTelegram()">📱 LOGIN WITH TELEGRAM</button>
+        </div>
+        <div class="login-footer" style="margin-top: 12px;">🔒 Your phone number is private</div>
     </div>
 </div>
 
 <div id="mainApp" class="main-app">
 <div class="container">
-    <div class="disclaimer">
-        ⚠️ HONEST DISCLAIMER: Signals based on 7 indicators. No signal is 100% accurate. For EDUCATIONAL purposes only.
-    </div>
-    
     <div class="user-card">
-        <div class="avatar" id="userAvatar">📊</div>
+        <div class="avatar" id="userAvatar">👤</div>
         <div class="user-info">
             <div class="user-name" id="userName">Trader</div>
+            <div class="user-phone" id="userPhone">Loading...</div>
+        </div>
+        <div id="adminBadge" style="display:none;" class="admin-badge">👑 ADMIN</div>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="signals">📊 SIGNALS</div>
+        <div class="tab" data-tab="admin" id="adminTab" style="display:none;">👑 ADMIN</div>
+        <div class="tab" data-tab="users" id="usersTab" style="display:none;">👥 USERS</div>
+    </div>
+    
+    <!-- SIGNALS TAB -->
+    <div id="tab-signals" class="tab-content active">
+        <div class="price-card">
+            <div class="price" id="price">$---</div>
+        </div>
+        
+        <div class="chart" id="chart"></div>
+        
+        <div class="signal-box" id="signalBox">
+            <div class="signal-dir" id="signalDir">🟡 WAITING FOR SIGNAL</div>
+            <div class="signal-reason" id="signalReason">Admin will post signal here</div>
+        </div>
+        
+        <div class="levels-container">
+            <div class="levels-title">🎯 TRADE LEVELS</div>
+            <div class="levels-row">
+                <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
+                <div class="level-box sl-box"><div class="level-label">🛑 STOP LOSS</div><div class="level-price" id="displaySL">--</div></div>
+            </div>
+            <div class="levels-row" style="margin-top: 8px;">
+                <div class="level-box tp-box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div></div>
+                <div class="level-box tp-box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div></div>
+                <div class="level-box tp-box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div></div>
+            </div>
+        </div>
+        
+        <div class="footer">📊 Signals posted by admin | @BOACUTING_bot</div>
+    </div>
+    
+    <!-- ADMIN TAB (Only visible to you) -->
+    <div id="tab-admin" class="tab-content">
+        <div class="admin-panel">
+            <div class="admin-title">✏️ POST YOUR SIGNAL</div>
+            <select id="signalType" class="signal-input">
+                <option value="BUY">🟢 BUY</option>
+                <option value="SELL">🔴 SELL</option>
+                <option value="WAIT">🟡 WAIT</option>
+            </select>
+            <input type="text" id="entryPrice" class="signal-input" placeholder="ENTRY PRICE (e.g., 2340.50)">
+            <input type="text" id="slPrice" class="signal-input" placeholder="STOP LOSS (e.g., 2325.00)">
+            <input type="text" id="tp1Price" class="signal-input" placeholder="TAKE PROFIT 1 (e.g., 2355.00)">
+            <input type="text" id="tp2Price" class="signal-input" placeholder="TAKE PROFIT 2 (e.g., 2370.00)">
+            <input type="text" id="tp3Price" class="signal-input" placeholder="TAKE PROFIT 3 (e.g., 2400.00)">
+            <textarea id="signalReasonText" class="signal-input" rows="2" placeholder="REASON for this signal (optional)"></textarea>
+            <button class="admin-btn" onclick="postSignal()">📢 POST SIGNAL TO ALL USERS</button>
+        </div>
+        
+        <div class="admin-panel">
+            <div class="admin-title">📢 CURRENT ACTIVE SIGNAL</div>
+            <div id="currentActiveSignal"></div>
+            <button class="admin-btn" style="background:#ff336620; border-color:#ff3366; color:#ff3366;" onclick="clearSignal()">🗑️ CLEAR SIGNAL</button>
         </div>
     </div>
     
-    <div class="symbol-row">
-        <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD</div>
-        <div class="sym-btn" data-sym="BTCUSD">₿ BTCUSD</div>
-    </div>
-    
-    <div class="price-card">
-        <div class="price" id="price">$---</div>
-    </div>
-    
-    <!-- ENTRY + SL + TP1/TP2/TP3 -->
-    <div class="levels-container">
-        <div class="levels-title">🎯 TRADE LEVELS</div>
-        <div class="levels-row">
-            <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
-            <div class="level-box sl-box"><div class="level-label">🛑 STOP LOSS</div><div class="level-price" id="displaySL">--</div></div>
-        </div>
-        <div class="levels-row" style="margin-top: 8px;">
-            <div class="level-box tp-box"><div class="level-label">✅ TP1 (1:1.5)</div><div class="level-price" id="displayTP1">--</div></div>
-            <div class="level-box tp-box"><div class="level-label">✅ TP2 (1:2)</div><div class="level-price" id="displayTP2">--</div></div>
-            <div class="level-box tp-box"><div class="level-label">✅ TP3 (1:3)</div><div class="level-price" id="displayTP3">--</div></div>
+    <!-- USERS TAB (Only visible to you) -->
+    <div id="tab-users" class="tab-content">
+        <div class="admin-panel">
+            <div class="admin-title">👥 REGISTERED USERS (<span id="userCount">0</span>)</div>
+            <div id="userList" class="user-list"></div>
+            <button class="admin-btn" onclick="broadcastMessage()">📢 BROADCAST TO ALL USERS</button>
         </div>
     </div>
     
-    <div class="chart" id="chart"></div>
-    
-    <div class="signal-box" id="signalBox">
-        <div class="signal-dir" id="signalDir">🟡 LOADING</div>
-    </div>
-    
-    <div class="confidence-box">
-        <div class="confidence-value" id="confidenceValue">--%</div>
-        <div class="confidence-bar"><div class="confidence-fill" id="confidenceFill" style="width:0%"></div></div>
-    </div>
-    
-    <div class="signal-reasons">
-        <div class="reason-title">📊 SIGNAL ANALYSIS (7 INDICATORS)</div>
-        <div id="reasonsList"></div>
-    </div>
-    
-    <div class="indicators">
-        <div class="indicator"><div class="indicator-label">RSI</div><div class="indicator-value" id="rsiShow">--</div></div>
-        <div class="indicator"><div class="indicator-label">MACD</div><div class="indicator-value" id="macdShow">--</div></div>
-        <div class="indicator"><div class="indicator-label">EMA</div><div class="indicator-value" id="emaShow">--</div></div>
-        <div class="indicator"><div class="indicator-label">BB</div><div class="indicator-value" id="bbShow">--</div></div>
-        <div class="indicator"><div class="indicator-label">VOLUME</div><div class="indicator-value" id="volumeShow">--</div></div>
-        <div class="indicator"><div class="indicator-label">TREND</div><div class="indicator-value" id="trendShow">--</div></div>
-    </div>
-    
-    <div class="footer">🔬 ENTRY + SL + TP1/TP2/TP3 • 7 INDICATORS • REAL DATA</div>
+    <div class="footer">🔒 Your phone number is private | @BOACUTING_bot</div>
 </div>
 </div>
 
 <script>
-    // ==================== FULLY FUNCTIONAL TRADING SIGNAL BOT ====================
+    // ==================== VERSION 2 - ADMIN PERSONAL SIGNALS ====================
     
-    let symbol = "XAUUSD";
-    let price = null;
-    let prevPrice = null;
-    let history = [];
+    // ADMIN TELEGRAM ID (only you)
+    const ADMIN_ID = "1402725694";
+    
+    let currentUser = null;
+    let isAdmin = false;
+    let currentSignal = null;
+    let allUsers = JSON.parse(localStorage.getItem('boa_users')) || [];
     let chart = null;
-    let volumeHistory = [];
+    let price = null;
+    let symbol = "XAUUSD";
     
     const config = { 
-        XAUUSD: { sl: 15, tp1: 22, tp2: 30, tp3: 45, fmt: 2, mult: 1, name: "Gold", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", priceKey: "tether-gold" },
-        BTCUSD: { sl: 800, tp1: 1200, tp2: 1500, tp3: 2400, fmt: 0, mult: 100, name: "Bitcoin", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", priceKey: "bitcoin" }
+        XAUUSD: { fmt: 2, name: "Gold", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", priceKey: "tether-gold" },
+        BTCUSD: { fmt: 0, name: "Bitcoin", apiUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", priceKey: "bitcoin" }
     };
     
-    // Calculate Entry, SL, TP1, TP2, TP3 based on signal
-    function calculateLevels(signalType) {
-        let c = config[symbol];
-        let entry = price;
-        let sl, tp1, tp2, tp3;
+    // Load saved signal from localStorage
+    function loadSignal() {
+        let saved = localStorage.getItem('boa_current_signal');
+        if (saved) {
+            currentSignal = JSON.parse(saved);
+            updateSignalDisplay();
+        }
+    }
+    
+    // Save signal to localStorage
+    function saveSignal(signal) {
+        currentSignal = signal;
+        localStorage.setItem('boa_current_signal', JSON.stringify(signal));
+        updateSignalDisplay();
         
-        if (signalType === "BUY") {
-            sl = price - (c.sl * c.mult);
-            tp1 = price + (c.tp1 * c.mult);
-            tp2 = price + (c.tp2 * c.mult);
-            tp3 = price + (c.tp3 * c.mult);
-        } else if (signalType === "SELL") {
-            sl = price + (c.sl * c.mult);
-            tp1 = price - (c.tp1 * c.mult);
-            tp2 = price - (c.tp2 * c.mult);
-            tp3 = price - (c.tp3 * c.mult);
-        } else {
-            sl = price;
-            tp1 = price;
-            tp2 = price;
-            tp3 = price;
+        // Broadcast to all users via localStorage (cross-tab)
+        localStorage.setItem('boa_signal_update', JSON.stringify({signal: signal, time: Date.now()}));
+    }
+    
+    // Update UI with current signal
+    function updateSignalDisplay() {
+        if (currentSignal) {
+            let signalText = currentSignal.type === "BUY" ? "🟢 BUY" : (currentSignal.type === "SELL" ? "🔴 SELL" : "🟡 WAIT");
+            let signalColor = currentSignal.type === "BUY" ? "#00ffcc" : (currentSignal.type === "SELL" ? "#ff3366" : "#ffd700");
+            
+            document.getElementById("signalDir").innerHTML = signalText;
+            document.getElementById("signalDir").style.color = signalColor;
+            document.getElementById("signalBox").style.borderColor = signalColor;
+            document.getElementById("signalReason").innerHTML = currentSignal.reason || "Signal from admin";
+            
+            document.getElementById("displayEntry").innerHTML = `$${currentSignal.entry}`;
+            document.getElementById("displaySL").innerHTML = `$${currentSignal.sl}`;
+            document.getElementById("displayTP1").innerHTML = `$${currentSignal.tp1}`;
+            document.getElementById("displayTP2").innerHTML = `$${currentSignal.tp2}`;
+            document.getElementById("displayTP3").innerHTML = `$${currentSignal.tp3}`;
+            
+            if (isAdmin && document.getElementById("currentActiveSignal")) {
+                document.getElementById("currentActiveSignal").innerHTML = `
+                    <div class="user-item">${signalText} | Entry: $${currentSignal.entry} | SL: $${currentSignal.sl}</div>
+                    <div class="user-item">TP1: $${currentSignal.tp1} | TP2: $${currentSignal.tp2} | TP3: $${currentSignal.tp3}</div>
+                    <div class="user-item">Reason: ${currentSignal.reason || "No reason provided"}</div>
+                `;
+            }
+        }
+    }
+    
+    // Post new signal (ADMIN only)
+    function postSignal() {
+        if (!isAdmin) {
+            alert("Only admin can post signals");
+            return;
         }
         
-        return { 
-            entry: entry.toFixed(c.fmt), 
-            sl: sl.toFixed(c.fmt), 
-            tp1: tp1.toFixed(c.fmt), 
-            tp2: tp2.toFixed(c.fmt), 
-            tp3: tp3.toFixed(c.fmt) 
+        let type = document.getElementById("signalType").value;
+        let entry = document.getElementById("entryPrice").value;
+        let sl = document.getElementById("slPrice").value;
+        let tp1 = document.getElementById("tp1Price").value;
+        let tp2 = document.getElementById("tp2Price").value;
+        let tp3 = document.getElementById("tp3Price").value;
+        let reason = document.getElementById("signalReasonText").value;
+        
+        if (!entry || !sl || !tp1) {
+            alert("Please fill ENTRY, SL, and TP1 at minimum");
+            return;
+        }
+        
+        let signal = {
+            type: type,
+            entry: entry,
+            sl: sl,
+            tp1: tp1,
+            tp2: tp2 || tp1,
+            tp3: tp3 || tp1,
+            reason: reason,
+            timestamp: new Date().toLocaleString(),
+            admin: "Falah"
         };
+        
+        saveSignal(signal);
+        
+        // Send notification to admin
+        speak(`Signal posted: ${type} at ${entry}`);
+        
+        // Clear inputs
+        document.getElementById("entryPrice").value = "";
+        document.getElementById("slPrice").value = "";
+        document.getElementById("tp1Price").value = "";
+        document.getElementById("tp2Price").value = "";
+        document.getElementById("tp3Price").value = "";
+        document.getElementById("signalReasonText").value = "";
+        
+        if (Notification.permission === "granted") {
+            new Notification("Signal Posted!", { body: `${type} ${symbol} at ${entry}` });
+        }
     }
     
-    // Update UI with levels
-    function updateLevelsDisplay(signalType) {
-        let levels = calculateLevels(signalType);
-        document.getElementById("displayEntry").innerHTML = `$${levels.entry}`;
-        document.getElementById("displaySL").innerHTML = `$${levels.sl}`;
-        document.getElementById("displayTP1").innerHTML = `$${levels.tp1}`;
-        document.getElementById("displayTP2").innerHTML = `$${levels.tp2}`;
-        document.getElementById("displayTP3").innerHTML = `$${levels.tp3}`;
+    // Clear current signal (ADMIN only)
+    function clearSignal() {
+        if (!isAdmin) return;
+        localStorage.removeItem('boa_current_signal');
+        currentSignal = null;
+        document.getElementById("signalDir").innerHTML = "🟡 WAITING FOR SIGNAL";
+        document.getElementById("signalDir").style.color = "#ffd700";
+        document.getElementById("signalBox").style.borderColor = "#ffd700";
+        document.getElementById("signalReason").innerHTML = "Admin will post signal here";
+        document.getElementById("displayEntry").innerHTML = "--";
+        document.getElementById("displaySL").innerHTML = "--";
+        document.getElementById("displayTP1").innerHTML = "--";
+        document.getElementById("displayTP2").innerHTML = "--";
+        document.getElementById("displayTP3").innerHTML = "--";
+        document.getElementById("currentActiveSignal").innerHTML = "<div class='user-item'>No active signal</div>";
+        speak("Signal cleared");
     }
     
-    // Voice alert
-    function speak(message) {
-        if (!window.speechSynthesis) return;
-        try {
-            window.speechSynthesis.cancel();
-            let utterance = new SpeechSynthesisUtterance(message);
-            utterance.rate = 0.9;
-            window.speechSynthesis.speak(utterance);
-        } catch(e) {}
+    // Register user
+    function registerUser(userId, userName, phoneNumber, username) {
+        let existing = allUsers.find(u => u.userId === userId);
+        if (!existing) {
+            allUsers.push({
+                userId: userId,
+                name: userName,
+                phone: phoneNumber,
+                username: username,
+                joinDate: new Date().toLocaleString()
+            });
+            localStorage.setItem('boa_users', JSON.stringify(allUsers));
+        }
+        updateUserList();
     }
     
-    // Start trading
-    function startTrading() {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("mainApp").classList.add("show");
-        document.getElementById("userName").innerHTML = "Trader";
-        document.getElementById("userAvatar").innerHTML = "📊";
-        speak("Trading signals ready. Entry, SL, TP1, TP2, TP3 shown.");
-        initChart();
-        startUpdates();
-        if (Notification.permission === "default") Notification.requestPermission();
+    // Update user list (ADMIN only)
+    function updateUserList() {
+        if (!isAdmin) return;
+        document.getElementById("userCount").innerHTML = allUsers.length;
+        let html = "";
+        for (let u of allUsers) {
+            html += `
+                <div class="user-item">
+                    🧑 ${u.name} | @${u.username || 'no username'} | 📞 ${u.phone || 'unknown'}
+                    <div style="font-size: 8px; color: #8a9bb0;">Joined: ${u.joinDate}</div>
+                </div>
+            `;
+        }
+        document.getElementById("userList").innerHTML = html || "<div class='user-item'>No users yet</div>";
     }
     
-    // Fetch real price from CoinGecko
+    // Broadcast message (ADMIN only)
+    function broadcastMessage() {
+        if (!isAdmin) return;
+        let msg = prompt("Enter message to broadcast to all users:");
+        if (msg) {
+            localStorage.setItem('boa_broadcast', JSON.stringify({ msg: msg, time: Date.now() }));
+            alert("Broadcast sent!");
+            speak("Broadcast sent to all users");
+        }
+    }
+    
+    // Check for broadcasts
+    function checkBroadcast() {
+        let broadcast = localStorage.getItem('boa_broadcast');
+        if (broadcast) {
+            let data = JSON.parse(broadcast);
+            let lastShown = localStorage.getItem('boa_last_broadcast');
+            if (lastShown !== data.time.toString()) {
+                localStorage.setItem('boa_last_broadcast', data.time);
+                alert("📢 ADMIN BROADCAST:\n" + data.msg);
+                addSystemMessage("📢 ADMIN: " + data.msg);
+            }
+        }
+    }
+    
+    function addSystemMessage(msg) {
+        console.log("Broadcast:", msg);
+    }
+    
+    // Listen for signal updates from other tabs
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'boa_signal_update') {
+            let data = JSON.parse(e.newValue);
+            if (data && data.signal) {
+                currentSignal = data.signal;
+                updateSignalDisplay();
+            }
+        }
+        if (e.key === 'boa_broadcast') {
+            checkBroadcast();
+        }
+    });
+    
+    // Price fetch
     async function fetchPrice() {
         try {
             let c = config[symbol];
@@ -286,232 +482,110 @@
             let data = await res.json();
             if (data && data[c.priceKey]) {
                 let newPrice = data[c.priceKey].usd;
-                prevPrice = price;
                 price = newPrice;
-                history.push(price);
-                if (history.length > 200) history.shift();
-                
-                // Simulate volume
-                let volume = Math.abs((price - (prevPrice || price)) / price) * 100;
-                volumeHistory.push(volume);
-                if (volumeHistory.length > 20) volumeHistory.shift();
-                
                 document.getElementById("price").innerHTML = `$${price.toFixed(c.fmt)}`;
                 return true;
             }
-        } catch(e) { console.log("API error:", e); }
+        } catch(e) {}
         return false;
     }
     
-    // RSI Calculation
-    function rsi() {
-        if (history.length < 15) return 50;
-        let gain = 0, loss = 0;
-        for (let i = history.length - 14; i < history.length; i++) {
-            let diff = history[i] - history[i-1];
-            if (diff > 0) gain += diff;
-            else loss -= diff;
-        }
-        let avgGain = gain / 14, avgLoss = loss / 14;
-        if (avgLoss === 0) return 100;
-        return Math.round(100 - (100 / (1 + (avgGain / avgLoss))));
+    // Voice
+    function speak(message) {
+        if (!window.speechSynthesis) return;
+        try {
+            window.speechSynthesis.cancel();
+            let u = new SpeechSynthesisUtterance(message);
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        } catch(e) {}
     }
     
-    // EMA Calculation
-    function ema(period) {
-        if (history.length < period) return price || 0;
-        let k = 2 / (period + 1);
-        let val = history[0];
-        for (let i = 1; i < history.length; i++) {
-            val = history[i] * k + val * (1 - k);
-        }
-        return val;
-    }
-    
-    // MACD Calculation
-    function macd() {
-        if (history.length < 26) return 0;
-        let ema12 = 0, ema26 = 0;
-        let k12 = 2 / 13, k26 = 2 / 27;
-        ema12 = history[0];
-        ema26 = history[0];
-        for (let i = 1; i < history.length; i++) {
-            ema12 = history[i] * k12 + ema12 * (1 - k12);
-            ema26 = history[i] * k26 + ema26 * (1 - k26);
-        }
-        return ema12 - ema26;
-    }
-    
-    // Bollinger Bands
-    function bollinger() {
-        if (history.length < 20) return { position: "MIDDLE" };
-        let period = 20;
-        let sum = 0;
-        for (let i = history.length - period; i < history.length; i++) sum += history[i];
-        let sma = sum / period;
-        let variance = 0;
-        for (let i = history.length - period; i < history.length; i++) variance += Math.pow(history[i] - sma, 2);
-        let std = Math.sqrt(variance / period);
-        let lower = sma - (std * 2);
-        let position = price < lower ? "BELOW" : "INSIDE";
-        return { position };
-    }
-    
-    // Volume Analysis
-    function volumeAnalysis() {
-        if (volumeHistory.length < 10) return "NORMAL";
-        let avgVolume = volumeHistory.reduce((a,b) => a + b, 0) / volumeHistory.length;
-        let currentVolume = volumeHistory[volumeHistory.length-1] || 0;
-        if (currentVolume > avgVolume * 1.5) return "HIGH";
-        return "NORMAL";
-    }
-    
-    // Multi-timeframe Trend
-    function multiTimeframeTrend() {
-        if (history.length < 50) return "NEUTRAL";
-        let shortTrend = (price - history[history.length-5]) / history[history.length-5] * 100;
-        let mediumTrend = (price - history[history.length-15]) / history[history.length-15] * 100;
-        let longTrend = (price - history[history.length-30]) / history[history.length-30] * 100;
-        let bullishCount = [shortTrend, mediumTrend, longTrend].filter(t => t > 0).length;
-        if (bullishCount >= 2) return "BULLISH";
-        if (bullishCount <= 1) return "BEARISH";
-        return "NEUTRAL";
-    }
-    
-    // Main Signal Generation
-    function getUltimateSignal() {
-        if (!price || history.length < 50) {
-            return { dir: "🟡 LOADING", color: "#ffd700", type: "WAIT", reasons: ["Loading market data..."], confidence: 0 };
-        }
-        
-        let r = rsi();
-        let e9 = ema(9);
-        let e21 = ema(21);
-        let m = macd();
-        let bb = bollinger();
-        let volume = volumeAnalysis();
-        let multiTF = multiTimeframeTrend();
-        
-        // Update indicator displays
-        document.getElementById("rsiShow").innerHTML = r;
-        document.getElementById("macdShow").innerHTML = m > 0 ? `+${m.toFixed(2)}` : m.toFixed(2);
-        document.getElementById("macdShow").style.color = m > 0 ? "#00ffcc" : "#ff3366";
-        document.getElementById("emaShow").innerHTML = e9 > e21 ? "9>21 📈" : "9<21 📉";
-        document.getElementById("bbShow").innerHTML = bb.position === "BELOW" ? "LOWER 🔽" : "MIDDLE";
-        document.getElementById("volumeShow").innerHTML = volume === "HIGH" ? "HIGH 📈" : "NORMAL";
-        document.getElementById("trendShow").innerHTML = multiTF === "BULLISH" ? "BULLISH ▲" : (multiTF === "BEARISH" ? "BEARISH ▼" : "SIDEWAYS →");
-        
-        let buyScore = 0;
-        let sellScore = 0;
-        let reasons = [];
-        
-        // 1. RSI
-        if (r < 35) { buyScore += 2; reasons.push("✅ RSI oversold (" + r + ") → BUY"); }
-        else if (r > 65) { sellScore += 2; reasons.push("❌ RSI overbought (" + r + ") → SELL"); }
-        
-        // 2. EMA
-        if (e9 > e21) { buyScore += 2; reasons.push("✅ EMA uptrend (9>21) → BUY"); }
-        else { sellScore += 2; reasons.push("❌ EMA downtrend (9<21) → SELL"); }
-        
-        // 3. MACD
-        if (m > 0) { buyScore += 1; reasons.push("✅ MACD bullish → BUY"); }
-        else { sellScore += 1; reasons.push("❌ MACD bearish → SELL"); }
-        
-        // 4. Bollinger
-        if (bb.position === "BELOW") { buyScore += 2; reasons.push("✅ Price at LOWER Bollinger Band → BUY"); }
-        
-        // 5. Multi-timeframe
-        if (multiTF === "BULLISH") { buyScore += 2; reasons.push("✅ Multi-timeframe BULLISH → BUY"); }
-        else if (multiTF === "BEARISH") { sellScore += 2; reasons.push("❌ Multi-timeframe BEARISH → SELL"); }
-        
-        let totalIndicators = 9;
-        let buyPercentage = (buyScore / totalIndicators) * 100;
-        let sellPercentage = (sellScore / totalIndicators) * 100;
-        let confidence = Math.min(92, Math.max(55, Math.max(buyPercentage, sellPercentage)));
-        
-        document.getElementById("confidenceValue").innerHTML = `${Math.round(confidence)}%`;
-        document.getElementById("confidenceFill").style.width = `${confidence}%`;
-        
-        let dir, color, type;
-        if (buyPercentage >= 55) { dir = "🟢 BUY"; color = "#00ffcc"; type = "BUY"; }
-        else if (sellPercentage >= 55) { dir = "🔴 SELL"; color = "#ff3366"; type = "SELL"; }
-        else { dir = "🟡 WAIT"; color = "#ffd700"; type = "WAIT"; }
-        
-        // Update levels based on signal
-        updateLevelsDisplay(type);
-        
-        return { dir, color, type, reasons, confidence };
-    }
-    
-    // Update UI with signal
-    function updateUI() {
-        let signal = getUltimateSignal();
-        
-        document.getElementById("signalDir").innerHTML = signal.dir;
-        document.getElementById("signalDir").style.color = signal.color;
-        document.getElementById("signalBox").style.borderColor = signal.color;
-        
-        let reasonsHtml = '';
-        for (let r of signal.reasons.slice(0, 8)) {
-            reasonsHtml += `<div class="reason-item">${r}</div>`;
-        }
-        if (signal.reasons.length === 0) {
-            reasonsHtml = '<div class="reason-item">No clear signal. Wait.</div>';
-        }
-        document.getElementById("reasonsList").innerHTML = reasonsHtml;
-        
-        return signal;
-    }
-    
-    // Initialize TradingView Chart
+    // Chart
     function initChart() {
         if (chart) try { chart.remove(); } catch(e) {}
-        let tvSym = symbol === "XAUUSD" ? "FX_IDC:XAUUSD" : "BINANCE:BTCUSDT";
+        let tvSym = "FX_IDC:XAUUSD";
         chart = new TradingView.widget({
-            container_id: "chart",
-            width: "100%",
-            height: 200,
-            symbol: tvSym,
-            interval: "15",
-            theme: "dark",
-            style: "1",
-            locale: "en",
-            toolbar_bg: "#000",
-            studies: []
+            container_id: "chart", width: "100%", height: 200,
+            symbol: tvSym, interval: "15", theme: "dark", style: "1",
+            locale: "en", toolbar_bg: "#000", studies: []
         });
     }
     
-    // Main update loop
-    async function updateAll() {
-        await fetchPrice();
-        updateUI();
-    }
-    
-    function startUpdates() {
-        updateAll();
-        setInterval(updateAll, 3000);
-    }
-    
-    // Symbol switching
-    document.querySelectorAll(".sym-btn").forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            symbol = btn.getAttribute("data-sym");
-            price = null;
-            history = [];
-            volumeHistory = [];
+    // Login with Telegram
+    function loginWithTelegram() {
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let user = tg.initDataUnsafe?.user;
+        if (user) {
+            let userId = user.id.toString();
+            let userName = user.first_name || "Trader";
+            let username = user.username || "";
+            let phoneNumber = user.phone_number || "Not shared";
+            
+            currentUser = {
+                id: userId,
+                name: userName,
+                username: username,
+                phone: phoneNumber
+            };
+            
+            // Check if admin
+            isAdmin = (userId === ADMIN_ID);
+            
+            registerUser(userId, userName, phoneNumber, username);
+            
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("mainApp").classList.add("show");
+            document.getElementById("userName").innerHTML = userName;
+            document.getElementById("userPhone").innerHTML = `📞 ${phoneNumber} | @${username || 'user'}`;
+            document.getElementById("userAvatar").innerHTML = userName.charAt(0).toUpperCase();
+            
+            if (isAdmin) {
+                document.getElementById("adminBadge").style.display = "block";
+                document.getElementById("adminTab").style.display = "block";
+                document.getElementById("usersTab").style.display = "block";
+                updateUserList();
+                speak("Welcome admin. You can post signals.");
+            } else {
+                speak("Welcome to BOA CUTING. Signals will appear here.");
+            }
+            
+            loadSignal();
             initChart();
-            updateAll();
-            speak(`Switched to ${symbol}`);
+            updatePrice();
+            setInterval(updatePrice, 3000);
+            setInterval(checkBroadcast, 5000);
+            
+            // Send welcome to admin
+            fetch(`https://api.telegram.org/bot8369393711:AAGm8ydfJc3UQPyNCPR6uCEr1LQpFw-zV-4/sendMessage`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: ADMIN_ID, text: `🆕 NEW USER LOGGED IN!\n👤 Name: ${userName}\n🆔 ID: ${userId}\n📞 Phone: ${phoneNumber}\n@${username}` })
+            }).catch(e => console.log);
+        } else {
+            alert("Please open this bot from Telegram");
+        }
+    }
+    
+    async function updatePrice() {
+        await fetchPrice();
+    }
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
         };
     });
     
-    // Initialize with sample data
-    for (let i = 0; i < 100; i++) {
-        history.push(2340 + (Math.random() - 0.5) * 30);
+    // Request notification permission
+    if (Notification.permission === "default") {
+        Notification.requestPermission();
     }
-    price = history[history.length - 1];
 </script>
 </body>
 </html>
