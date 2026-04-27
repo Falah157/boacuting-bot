@@ -1,9 +1,13 @@
+cd ~/Desktop/f609-trading-bot
+
+# Create index.html with the trading bot code
+cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>F609 MATRIX | COMPLETE TRADING</title>
+    <title>F609 TRADING | BUBBLEFLOW</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -11,7 +15,6 @@
         body { background: #0a0a0f; font-family: 'Courier New', monospace; padding: 12px; color: #00ffcc; }
         .container { max-width: 100%; margin: 0 auto; }
         
-        /* Scan Line */
         body::before {
             content: "";
             position: fixed;
@@ -30,13 +33,11 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 30% 40%, #0a0a0f, #000);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
-            flex-direction: column;
         }
         .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); }
         .login-title { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .login-sub { font-size: 11px; color: #00ffcc80; margin: 15px 0; }
-        .start-btn, .voice-enable-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 14px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; margin-top: 10px; }
-        .voice-enable-btn { background: #ffd70020; border-color: #ffd700; color: #ffd700; }
+        .login-sub { font-size: 10px; color: #00ffcc80; margin: 15px 0; }
+        .start-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 14px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; }
         
         .main-app { display: none; }
         .main-app.show { display: block; }
@@ -60,19 +61,15 @@
         .user-info { flex: 1; }
         .user-name { font-size: 14px; font-weight: 800; }
         
-        .tf-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-        .tf-btn { background: #111a24; border: 1px solid #00ffcc30; padding: 6px 12px; border-radius: 20px; font-size: 10px; cursor: pointer; }
-        .tf-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; box-shadow: 0 0 8px #00ffcc; }
-        
         .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
         .sym-btn { flex: 1; background: #111a24; padding: 10px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; font-size: 12px; font-weight: bold; }
-        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; box-shadow: 0 0 8px #00ffcc; }
+        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
         
         .price-card { background: #111a24; border-radius: 16px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        .price { font-size: 28px; font-weight: 800; font-family: monospace; color: #00ffcc; }
+        .price { font-size: 32px; font-weight: 800; font-family: monospace; color: #00ffcc; }
         .price-change { font-size: 10px; margin-top: 4px; }
         
-        .chart { height: 200px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        .chart { height: 220px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
         
         .signal-box {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
@@ -83,7 +80,7 @@
             border: 2px solid;
             cursor: pointer;
         }
-        .signal-dir { font-size: 36px; font-weight: 800; margin: 6px 0; }
+        .signal-dir { font-size: 40px; font-weight: 800; margin: 6px 0; }
         .signal-reason { font-size: 9px; color: #8a9bb0; margin-top: 6px; }
         
         .levels-container {
@@ -105,25 +102,9 @@
         }
         .level-label { font-size: 8px; color: #8a9bb0; margin-bottom: 3px; }
         .level-price { font-size: 12px; font-weight: 800; font-family: monospace; }
-        .level-pips { font-size: 8px; margin-top: 2px; }
-        .level-profit { font-size: 8px; margin-top: 2px; color: #00ffcc; }
-        
-        .zones-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .zone-box { flex: 1; background: #111a24; border-radius: 12px; padding: 8px; text-align: center; }
-        .zone-label { font-size: 8px; }
-        .zone-value { font-size: 11px; font-weight: 800; margin-top: 3px; }
-        .demand { border-left: 3px solid #00ffcc; }
-        .supply { border-left: 3px solid #ff3366; }
-        
-        .fibo-row { display: flex; gap: 6px; margin-bottom: 12px; }
-        .fibo-box { flex: 1; background: #111a24; border-radius: 10px; padding: 6px; text-align: center; }
-        .fibo-label { font-size: 7px; color: #8a9bb0; }
-        .fibo-value { font-size: 10px; font-weight: 800; }
-        
-        .indicators-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-        .indicator-card { flex: 1; background: #111a24; border-radius: 10px; padding: 6px; text-align: center; border: 1px solid #00ffcc30; }
-        .indicator-label { font-size: 7px; color: #8a9bb0; }
-        .indicator-value { font-size: 11px; font-weight: 800; }
+        .entry-box .level-price { color: #00ffcc; }
+        .sl-box .level-price { color: #ff3366; }
+        .tp-box .level-price { color: #ffd700; }
         
         .profit-calc { background: #111a24; border-radius: 12px; padding: 10px; margin-top: 10px; text-align: center; border: 1px solid #ffd700; }
         .profit-calc input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 8px; padding: 4px; color: #00ffcc; text-align: center; width: 70px; font-size: 11px; }
@@ -150,10 +131,9 @@
 
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
-        <div class="login-title">⚡ F609 MATRIX ⚡</div>
-        <div class="login-sub">REAL SIGNALS • REAL DATA • PROFESSIONAL</div>
-        <button class="start-btn" onclick="startTrading()">🎯 ENTER</button>
-        <button class="voice-enable-btn" id="enableVoiceBtn" onclick="enableVoice()">🔊 ENABLE VOICE</button>
+        <div class="login-title">⚡ F609 BOT ⚡</div>
+        <div class="login-sub">REAL SIGNALS • REAL DATA • FREE</div>
+        <button class="start-btn" onclick="startTrading()">🎯 START</button>
     </div>
 </div>
 
@@ -168,11 +148,9 @@
     <div class="user-card">
         <div class="avatar" id="userAvatar">🎯</div>
         <div class="user-info">
-            <div class="user-name" id="userName">F609 TRADER</div>
+            <div class="user-name" id="userName">Trader</div>
         </div>
     </div>
-    
-    <div class="tf-row" id="tfRow"></div>
     
     <div class="symbol-row">
         <div class="sym-btn active" data-sym="BTCUSD">₿ BTCUSD</div>
@@ -186,40 +164,22 @@
     
     <div class="chart" id="chart"></div>
     
-    <div class="indicators-row">
-        <div class="indicator-card"><div class="indicator-label">RSI</div><div class="indicator-value" id="rsiVal">--</div></div>
-        <div class="indicator-card"><div class="indicator-label">EMA9</div><div class="indicator-value" id="ema9Val">--</div></div>
-        <div class="indicator-card"><div class="indicator-label">EMA21</div><div class="indicator-value" id="ema21Val">--</div></div>
-        <div class="indicator-card"><div class="indicator-label">TREND</div><div class="indicator-value" id="trendVal">--</div></div>
-    </div>
-    
     <div class="signal-box" id="signalBox">
         <div class="signal-dir" id="signalDir">🟡 INITIALIZING</div>
         <div class="signal-reason" id="signalReason">Loading market data...</div>
     </div>
     
     <div class="levels-container">
-        <div class="levels-title">🎯 TRADE LEVELS (FIXED AT SIGNAL)</div>
+        <div class="levels-title">🎯 TRADE LEVELS</div>
         <div class="levels-row">
             <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
-            <div class="level-box sl-box"><div class="level-label">🛑 SL</div><div class="level-price" id="displaySL">--</div><div class="level-pips red" id="slPips">--</div></div>
+            <div class="level-box sl-box"><div class="level-label">🛑 SL</div><div class="level-price" id="displaySL">--</div></div>
         </div>
         <div class="levels-row">
-            <div class="level-box tp-box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div><div class="level-pips green" id="tp1Pips">--</div><div class="level-profit green" id="tp1Profit">--</div></div>
-            <div class="level-box tp-box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div><div class="level-pips green" id="tp2Pips">--</div><div class="level-profit green" id="tp2Profit">--</div></div>
-            <div class="level-box tp-box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div><div class="level-pips green" id="tp3Pips">--</div><div class="level-profit green" id="tp3Profit">--</div></div>
+            <div class="level-box tp-box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div></div>
+            <div class="level-box tp-box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div></div>
+            <div class="level-box tp-box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div></div>
         </div>
-    </div>
-    
-    <div class="zones-row">
-        <div class="zone-box demand"><div class="zone-label">🟢 DEMAND ZONE</div><div class="zone-value" id="demandZone">--</div></div>
-        <div class="zone-box supply"><div class="zone-label">🔴 SUPPLY ZONE</div><div class="zone-value" id="supplyZone">--</div></div>
-    </div>
-    
-    <div class="fibo-row">
-        <div class="fibo-box"><div class="fibo-label">FIBO 0.382</div><div class="fibo-value" id="fibo382">--</div></div>
-        <div class="fibo-box"><div class="fibo-label">FIBO 0.5</div><div class="fibo-value" id="fibo50">--</div></div>
-        <div class="fibo-box"><div class="fibo-label">FIBO 0.618</div><div class="fibo-value" id="fibo618">--</div></div>
     </div>
     
     <div class="profit-calc">
@@ -227,7 +187,6 @@
         <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
             <span style="font-size: 10px;">LOT:</span>
             <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00">
-            <span style="font-size: 10px;">1 pip = $<span id="pipValue">1.00</span></span>
             <span style="font-size: 10px;">Risk: $<span id="riskAmount">0</span></span>
         </div>
     </div>
@@ -237,43 +196,23 @@
         <div id="alertsList"></div>
     </div>
     
-    <div class="footer">⚡ F609 MATRIX • REAL DATA • FIXED LEVELS • SUPPLY/DEMAND • FIBO</div>
+    <div class="footer">⚡ F609 BOT • REAL DATA • FREE FOREVER</div>
 </div>
 </div>
 
 <script>
-    // ==================== F609 COMPLETE TRADING SYSTEM ====================
-    
     let symbol = "BTCUSD";
     let price = null;
     let prevPrice = null;
     let history = [];
     let chart = null;
-    let currentTF = "15m";
-    let voiceEnabled = false;
-    let lastSignal = null;
-    let fixedLevels = { entry: null, sl: null, tp1: null, tp2: null, tp3: null, signalType: null };
     let alerts = [];
+    let fixedLevels = { entry: null, sl: null, tp1: null, tp2: null, tp3: null, signalType: null };
+    let lastSignal = null;
     
-    // Timeframe settings (different SL/TP for each)
-    const tfSettings = {
-        "1m": { sl: 3, tp1: 3, tp2: 5, tp3: 8, zonePips: 3, name: "SCALP" },
-        "5m": { sl: 5, tp1: 5, tp2: 8, tp3: 12, zonePips: 8, name: "SCALP" },
-        "15m": { sl: 10, tp1: 10, tp2: 15, tp3: 25, zonePips: 15, name: "DAY" },
-        "1h": { sl: 15, tp1: 15, tp2: 25, tp3: 40, zonePips: 30, name: "SWING" },
-        "4h": { sl: 25, tp1: 25, tp2: 40, tp3: 60, zonePips: 60, name: "SWING" },
-        "1D": { sl: 40, tp1: 40, tp2: 60, tp3: 100, zonePips: 120, name: "POSITION" }
-    };
+    const tfSettings = { sl: 10, tp1: 10, tp2: 15, tp3: 25 };
     
-    const timeframes = ["1m", "5m", "15m", "1h", "4h", "1D"];
-    
-    // Price config
-    const config = { 
-        BTCUSD: { fmt: 0, pipValue: 1, name: "Bitcoin", apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", chartSym: "BINANCE:BTCUSDT" },
-        XAUUSD: { fmt: 2, pipValue: 100, name: "Gold", apiUrl: null, chartSym: "FX_IDC:XAUUSD" }
-    };
-    
-    function addAlert(msg, type = "info") {
+    function addAlert(msg, type) {
         let time = new Date().toLocaleTimeString();
         alerts.unshift({ time, msg, type });
         if (alerts.length > 15) alerts.pop();
@@ -283,53 +222,6 @@
             html += `<div class="alert-item" style="color:${color}">[${a.time}] ${a.msg}</div>`;
         }
         document.getElementById("alertsList").innerHTML = html;
-    }
-    
-    function speak(msg) {
-        if (voiceEnabled && window.speechSynthesis) {
-            try {
-                window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(msg);
-                utterance.rate = 0.85;
-                window.speechSynthesis.speak(utterance);
-            } catch(e) {}
-        }
-    }
-    
-    function enableVoice() {
-        voiceEnabled = true;
-        addAlert("🔊 Voice enabled", "info");
-        speak("Voice enabled");
-        document.getElementById("enableVoiceBtn").style.opacity = "0.5";
-        document.getElementById("enableVoiceBtn").innerHTML = "✅ VOICE ON";
-    }
-    
-    function sendNotification(title, body) {
-        if (Notification.permission === "granted") {
-            new Notification(title, { body: body });
-        }
-    }
-    
-    function renderTimeframes() {
-        let html = '';
-        for (let tf of timeframes) {
-            let isActive = (tf === currentTF);
-            html += `<div class="tf-btn ${isActive ? 'active' : ''}" data-tf="${tf}">${tf}</div>`;
-        }
-        document.getElementById("tfRow").innerHTML = html;
-        document.querySelectorAll(".tf-btn").forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                currentTF = btn.getAttribute("data-tf");
-                addAlert(`⏰ TIMEFRAME changed to ${currentTF}`, "info");
-                // Recalculate levels with new timeframe
-                if (fixedLevels.signalType) {
-                    calculateFixedLevels(fixedLevels.signalType, price);
-                }
-                updateZonesAndFibo();
-            };
-        });
     }
     
     function updateSession() {
@@ -367,211 +259,53 @@
     
     function calculateSignal() {
         if (!price || history.length < 30) {
-            return { dir: "🟡 INITIALIZING", color: "#ffd700", type: "NEUTRAL", reason: "Loading data...", confidence: 50 };
+            return { dir: "🟡 INITIALIZING", color: "#ffd700", type: "NEUTRAL", reason: "Loading...", confidence: 50 };
         }
         
         let e9 = ema(9);
         let e21 = ema(21);
         let rsi = calculateRSI();
-        let trend = (price - (history[history.length-10] || price)) / (history[history.length-10] || price) * 100;
+        let buyScore = 0, sellScore = 0;
         
-        document.getElementById("rsiVal").innerHTML = rsi;
-        document.getElementById("ema9Val").innerHTML = `$${e9.toFixed(config[symbol].fmt)}`;
-        document.getElementById("ema21Val").innerHTML = `$${e21.toFixed(config[symbol].fmt)}`;
-        document.getElementById("trendVal").innerHTML = trend > 0 ? "BULLISH ▲" : (trend < 0 ? "BEARISH ▼" : "SIDEWAYS →");
+        if (e9 > e21) buyScore++;
+        else sellScore++;
+        if (rsi < 40) buyScore++;
+        if (rsi > 60) sellScore++;
         
-        let confidence = 50;
-        let buyConditions = 0, sellConditions = 0;
-        
-        if (e9 > e21) { buyConditions++; confidence += 15; }
-        else { sellConditions++; confidence -= 5; }
-        
-        if (rsi < 40) { buyConditions++; confidence += 15; }
-        else if (rsi > 60) { sellConditions++; confidence -= 5; }
-        else if (rsi < 50) { buyConditions++; confidence += 5; }
-        else { sellConditions++; confidence -= 5; }
-        
-        if (trend > 0.2) { buyConditions++; confidence += 10; }
-        else if (trend < -0.2) { sellConditions++; confidence -= 10; }
-        
+        let confidence = 50 + (buyScore * 15) - (sellScore * 5);
         confidence = Math.min(92, Math.max(35, confidence));
         
         let dir, color, type;
-        if (buyConditions >= 2) { dir = "🟢 BUY"; color = "#00ffcc"; type = "BUY"; }
-        else if (sellConditions >= 2) { dir = "🔴 SELL"; color = "#ff3366"; type = "SELL"; }
+        if (buyScore >= 2) { dir = "🟢 BUY"; color = "#00ffcc"; type = "BUY"; }
+        else if (sellScore >= 2) { dir = "🔴 SELL"; color = "#ff3366"; type = "SELL"; }
         else { dir = "🟡 NEUTRAL"; color = "#ffd700"; type = "NEUTRAL"; }
         
-        return { dir, color, type, reason: `Confidence: ${confidence}%`, confidence, buyConditions, sellConditions };
+        return { dir, color, type, reason: `${confidence}% confidence`, confidence };
     }
     
     function calculateFixedLevels(signalType, currentPrice) {
-        let tf = tfSettings[currentTF];
-        if (!tf) return;
-        
         let entry = currentPrice;
         let sl, tp1, tp2, tp3;
-        let slPips, tp1Pips, tp2Pips, tp3Pips;
-        
         if (signalType === "BUY") {
-            sl = currentPrice - tf.sl;
-            tp1 = currentPrice + tf.tp1;
-            tp2 = currentPrice + tf.tp2;
-            tp3 = currentPrice + tf.tp3;
-            slPips = -tf.sl;
-            tp1Pips = tf.tp1;
-            tp2Pips = tf.tp2;
-            tp3Pips = tf.tp3;
+            sl = currentPrice - tfSettings.sl;
+            tp1 = currentPrice + tfSettings.tp1;
+            tp2 = currentPrice + tfSettings.tp2;
+            tp3 = currentPrice + tfSettings.tp3;
         } else if (signalType === "SELL") {
-            sl = currentPrice + tf.sl;
-            tp1 = currentPrice - tf.tp1;
-            tp2 = currentPrice - tf.tp2;
-            tp3 = currentPrice - tf.tp3;
-            slPips = tf.sl;
-            tp1Pips = -tf.tp1;
-            tp2Pips = -tf.tp2;
-            tp3Pips = -tf.tp3;
+            sl = currentPrice + tfSettings.sl;
+            tp1 = currentPrice - tfSettings.tp1;
+            tp2 = currentPrice - tfSettings.tp2;
+            tp3 = currentPrice - tfSettings.tp3;
         } else {
             sl = currentPrice; tp1 = currentPrice; tp2 = currentPrice; tp3 = currentPrice;
-            slPips = 0; tp1Pips = 0; tp2Pips = 0; tp3Pips = 0;
         }
-        
-        fixedLevels = { entry, sl, tp1, tp2, tp3, slPips, tp1Pips, tp2Pips, tp3Pips, signalType };
+        fixedLevels = { entry, sl, tp1, tp2, tp3, signalType };
         updateLevelsDisplay();
     }
     
-    function updateLevelsDisplay() {
-        let fmt = config[symbol].fmt;
-        document.getElementById("displayEntry").innerHTML = fixedLevels.entry ? `$${fixedLevels.entry.toFixed(fmt)}` : "--";
-        document.getElementById("displaySL").innerHTML = fixedLevels.sl ? `$${fixedLevels.sl.toFixed(fmt)}` : "--";
-        document.getElementById("displayTP1").innerHTML = fixedLevels.tp1 ? `$${fixedLevels.tp1.toFixed(fmt)}` : "--";
-        document.getElementById("displayTP2").innerHTML = fixedLevels.tp2 ? `$${fixedLevels.tp2.toFixed(fmt)}` : "--";
-        document.getElementById("displayTP3").innerHTML = fixedLevels.tp3 ? `$${fixedLevels.tp3.toFixed(fmt)}` : "--";
-        
-        if (fixedLevels.slPips !== undefined) {
-            document.getElementById("slPips").innerHTML = `${fixedLevels.slPips >= 0 ? '+' : ''}${fixedLevels.slPips} pips`;
-            document.getElementById("tp1Pips").innerHTML = `${fixedLevels.tp1Pips >= 0 ? '+' : ''}${fixedLevels.tp1Pips} pips`;
-            document.getElementById("tp2Pips").innerHTML = `${fixedLevels.tp2Pips >= 0 ? '+' : ''}${fixedLevels.tp2Pips} pips`;
-            document.getElementById("tp3Pips").innerHTML = `${fixedLevels.tp3Pips >= 0 ? '+' : ''}${fixedLevels.tp3Pips} pips`;
-        }
-        
+    function updateProfitDisplay() {
         let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
-        let pipValueUsd = (symbol === "BTCUSD" ? 1 : 100) * lot;
-        document.getElementById("pipValue").innerHTML = pipValueUsd.toFixed(2);
-        if (fixedLevels.tp1Pips) {
-            document.getElementById("tp1Profit").innerHTML = `+$${(Math.abs(fixedLevels.tp1Pips) * pipValueUsd).toFixed(2)}`;
-            document.getElementById("tp2Profit").innerHTML = `+$${(Math.abs(fixedLevels.tp2Pips) * pipValueUsd).toFixed(2)}`;
-            document.getElementById("tp3Profit").innerHTML = `+$${(Math.abs(fixedLevels.tp3Pips) * pipValueUsd).toFixed(2)}`;
-            document.getElementById("riskAmount").innerHTML = (Math.abs(fixedLevels.slPips) * pipValueUsd).toFixed(2);
-        }
-    }
-    
-    function updateZonesAndFibo() {
-        if (!price) return;
-        let tf = tfSettings[currentTF];
-        let fmt = config[symbol].fmt;
-        let zonePips = tf ? tf.zonePips : 15;
-        
-        document.getElementById("demandZone").innerHTML = `$${(price - zonePips).toFixed(fmt)} - $${(price - zonePips/2).toFixed(fmt)}`;
-        document.getElementById("supplyZone").innerHTML = `$${(price + zonePips/2).toFixed(fmt)} - $${(price + zonePips).toFixed(fmt)}`;
-        
-        // Fibonacci based on recent range
-        let high = Math.max(...history.slice(-20)) || price + zonePips;
-        let low = Math.min(...history.slice(-20)) || price - zonePips;
-        let range = high - low;
-        document.getElementById("fibo382").innerHTML = `$${(low + range * 0.382).toFixed(fmt)}`;
-        document.getElementById("fibo50").innerHTML = `$${(low + range * 0.5).toFixed(fmt)}`;
-        document.getElementById("fibo618").innerHTML = `$${(low + range * 0.618).toFixed(fmt)}`;
-    }
-    
-    async function fetchBTCPrice() {
-        try {
-            let res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
-            let data = await res.json();
-            if (data && data.price) {
-                let newPrice = parseFloat(data.price);
-                prevPrice = price;
-                price = newPrice;
-                history.push(price);
-                if (history.length > 200) history.shift();
-                document.getElementById("price").innerHTML = `$${price.toFixed(0)}`;
-                let change = prevPrice ? ((price - prevPrice) / prevPrice * 100).toFixed(2) : 0;
-                document.getElementById("priceChange").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
-                document.getElementById("priceChange").className = `price-change ${change >= 0 ? 'green' : 'red'}`;
-                return true;
-            }
-        } catch(e) { document.getElementById("dataStatus").innerHTML = "CONNECT..."; }
-        return false;
-    }
-    
-    function initChart() {
-        if (chart) try { chart.remove(); } catch(e) {}
-        let tvSym = symbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
-        chart = new TradingView.widget({
-            container_id: "chart", width: "100%", height: 200,
-            symbol: tvSym, interval: currentTF.replace('m', '').replace('h', 'H').replace('D', '1D'),
-            theme: "dark", style: "1", locale: "en", toolbar_bg: "#000", studies: ["EMA@tv-basicstudies"]
-        });
-    }
-    
-    async function updateAll() {
-        if (symbol === "BTCUSD") {
-            await fetchBTCPrice();
-        }
-        
-        let signal = calculateSignal();
-        document.getElementById("signalDir").innerHTML = signal.dir;
-        document.getElementById("signalDir").style.color = signal.color;
-        document.getElementById("signalBox").style.borderColor = signal.color;
-        document.getElementById("signalReason").innerHTML = signal.reason;
-        
-        // When signal changes, fix levels
-        if (lastSignal !== signal.type && signal.type !== "NEUTRAL") {
-            lastSignal = signal.type;
-            calculateFixedLevels(signal.type, price);
-            addAlert(`${signal.type} SIGNAL detected at $${price.toFixed(config[symbol].fmt)}`, signal.type.toLowerCase());
-            speak(`${signal.type} signal detected`);
-            sendNotification(`${signal.type} SIGNAL`, `${symbol} at $${price.toFixed(config[symbol].fmt)}`);
-        }
-        
-        updateZonesAndFibo();
-        updateLevelsDisplay();
-    }
-    
-    function startTrading() {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("mainApp").classList.add("show");
-        document.getElementById("userName").innerHTML = "F609 TRADER";
-        document.getElementById("userAvatar").innerHTML = "🎯";
-        renderTimeframes();
-        initChart();
-        updateAll();
-        setInterval(updateAll, 3000);
-        setInterval(updateSession, 1000);
-        addAlert("🟢 F609 MATRIX ACTIVATED", "info");
-        if (Notification.permission === "default") Notification.requestPermission();
-    }
-    
-    document.querySelectorAll(".sym-btn").forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            symbol = btn.getAttribute("data-sym");
-            price = null; history = [];
-            lastSignal = null;
-            fixedLevels = { entry: null, sl: null, tp1: null, tp2: null, tp3: null, signalType: null };
-            initChart();
-            updateAll();
-            addAlert(`🔄 Switched to ${symbol}`, "info");
-        };
-    });
-    
-    document.getElementById("lotSize").onchange = () => updateLevelsDisplay();
-    
-    for (let i = 0; i < 50; i++) history.push(85000 + (Math.random() - 0.5) * 2000);
-    price = history[history.length - 1];
-    
-    window.startTrading = startTrading;
-    window.enableVoice = enableVoice;
-</script>
-</body>
-</html>
+        let pipValue = symbol === "BTCUSD" ? 1 : 100;
+        let risk = tfSettings.sl * pipValue * lot;
+        document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
+   
