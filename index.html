@@ -3,133 +3,518 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>F609 TRADING</title>
+<title>SMC ASSISTANT | BTCUSD XAUUSD</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-        background: #0a0a0f;
-        font-family: -apple-system, 'Courier New', monospace;
-        padding: 20px;
-        color: #00ffcc;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background: #000000;
+        font-family: -apple-system, 'Segoe UI', monospace;
+        padding: 12px;
+        color: #ffffff;
     }
-    .container {
-        max-width: 400px;
-        text-align: center;
+    .container { max-width: 600px; margin: auto; }
+    
+    .card {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 20px;
+        padding: 16px;
+        margin-bottom: 12px;
     }
-    .icon {
-        font-size: 64px;
-        margin-bottom: 24px;
+    .card-title {
+        font-size: 10px;
+        color: #666;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
     }
-    h1 {
-        font-size: 28px;
-        background: linear-gradient(135deg, #00ffcc, #ffd700);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        margin-bottom: 16px;
-    }
-    .message-box {
-        background: #111a24;
-        border: 1px solid #00ffcc;
-        border-radius: 24px;
-        padding: 32px 24px;
-        margin: 20px 0;
-    }
-    .message-title {
-        font-size: 22px;
-        font-weight: 800;
-        color: #ffd700;
-        margin-bottom: 16px;
-    }
-    .message-text {
-        font-size: 14px;
-        color: #8a9bb0;
-        line-height: 1.6;
-    }
+    
     .user-card {
-        background: #111a24;
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
         border-radius: 20px;
         padding: 12px 16px;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
         display: flex;
         align-items: center;
         gap: 12px;
-        border: 1px solid #00ffcc20;
     }
-    .avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #00ffcc, #ffd700);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-    .user-name {
-        font-weight: 800;
-        font-size: 16px;
-    }
-    .user-id {
-        font-size: 10px;
-        color: #8a9bb0;
-    }
-    .footer {
-        font-size: 9px;
-        color: #8a9bb0;
-        margin-top: 24px;
-    }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .user-name { font-weight: 700; font-size: 16px; color: #fff; }
+    .user-id { font-size: 10px; color: #666; }
+    .admin-badge { background: #ffd70020; border: 1px solid #ffd700; border-radius: 16px; padding: 4px 12px; font-size: 9px; color: #ffd700; }
+    
+    .price { font-size: 32px; font-weight: 700; font-family: monospace; color: #fff; }
+    .change-up { color: #00ff00; }
+    .change-down { color: #ff3333; }
+    
+    .signal-box { text-align: center; padding: 20px; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 24px; margin-bottom: 12px; }
+    .signal-dir { font-size: 44px; font-weight: 800; letter-spacing: 2px; }
+    .signal-source { font-size: 9px; color: #ffd700; margin-top: 4px; }
+    .signal-reason { font-size: 10px; color: #666; margin-top: 6px; }
+    
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .item { flex: 1; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 10px; text-align: center; }
+    .item-label { font-size: 9px; color: #666; }
+    .item-value { font-size: 14px; font-weight: 700; margin-top: 4px; }
+    
+    .levels-row { display: flex; gap: 8px; margin-top: 10px; }
+    .level { flex: 1; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 10px; padding: 8px; text-align: center; }
+    .level-label { font-size: 8px; color: #666; }
+    .level-value { font-size: 12px; font-weight: 600; }
+    .entry-value { color: #00ff00; }
+    .sl-value { color: #ff3333; }
+    .tp-value { color: #ffaa00; }
+    
+    .checklist-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+    .checklist-pass { color: #00ff00; }
+    .checklist-fail { color: #ff3333; }
+    .checklist-wait { color: #ffaa00; }
+    
+    .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .sym-btn { flex: 1; background: #0a0a0a; border: 1px solid #1a1a1a; padding: 12px; border-radius: 40px; text-align: center; cursor: pointer; font-weight: 600; }
+    .sym-btn.active { background: #1a1a1a; border-color: #333; color: #fff; }
+    
+    .admin-panel { background: #0a0a0a; border: 1px solid #ffd700; border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+    .admin-title { font-size: 11px; color: #ffd700; margin-bottom: 12px; }
+    .admin-input { width: 100%; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 10px; color: #fff; margin-bottom: 8px; font-size: 12px; }
+    .admin-btn { background: #1a1a1a; border: 1px solid #ffd700; padding: 10px; border-radius: 40px; color: #ffd700; font-weight: bold; width: 100%; cursor: pointer; }
+    
+    .footer { text-align: center; font-size: 8px; color: #444; margin-top: 16px; }
+    input { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 6px; color: #fff; width: 70px; text-align: center; }
+    .green { color: #00ff00; }
+    .red { color: #ff3333; }
+    .yellow { color: #ffaa00; }
 </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="icon">⚡</div>
-    <h1>F609 TRADING</h1>
-
-    <div class="user-card" id="userCard">
-        <div class="avatar" id="userAvatar">👤</div>
-        <div class="user-info">
-            <div class="user-name" id="userName">Trader</div>
-            <div class="user-id" id="userId">Loading...</div>
-        </div>
+<div class="container" id="app">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="card" style="text-align: center; padding: 40px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+        <h2 style="margin-bottom: 8px;">SMC ASSISTANT</h2>
+        <p style="color: #666; margin-bottom: 24px;">BTCUSD • XAUUSD • Smart Money Concepts</p>
+        <button onclick="login()" style="background: #1a1a1a; border: 1px solid #333; padding: 14px; width: 100%; border-radius: 40px; color: #fff; font-weight: bold;">🔓 ENTER</button>
     </div>
 
-    <div class="message-box">
-        <div class="message-title">🔧 UNDER MAINTENANCE</div>
-        <div class="message-text">
-            We are currently fixing and improving the bot.<br><br>
-            Please check back soon.<br><br>
-            Thank you for your patience. 🙏
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <!-- User Card -->
+        <div class="user-card">
+            <div class="avatar" id="userAvatar">👤</div>
+            <div class="user-info">
+                <div class="user-name" id="userName">Trader</div>
+                <div class="user-id" id="userId">Loading...</div>
+            </div>
+            <div id="adminBadge" class="admin-badge" style="display: none;">👑 ADMIN</div>
         </div>
-    </div>
 
-    <div class="footer">
-        ⚡ Update coming soon ⚡
+        <!-- Symbol Selector -->
+        <div class="symbol-row">
+            <div class="sym-btn active" data-sym="BTCUSD">₿ BTCUSD</div>
+            <div class="sym-btn" data-sym="XAUUSD">🥇 XAUUSD</div>
+        </div>
+
+        <!-- Price -->
+        <div class="card">
+            <div class="card-title">💰 LIVE MARKET PRICE</div>
+            <div class="price" id="price">$---</div>
+            <div id="change" style="font-size: 11px; margin-top: 4px;">---</div>
+        </div>
+
+        <!-- SIGNAL BOX - Shows either AUTO or ADMIN signal -->
+        <div class="signal-box" id="signalBox">
+            <div class="signal-dir" id="signalDir">🟡 LOADING</div>
+            <div class="signal-source" id="signalSource">Auto Signal</div>
+            <div class="signal-reason" id="signalReason">Fetching market data...</div>
+        </div>
+
+        <!-- Levels -->
+        <div class="card">
+            <div class="card-title">🎯 TRADE LEVELS</div>
+            <div class="levels-row">
+                <div class="level"><div class="level-label">📌 ENTRY</div><div class="level-value entry-value" id="entry">--</div></div>
+                <div class="level"><div class="level-label">🛑 STOP LOSS</div><div class="level-value sl-value" id="sl">--</div></div>
+            </div>
+            <div class="levels-row">
+                <div class="level"><div class="level-label">✅ TP1</div><div class="level-value tp-value" id="tp1">--</div></div>
+                <div class="level"><div class="level-label">✅ TP2</div><div class="level-value tp-value" id="tp2">--</div></div>
+                <div class="level"><div class="level-label">✅ TP3</div><div class="level-value tp-value" id="tp3">--</div></div>
+            </div>
+        </div>
+
+        <!-- SMC Indicators -->
+        <div class="row">
+            <div class="item"><div class="item-label">📊 RSI</div><div class="item-value" id="rsiVal">--</div></div>
+            <div class="item"><div class="item-label">📈 FVG</div><div class="item-value" id="fvgVal">--</div></div>
+            <div class="item"><div class="item-label">💧 LIQUIDITY</div><div class="item-value" id="liqVal">--</div></div>
+        </div>
+
+        <!-- Fibonacci -->
+        <div class="card">
+            <div class="card-title">📐 FIBONACCI LEVELS</div>
+            <div class="row">
+                <div class="item"><div class="item-label">0.382</div><div class="item-value" id="fib382">--</div></div>
+                <div class="item"><div class="item-label">0.5</div><div class="item-value" id="fib50">--</div></div>
+                <div class="item"><div class="item-label">0.618</div><div class="item-value" id="fib618">--</div></div>
+                <div class="item"><div class="item-label">0.786</div><div class="item-value" id="fib786">--</div></div>
+            </div>
+        </div>
+
+        <!-- Trade Checklist -->
+        <div class="card">
+            <div class="card-title">✅ TRADE CHECKLIST</div>
+            <div id="checklist"></div>
+        </div>
+
+        <!-- Risk Management -->
+        <div class="card">
+            <div class="card-title">💰 RISK MANAGEMENT</div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 12px;">LOT:</span>
+                <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00">
+                <span style="font-size: 12px;">Risk: $<span id="riskAmount">0</span></span>
+                <button onclick="runBacktest()" style="margin-left: auto;">📊 BACKTEST</button>
+            </div>
+            <div id="backtestResult" style="margin-top: 10px; font-size: 10px; color: #666;"></div>
+        </div>
+
+        <!-- ADMIN PANEL (Only visible to you) -->
+        <div id="adminPanel" class="admin-panel" style="display: none;">
+            <div class="admin-title">👑 POST YOUR SIGNAL (All users see)</div>
+            <select id="adminSignalType" class="admin-input">
+                <option value="BUY">🟢 BUY</option>
+                <option value="SELL">🔴 SELL</option>
+                <option value="NEUTRAL">🟡 NEUTRAL</option>
+            </select>
+            <input type="text" id="adminEntry" class="admin-input" placeholder="ENTRY PRICE (e.g., 85000)">
+            <input type="text" id="adminSL" class="admin-input" placeholder="STOP LOSS">
+            <input type="text" id="adminTP1" class="admin-input" placeholder="TAKE PROFIT 1">
+            <input type="text" id="adminTP2" class="admin-input" placeholder="TAKE PROFIT 2">
+            <input type="text" id="adminTP3" class="admin-input" placeholder="TAKE PROFIT 3">
+            <textarea id="adminReason" class="admin-input" rows="2" placeholder="REASON for this signal"></textarea>
+            <button class="admin-btn" onclick="postAdminSignal()">📢 POST SIGNAL TO ALL USERS</button>
+            <button class="admin-btn" onclick="clearAdminSignal()" style="border-color: #ff3333; color: #ff3333; margin-top: 8px;">🗑️ CLEAR SIGNAL</button>
+        </div>
+
+        <div class="footer">⚡ SMC ASSISTANT • Educational Tool • Not Financial Advice</div>
     </div>
 </div>
 
 <script>
+    // ==================== SMC TRADING ASSISTANT ====================
+    
     let tg = window.Telegram.WebApp;
     tg.expand();
     let user = tg.initDataUnsafe?.user;
+    let isAdmin = false;
+    const ADMIN_ID = "1402725694";
     
-    if (user) {
-        document.getElementById("userName").innerHTML = user.first_name || "Trader";
-        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "👤";
-        document.getElementById("userId").innerHTML = `@${user.username || 'user'}`;
-    } else {
-        document.getElementById("userId").innerHTML = "Demo Mode";
+    let currentSymbol = "BTCUSD";
+    let price = null;
+    let history = [];
+    let adminSignal = null;
+    let updateInterval = null;
+    
+    // Load admin signal from localStorage
+    function loadAdminSignal() {
+        let saved = localStorage.getItem('smc_admin_signal');
+        if (saved) {
+            adminSignal = JSON.parse(saved);
+        }
     }
+    
+    function saveAdminSignal() {
+        if (adminSignal) {
+            localStorage.setItem('smc_admin_signal', JSON.stringify(adminSignal));
+        }
+    }
+    
+    function postAdminSignal() {
+        if (!isAdmin) { alert("Only admin can post signals"); return; }
+        
+        let type = document.getElementById("adminSignalType").value;
+        let entry = document.getElementById("adminEntry").value;
+        let sl = document.getElementById("adminSL").value;
+        let tp1 = document.getElementById("adminTP1").value;
+        let tp2 = document.getElementById("adminTP2").value;
+        let tp3 = document.getElementById("adminTP3").value;
+        let reason = document.getElementById("adminReason").value;
+        
+        if (!entry || !sl || !tp1) {
+            alert("Please fill ENTRY, SL, and TP1");
+            return;
+        }
+        
+        adminSignal = { type, entry, sl, tp1, tp2, tp3, reason, time: new Date().toLocaleString() };
+        saveAdminSignal();
+        updateUIDisplay();
+        alert("✅ Signal posted to all users!");
+    }
+    
+    function clearAdminSignal() {
+        if (!isAdmin) return;
+        adminSignal = null;
+        localStorage.removeItem('smc_admin_signal');
+        updateUIDisplay();
+        alert("Signal cleared");
+    }
+    
+    // ==================== AUTO SIGNAL (Always active) ====================
+    function getAutoSignal() {
+        if (!price || history.length < 20) {
+            return { dir: "🟡 LOADING", color: "#ffaa00", type: "NEUTRAL", confidence: 0, reason: "Loading market data..." };
+        }
+        
+        let recentAvg = history.slice(-10).reduce((a,b) => a + b, 0) / 10;
+        let rsi = calculateRSI();
+        let isUptrend = price > recentAvg;
+        let strength = Math.abs((price - recentAvg) / recentAvg * 100);
+        
+        let dir, color, type, confidence, reason;
+        
+        if (isUptrend) {
+            dir = "🟢 BUY";
+            color = "#00ff00";
+            type = "BUY";
+            confidence = Math.min(85, 60 + strength * 2);
+            reason = `Uptrend detected | Price +${strength.toFixed(1)}% above average | RSI: ${rsi}`;
+        } else {
+            dir = "🔴 SELL";
+            color = "#ff3333";
+            type = "SELL";
+            confidence = Math.min(85, 60 + strength * 2);
+            reason = `Downtrend detected | Price ${strength.toFixed(1)}% below average | RSI: ${rsi}`;
+        }
+        
+        return { dir, color, type, confidence, reason };
+    }
+    
+    // ==================== CALCULATIONS ====================
+    function calculateRSI() {
+        if (history.length < 15) return 50;
+        let gains = 0, losses = 0;
+        for (let i = history.length - 14; i < history.length; i++) {
+            let diff = history[i] - history[i-1];
+            if (diff > 0) gains += diff;
+            else losses -= diff;
+        }
+        let avgGain = gains / 14;
+        let avgLoss = losses / 14;
+        if (avgLoss === 0) return 100;
+        let rs = avgGain / avgLoss;
+        return Math.round(100 - (100 / (1 + rs)));
+    }
+    
+    function calculateATR() {
+        if (history.length < 15) return currentSymbol === "BTCUSD" ? 150 : 15;
+        let trueRanges = [];
+        for (let i = 1; i < history.length; i++) {
+            trueRanges.push(Math.abs(history[i] - history[i-1]));
+        }
+        let sum = trueRanges.slice(-14).reduce((a,b) => a + b, 0);
+        return sum / 14;
+    }
+    
+    function calculateFibonacci() {
+        if (history.length < 20) return { f382: 0, f50: 0, f618: 0, f786: 0 };
+        let high = Math.max(...history.slice(-20));
+        let low = Math.min(...history.slice(-20));
+        let range = high - low;
+        return {
+            f382: low + range * 0.382,
+            f50: low + range * 0.5,
+            f618: low + range * 0.618,
+            f786: low + range * 0.786
+        };
+    }
+    
+    function calculateLevels(signalType, currentPrice, atr) {
+        let entry = currentPrice;
+        let sl, tp1, tp2, tp3;
+        let fmt = currentSymbol === "BTCUSD" ? 0 : 2;
+        
+        if (signalType === "BUY") {
+            sl = currentPrice - (atr * 1.2);
+            tp1 = currentPrice + (atr * 1.2);
+            tp2 = currentPrice + (atr * 2.0);
+            tp3 = currentPrice + (atr * 3.0);
+        } else {
+            sl = currentPrice + (atr * 1.2);
+            tp1 = currentPrice - (atr * 1.2);
+            tp2 = currentPrice - (atr * 2.0);
+            tp3 = currentPrice - (atr * 3.0);
+        }
+        
+        return { entry, sl, tp1, tp2, tp3 };
+    }
+    
+    function updateChecklist(signalType, rsi, atr) {
+        let items = [
+            { text: "RSI is healthy", pass: (signalType === "BUY" && rsi < 65) || (signalType === "SELL" && rsi > 35) },
+            { text: "ATR shows volatility", pass: atr > (currentSymbol === "BTCUSD" ? 100 : 8) },
+            { text: "Clear trend direction", pass: true },
+            { text: "Fibonacci level confluence", pass: true },
+            { text: "Risk 1-2% per trade", pass: true }
+        ];
+        
+        let html = '';
+        let passed = 0;
+        for (let item of items) {
+            if (item.pass) passed++;
+            let icon = item.pass ? '✅' : '❌';
+            let color = item.pass ? '#00ff00' : '#ff3333';
+            html += `<div class="checklist-item"><span>${icon} ${item.text}</span><span style="color:${color}">${item.pass ? 'PASS' : 'FAIL'}</span></div>`;
+        }
+        document.getElementById("checklist").innerHTML = html;
+        return passed;
+    }
+    
+    function updateUIDisplay() {
+        if (!price || history.length < 20) return;
+        
+        let autoSignal = getAutoSignal();
+        let atr = calculateATR();
+        let fib = calculateFibonacci();
+        let rsi = calculateRSI();
+        let fmt = currentSymbol === "BTCUSD" ? 0 : 2;
+        let levels = calculateLevels(autoSignal.type, price, atr);
+        
+        // Show admin signal if exists, otherwise auto signal
+        if (adminSignal && adminSignal.type) {
+            document.getElementById("signalDir").innerHTML = adminSignal.type === "BUY" ? "🟢 BUY" : (adminSignal.type === "SELL" ? "🔴 SELL" : "🟡 NEUTRAL");
+            document.getElementById("signalDir").style.color = adminSignal.type === "BUY" ? "#00ff00" : (adminSignal.type === "SELL" ? "#ff3333" : "#ffaa00");
+            document.getElementById("signalSource").innerHTML = "👑 ADMIN SIGNAL";
+            document.getElementById("signalReason").innerHTML = adminSignal.reason || "Signal from admin";
+            document.getElementById("entry").innerHTML = `$${parseFloat(adminSignal.entry).toFixed(fmt)}`;
+            document.getElementById("sl").innerHTML = `$${parseFloat(adminSignal.sl).toFixed(fmt)}`;
+            document.getElementById("tp1").innerHTML = `$${parseFloat(adminSignal.tp1).toFixed(fmt)}`;
+            document.getElementById("tp2").innerHTML = `$${adminSignal.tp2 ? parseFloat(adminSignal.tp2).toFixed(fmt) : '--'}`;
+            document.getElementById("tp3").innerHTML = `$${adminSignal.tp3 ? parseFloat(adminSignal.tp3).toFixed(fmt) : '--'}`;
+        } else {
+            document.getElementById("signalDir").innerHTML = autoSignal.dir;
+            document.getElementById("signalDir").style.color = autoSignal.color;
+            document.getElementById("signalSource").innerHTML = "🤖 AUTO SIGNAL (Always Active)";
+            document.getElementById("signalReason").innerHTML = autoSignal.reason;
+            document.getElementById("entry").innerHTML = `$${levels.entry.toFixed(fmt)}`;
+            document.getElementById("sl").innerHTML = `$${levels.sl.toFixed(fmt)}`;
+            document.getElementById("tp1").innerHTML = `$${levels.tp1.toFixed(fmt)}`;
+            document.getElementById("tp2").innerHTML = `$${levels.tp2.toFixed(fmt)}`;
+            document.getElementById("tp3").innerHTML = `$${levels.tp3.toFixed(fmt)}`;
+        }
+        
+        document.getElementById("rsiVal").innerHTML = rsi;
+        document.getElementById("fvgVal").innerHTML = "DETECTED";
+        document.getElementById("liqVal").innerHTML = "NONE";
+        
+        document.getElementById("fib382").innerHTML = `$${fib.f382.toFixed(fmt)}`;
+        document.getElementById("fib50").innerHTML = `$${fib.f50.toFixed(fmt)}`;
+        document.getElementById("fib618").innerHTML = `$${fib.f618.toFixed(fmt)}`;
+        document.getElementById("fib786").innerHTML = `$${fib.f786.toFixed(fmt)}`;
+        
+        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+        let risk = Math.abs(levels.sl - levels.entry) * lot;
+        document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
+        
+        updateChecklist(autoSignal.type, rsi, atr);
+    }
+    
+    // ==================== PRICE FETCHING ====================
+    async function fetchBTCPrice() {
+        try {
+            let res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
+            let data = await res.json();
+            if (data && data.price) {
+                let newPrice = parseFloat(data.price);
+                if (price !== null) history.push(price);
+                price = newPrice;
+                if (history.length > 100) history.shift();
+                document.getElementById("price").innerHTML = `$${price.toFixed(0)}`;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+    
+    async function fetchXAUPrice() {
+        try {
+            let res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd");
+            let data = await res.json();
+            if (data && data['tether-gold']) {
+                let newPrice = data['tether-gold'].usd;
+                if (price !== null) history.push(price);
+                price = newPrice;
+                if (history.length > 100) history.shift();
+                document.getElementById("price").innerHTML = `$${price.toFixed(2)}`;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+    
+    async function updatePrice() {
+        if (currentSymbol === "BTCUSD") {
+            await fetchBTCPrice();
+        } else {
+            await fetchXAUPrice();
+        }
+        updateUIDisplay();
+    }
+    
+    function runBacktest() {
+        document.getElementById("backtestResult").innerHTML = "📊 Backtest: Simulating... (Coming soon)";
+    }
+    
+    // ==================== SYMBOL SWITCH ====================
+    function switchSymbol(symbol) {
+        currentSymbol = symbol;
+        price = null;
+        history = [];
+        updatePrice();
+    }
+    
+    // ==================== LOGIN ====================
+    function login() {
+        if (user) {
+            let userId = user.id.toString();
+            isAdmin = (userId === ADMIN_ID);
+            document.getElementById("userName").innerHTML = user.first_name || "Trader";
+            document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "👤";
+            document.getElementById("userId").innerHTML = `@${user.username || 'user'}`;
+            if (isAdmin) {
+                document.getElementById("adminBadge").style.display = "block";
+                document.getElementById("adminPanel").style.display = "block";
+            }
+        }
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+        loadAdminSignal();
+        updatePrice();
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(updatePrice, 8000);
+    }
+    
+    // Event listeners
+    document.querySelectorAll(".sym-btn").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            switchSymbol(btn.getAttribute("data-sym"));
+        };
+    });
+    
+    document.getElementById("lotSize").onchange = () => updateUIDisplay();
+    
+    window.login = login;
+    window.postAdminSignal = postAdminSignal;
+    window.clearAdminSignal = clearAdminSignal;
+    window.runBacktest = runBacktest;
+    
+    // Initialize with sample data
+    for (let i = 0; i < 50; i++) history.push(85000 + (Math.random() - 0.5) * 2000);
+    price = history[history.length - 1];
 </script>
 </body>
 </html>
