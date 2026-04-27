@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>MATRIX TRADING | REAL SIGNALS</title>
+    <title>F609 MATRIX TRADING | V4</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0f; font-family: -apple-system, 'Segoe UI', monospace; padding: 12px; color: #eef5ff; }
-        .container { max-width: 100%; margin: 0 auto; }
         
+        body {
+            background: #0a0a0f;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 12px;
+            color: #00ffcc;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* Scan Line Animation */
         body::before {
             content: "";
             position: fixed;
@@ -23,90 +31,169 @@
             pointer-events: none;
             z-index: 9999;
         }
-        @keyframes scanLine { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        @keyframes scanLine {
+            0% { top: 0; opacity: 1; }
+            50% { top: 100%; opacity: 0.5; }
+            100% { top: 0; opacity: 1; }
+        }
         
+        /* Grid Background */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 100%; margin: 0 auto; position: relative; z-index: 1; }
+        
+        /* Glow Effects */
+        .glow-green { text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc; }
+        .glow-gold { text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700; }
+        
+        /* Login Screen */
         .login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 30% 40%, #0a0a0f, #000);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
         }
-        .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); }
-        .login-title { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .login-sub { font-size: 11px; color: #00ffcc80; margin: 15px 0; }
-        .start-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 14px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; }
+        .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); animation: borderPulse 2s infinite; }
+        @keyframes borderPulse { 0%,100% { box-shadow: 0 0 10px #00ffcc; } 50% { box-shadow: 0 0 30px #00ffcc, 0 0 10px #ffd700; } }
+        .login-title { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px; }
+        .login-sub { font-size: 10px; color: #00ffcc80; margin: 15px 0; }
+        .start-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 14px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; transition: 0.2s; }
+        .start-btn:hover { transform: scale(0.98); box-shadow: 0 0 20px #00ffcc; }
         
         .main-app { display: none; }
         .main-app.show { display: block; }
         
+        /* Status Bar */
         .status-bar {
             background: #00ffcc10;
             border: 1px solid #00ffcc;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 8px 12px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             font-size: 9px;
             flex-wrap: wrap;
+            gap: 8px;
         }
         .status-led { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ffcc; animation: blink 1s infinite; margin-right: 4px; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
         
-        .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 20px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; margin-bottom: 12px; }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; margin-bottom: 12px; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .user-info { flex: 1; }
-        .user-name { font-size: 16px; font-weight: 800; }
-        .user-phone { font-size: 10px; color: #8a9bb0; }
+        .user-name { font-size: 14px; font-weight: 800; }
+        .user-phone { font-size: 9px; color: #8a9bb0; }
+        
+        /* Timeframe Buttons */
+        .tf-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .tf-btn {
+            background: #111a24;
+            border: 1px solid #00ffcc30;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tf-btn.active {
+            background: #00ffcc20;
+            border-color: #00ffcc;
+            color: #00ffcc;
+            box-shadow: 0 0 8px #00ffcc;
+        }
         
         .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        .sym-btn { flex: 1; background: #111a24; padding: 12px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; font-weight: bold; }
-        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
+        .sym-btn { flex: 1; background: #111a24; padding: 10px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; font-size: 12px; font-weight: bold; }
+        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; box-shadow: 0 0 8px #00ffcc; }
         
-        .price-card { background: #111a24; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        .price { font-size: 32px; font-weight: 800; font-family: monospace; color: #00ffcc; }
-        .price-change { font-size: 11px; margin-top: 4px; }
+        .price-card { background: #111a24; border-radius: 16px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        .price { font-size: 28px; font-weight: 800; font-family: monospace; color: #00ffcc; }
+        .price-change { font-size: 10px; margin-top: 4px; }
         
-        .chart { height: 220px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; background: #131b24; }
+        .chart { height: 180px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; background: #131b24; }
         
-        .signal-box { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 12px; border: 2px solid; cursor: pointer; }
-        .signal-dir { font-size: 44px; font-weight: 800; margin: 8px 0; }
-        .signal-reason { font-size: 10px; color: #8a9bb0; margin-top: 6px; }
+        .signal-box {
+            background: linear-gradient(135deg, #0f1622, #0a0e17);
+            border-radius: 24px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 12px;
+            border: 2px solid;
+            cursor: pointer;
+        }
+        .signal-dir { font-size: 40px; font-weight: 800; margin: 6px 0; letter-spacing: 2px; }
+        .signal-reason { font-size: 9px; color: #8a9bb0; margin-top: 6px; max-height: 50px; overflow-y: auto; }
         
         .levels-container {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
-            border-radius: 20px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 12px;
             margin-bottom: 12px;
             border: 1px solid #00ffcc;
         }
-        .levels-title { font-size: 11px; color: #ffd700; margin-bottom: 12px; text-align: center; }
-        .levels-row { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 8px; }
+        .levels-title { font-size: 10px; color: #ffd700; margin-bottom: 8px; text-align: center; }
+        .levels-row { display: flex; gap: 6px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 6px; }
         .level-box {
             flex: 1;
             background: #111a24;
-            border-radius: 16px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 8px;
             text-align: center;
-            min-width: 70px;
+            min-width: 65px;
         }
-        .level-box.hit { background: #ffd70020; border: 1px solid #ffd700; }
-        .level-label { font-size: 9px; color: #8a9bb0; margin-bottom: 4px; }
-        .level-price { font-size: 14px; font-weight: 800; font-family: monospace; }
-        .level-pips { font-size: 9px; margin-top: 2px; }
-        .level-profit { font-size: 9px; margin-top: 2px; color: #00ffcc; }
+        .level-box.hit { background: #ffd70020; border: 1px solid #ffd700; animation: flash 0.3s; }
+        @keyframes flash { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .level-label { font-size: 8px; color: #8a9bb0; margin-bottom: 3px; }
+        .level-price { font-size: 12px; font-weight: 800; font-family: monospace; }
+        .level-pips { font-size: 8px; margin-top: 2px; }
+        .level-profit { font-size: 8px; margin-top: 2px; color: #00ffcc; }
         .entry-box .level-price { color: #00ffcc; }
         .sl-box .level-price { color: #ff3366; }
         .tp-box .level-price { color: #ffd700; }
         
-        .indicators-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .indicator-card { flex: 1; background: #111a24; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #00ffcc30; }
-        .indicator-label { font-size: 8px; color: #8a9bb0; }
-        .indicator-value { font-size: 12px; font-weight: 800; }
+        .indicators-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .indicator-card { flex: 1; background: #111a24; border-radius: 10px; padding: 6px; text-align: center; border: 1px solid #00ffcc30; }
+        .indicator-label { font-size: 7px; color: #8a9bb0; }
+        .indicator-value { font-size: 11px; font-weight: 800; font-family: monospace; }
         
-        .profit-calc { background: #111a24; border-radius: 16px; padding: 12px; margin-top: 12px; text-align: center; border: 1px solid #ffd700; }
-        .profit-calc input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 12px; padding: 6px; color: #00ffcc; text-align: center; width: 80px; }
+        .profit-calc { background: #111a24; border-radius: 12px; padding: 10px; margin-top: 10px; text-align: center; border: 1px solid #ffd700; }
+        .profit-calc input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 8px; padding: 4px; color: #00ffcc; text-align: center; width: 70px; font-size: 11px; }
         
-        .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 12px; padding: 12px; border-top: 1px solid #00ffcc20; }
+        .alerts-box {
+            background: #0a1018;
+            border: 1px solid #00ffcc;
+            border-radius: 12px;
+            padding: 8px;
+            margin-top: 12px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 9px;
+        }
+        .alert-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #00ffcc20;
+            font-family: monospace;
+        }
+        
+        .footer { text-align: center; font-size: 7px; color: #8a9bb0; margin-top: 10px; padding: 8px; border-top: 1px solid #00ffcc20; }
         .green { color: #00ffcc; }
         .red { color: #ff3366; }
         .yellow { color: #ffd700; }
@@ -116,9 +203,10 @@
 
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
-        <div class="login-title">🎯 MATRIX TRADING</div>
-        <div class="login-sub">REAL SIGNALS • REAL DATA • LIVE</div>
-        <button class="start-btn" onclick="startTrading()">⚡ ENTER</button>
+        <div class="login-title">⚡ F609 MATRIX ⚡</div>
+        <div class="login-sub">PROFESSIONAL TRADING ASSISTANT • 2026</div>
+        <div class="login-sub" style="font-size: 8px;">REAL DATA • REAL SIGNALS • FREE</div>
+        <button class="start-btn" onclick="startTrading()">🎯 ENTER MATRIX</button>
     </div>
 </div>
 
@@ -127,16 +215,19 @@
     <div class="status-bar">
         <div><span class="status-led"></span> <span id="dataStatus">LIVE</span></div>
         <div>🕒 <span id="currentTime">--:--:--</span></div>
-        <div>📡 <span id="sessionName">LONDON</span></div>
+        <div>🌍 <span id="sessionName">LONDON</span></div>
+        <div>⚡ <span id="volatility">HIGH</span></div>
     </div>
     
     <div class="user-card">
-        <div class="avatar" id="userAvatar">📊</div>
+        <div class="avatar" id="userAvatar">🎯</div>
         <div class="user-info">
-            <div class="user-name" id="userName">Trader</div>
-            <div class="user-phone" id="userPhone">Ready</div>
+            <div class="user-name" id="userName">F609 TRADER</div>
+            <div class="user-phone" id="userPhone">Matrix Node Active</div>
         </div>
     </div>
+    
+    <div class="tf-row" id="tfRow"></div>
     
     <div class="symbol-row">
         <div class="sym-btn active" data-sym="XAUUSD">🥇 XAUUSD</div>
@@ -158,15 +249,15 @@
     </div>
     
     <div class="signal-box" id="signalBox">
-        <div class="signal-dir" id="signalDir">🟡 LOADING</div>
-        <div class="signal-reason" id="signalReason">Loading market data...</div>
+        <div class="signal-dir" id="signalDir">🟡 INITIALIZING</div>
+        <div class="signal-reason" id="signalReason">Loading market matrix...</div>
     </div>
     
     <div class="levels-container">
-        <div class="levels-title">🎯 TRADE LEVELS</div>
+        <div class="levels-title">🎯 F609 TRADE LEVELS</div>
         <div class="levels-row">
             <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
-            <div class="level-box sl-box"><div class="level-label">🛑 STOP LOSS</div><div class="level-price" id="displaySL">--</div><div class="level-pips red" id="slPips">--</div></div>
+            <div class="level-box sl-box"><div class="level-label">🛑 SL</div><div class="level-price" id="displaySL">--</div><div class="level-pips red" id="slPips">--</div></div>
         </div>
         <div class="levels-row">
             <div class="level-box tp-box" id="tp1Box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div><div class="level-pips green" id="tp1Pips">--</div><div class="level-profit green" id="tp1Profit">--</div></div>
@@ -176,61 +267,110 @@
     </div>
     
     <div class="profit-calc">
-        <div class="levels-title">💰 LOT SIZE</div>
-        <div style="display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap;">
-            <span>LOT:</span>
+        <div class="levels-title" style="margin-bottom: 4px;">💰 LOT SIZE</div>
+        <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 10px;">LOT:</span>
             <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00">
-            <span>1 pip = $<span id="pipValue">1.00</span></span>
-            <span>Risk: $<span id="riskAmount">0</span></span>
+            <span style="font-size: 10px;">1 pip = $<span id="pipValue">1.00</span></span>
+            <span style="font-size: 10px;">Risk: $<span id="riskAmount">0</span></span>
         </div>
     </div>
     
-    <div class="footer">📊 REAL MARKET DATA • 9/21 EMA + RSI • TP/SL AUTO DETECTION</div>
+    <!-- Live Alerts Box -->
+    <div class="alerts-box" id="alertsBox">
+        <div style="color:#ffd700; font-size:8px; margin-bottom:4px;">🔴 LIVE ALERTS</div>
+        <div id="alertsList"></div>
+    </div>
+    
+    <div class="footer">⚡ F609 MATRIX • REAL DATA • 1m/5m/15m/1h/4h/1D • PROFESSIONAL TOOLS</div>
 </div>
 </div>
 
 <script>
-    // ==================== FULLY FUNCTIONAL TRADING BOT ====================
+    // ==================== F609 MATRIX TRADING V4 ====================
     
     let symbol = "XAUUSD";
     let price = null;
     let prevPrice = null;
     let history = [];
     let chart = null;
+    let currentTF = "15m";
+    let alerts = [];
+    
+    // TF Settings
+    const tfSettings = {
+        "1m": { sl: 5, tp1: 5, tp2: 8, tp3: 10, name: "SCALP" },
+        "5m": { sl: 10, tp1: 10, tp2: 15, tp3: 20, name: "SCALP" },
+        "15m": { sl: 15, tp1: 15, tp2: 25, tp3: 40, name: "DAY" },
+        "1h": { sl: 20, tp1: 20, tp2: 35, tp3: 50, name: "SWING" },
+        "4h": { sl: 30, tp1: 30, tp2: 50, tp3: 80, name: "SWING" },
+        "1D": { sl: 50, tp1: 50, tp2: 80, tp3: 120, name: "POSITION" }
+    };
+    
+    const timeframes = ["1m", "5m", "15m", "1h", "4h", "1D"];
     
     // TP/SL tracking
     let tp1Hit = false, tp2Hit = false, tp3Hit = false, slHit = false;
     let currentSignalType = "WAIT";
     
     const config = { 
-        XAUUSD: { sl: 15, tp1: 15, tp2: 25, tp3: 40, fmt: 2, pipValue: 100, name: "Gold", 
-                   apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=XAUUSDT", 
-                   fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd" },
-        BTCUSD: { sl: 800, tp1: 800, tp2: 1200, tp3: 2000, fmt: 0, pipValue: 1, name: "Bitcoin", 
-                  apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT",
-                  fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd" }
+        XAUUSD: { fmt: 2, pipValue: 100, name: "Gold", apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=XAUUSDT", fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd" },
+        BTCUSD: { fmt: 0, pipValue: 1, name: "Bitcoin", apiUrl: "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", fallbackUrl: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd" }
     };
     
-    function updateProfitDisplay() {
-        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
-        let c = config[symbol];
-        let pipValueUsd = c.pipValue * lot;
-        document.getElementById("pipValue").innerHTML = pipValueUsd.toFixed(2);
-        document.getElementById("riskAmount").innerHTML = (c.sl * pipValueUsd).toFixed(2);
-        
-        if (currentSignalType === "BUY" || currentSignalType === "SELL") {
-            document.getElementById("tp1Profit").innerHTML = `+$${(c.tp1 * pipValueUsd).toFixed(2)}`;
-            document.getElementById("tp2Profit").innerHTML = `+$${(c.tp2 * pipValueUsd).toFixed(2)}`;
-            document.getElementById("tp3Profit").innerHTML = `+$${(c.tp3 * pipValueUsd).toFixed(2)}`;
+    function addAlert(msg, type = "info") {
+        let time = new Date().toLocaleTimeString();
+        alerts.unshift({ time, msg, type });
+        if (alerts.length > 20) alerts.pop();
+        updateAlertsDisplay();
+    }
+    
+    function updateAlertsDisplay() {
+        let html = '';
+        for (let a of alerts.slice(0, 10)) {
+            let color = a.type === "buy" ? "#00ffcc" : (a.type === "sell" ? "#ff3366" : "#ffd700");
+            html += `<div class="alert-item" style="color:${color}">[${a.time}] ${a.msg}</div>`;
         }
+        document.getElementById("alertsList").innerHTML = html || "<div>No alerts</div>";
+    }
+    
+    function renderTimeframes() {
+        let html = '';
+        for (let tf of timeframes) {
+            let isActive = (tf === currentTF);
+            html += `<div class="tf-btn ${isActive ? 'active' : ''}" data-tf="${tf}">${tf}</div>`;
+        }
+        document.getElementById("tfRow").innerHTML = html;
+        document.querySelectorAll(".tf-btn").forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentTF = btn.getAttribute("data-tf");
+                resetHitStatus();
+                updateUI();
+                addAlert(`⏰ TIMEFRAME changed to ${currentTF}`, "info");
+                speak(`Timeframe changed to ${currentTF}`);
+            };
+        });
     }
     
     function updateSession() {
         let now = new Date();
         document.getElementById("currentTime").innerHTML = now.toLocaleTimeString();
         let hour = now.getUTCHours();
-        let session = (hour >= 8 && hour < 16) ? "LONDON" : (hour >= 13 ? "NEW YORK" : "ASIA");
+        let session = "";
+        let volatility = "";
+        if (hour >= 8 && hour < 16) { session = "LONDON"; volatility = "HIGH 🔥"; }
+        else if (hour >= 13 && hour < 22) { session = "NEW YORK"; volatility = "HIGH 🔥"; }
+        else { session = "ASIA"; volatility = "LOW 💤"; }
         document.getElementById("sessionName").innerHTML = session;
+        document.getElementById("volatility").innerHTML = volatility;
+        
+        // Session start alert (first 15m candle)
+        let minute = now.getUTCMinutes();
+        if ((hour === 8 && minute === 15) || (hour === 13 && minute === 15) || (hour === 0 && minute === 15)) {
+            addAlert(`🔔 ${session} first 15m candle closed - Review direction`, "info");
+        }
     }
     
     function speak(message) {
@@ -256,6 +396,20 @@
         document.getElementById("tp1Box").classList.remove("hit");
         document.getElementById("tp2Box").classList.remove("hit");
         document.getElementById("tp3Box").classList.remove("hit");
+    }
+    
+    function updateProfitDisplay() {
+        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+        let c = config[symbol];
+        let pipValueUsd = c.pipValue * lot;
+        document.getElementById("pipValue").innerHTML = pipValueUsd.toFixed(2);
+        let tf = tfSettings[currentTF];
+        if (tf) {
+            document.getElementById("riskAmount").innerHTML = (tf.sl * pipValueUsd).toFixed(2);
+            document.getElementById("tp1Profit").innerHTML = `+$${(tf.tp1 * pipValueUsd).toFixed(2)}`;
+            document.getElementById("tp2Profit").innerHTML = `+$${(tf.tp2 * pipValueUsd).toFixed(2)}`;
+            document.getElementById("tp3Profit").innerHTML = `+$${(tf.tp3 * pipValueUsd).toFixed(2)}`;
+        }
     }
     
     function ema(period) {
@@ -285,7 +439,7 @@
     
     function getSignal() {
         if (!price || history.length < 30) {
-            return { dir: "🟡 LOADING", color: "#ffd700", type: "WAIT", reason: "Loading market data...", confidence: 50 };
+            return { dir: "🟡 INITIALIZING", color: "#ffd700", type: "NEUTRAL", confidence: 50, reason: "Loading market data..." };
         }
         
         let e9 = ema(9);
@@ -315,47 +469,39 @@
         confidence = Math.min(92, Math.max(35, confidence));
         
         let dir, color, type;
-        if (confidence >= 65) {
-            dir = "🟢 BUY";
-            color = "#00ffcc";
-            type = "BUY";
-        } else if (confidence <= 40) {
-            dir = "🔴 SELL";
-            color = "#ff3366";
-            type = "SELL";
-        } else {
-            dir = "🟡 WAIT";
-            color = "#ffd700";
-            type = "WAIT";
-        }
+        if (confidence >= 65) { dir = "🟢 BUY"; color = "#00ffcc"; type = "BUY"; }
+        else if (confidence <= 40) { dir = "🔴 SELL"; color = "#ff3366"; type = "SELL"; }
+        else { dir = "🟡 NEUTRAL"; color = "#ffd700"; type = "NEUTRAL"; }
         
-        return { dir, color, type, reason: reasons.join(" | ") + ` | Confidence: ${confidence}%`, confidence };
+        return { dir, color, type, confidence, reason: reasons.join(" | ") + ` | ${confidence}% confidence` };
     }
     
     function calculateLevels(signalType) {
-        let c = config[symbol];
+        let tf = tfSettings[currentTF];
+        if (!tf) return { entry: price, sl: price, tp1: price, tp2: price, tp3: price, slPips: 0, tp1Pips: 0, tp2Pips: 0, tp3Pips: 0 };
+        
         let entry = price;
         let sl, tp1, tp2, tp3;
         let slPips, tp1Pips, tp2Pips, tp3Pips;
         
         if (signalType === "BUY") {
-            sl = price - c.sl;
-            tp1 = price + c.tp1;
-            tp2 = price + c.tp2;
-            tp3 = price + c.tp3;
-            slPips = -c.sl;
-            tp1Pips = c.tp1;
-            tp2Pips = c.tp2;
-            tp3Pips = c.tp3;
+            sl = price - tf.sl;
+            tp1 = price + tf.tp1;
+            tp2 = price + tf.tp2;
+            tp3 = price + tf.tp3;
+            slPips = -tf.sl;
+            tp1Pips = tf.tp1;
+            tp2Pips = tf.tp2;
+            tp3Pips = tf.tp3;
         } else if (signalType === "SELL") {
-            sl = price + c.sl;
-            tp1 = price - c.tp1;
-            tp2 = price - c.tp2;
-            tp3 = price - c.tp3;
-            slPips = c.sl;
-            tp1Pips = -c.tp1;
-            tp2Pips = -c.tp2;
-            tp3Pips = -c.tp3;
+            sl = price + tf.sl;
+            tp1 = price - tf.tp1;
+            tp2 = price - tf.tp2;
+            tp3 = price - tf.tp3;
+            slPips = tf.sl;
+            tp1Pips = -tf.tp1;
+            tp2Pips = -tf.tp2;
+            tp3Pips = -tf.tp3;
         } else {
             sl = price; tp1 = price; tp2 = price; tp3 = price;
             slPips = 0; tp1Pips = 0; tp2Pips = 0; tp3Pips = 0;
@@ -372,45 +518,53 @@
         
         if (signalType === "BUY") {
             if (!tp1Hit && price >= levels.tp1) {
-                tp1Hit = true;
-                flashLevel("tp1Box");
+                tp1Hit = true; flashLevel("tp1Box");
+                let profit = (levels.tp1Pips * pipValueUsd).toFixed(2);
+                addAlert(`✅ TP1 HIT! +${levels.tp1Pips} pips (+$${profit})`, "buy");
                 speak(`Take Profit 1 reached! +${levels.tp1Pips} pips`);
-                if (Notification.permission === "granted") new Notification("TP1 HIT!", { body: `${symbol} +${levels.tp1Pips} pips` });
+                if (Notification.permission === "granted") new Notification("TP1 HIT!", { body: `+${levels.tp1Pips} pips` });
             }
             if (!tp2Hit && price >= levels.tp2) {
-                tp2Hit = true;
-                flashLevel("tp2Box");
+                tp2Hit = true; flashLevel("tp2Box");
+                let profit = (levels.tp2Pips * pipValueUsd).toFixed(2);
+                addAlert(`✅ TP2 HIT! +${levels.tp2Pips} pips (+$${profit})`, "buy");
                 speak(`Take Profit 2 reached! +${levels.tp2Pips} pips`);
             }
             if (!tp3Hit && price >= levels.tp3) {
-                tp3Hit = true;
-                flashLevel("tp3Box");
+                tp3Hit = true; flashLevel("tp3Box");
+                let profit = (levels.tp3Pips * pipValueUsd).toFixed(2);
+                addAlert(`🏆 TP3 HIT! FULL PROFIT! +${levels.tp3Pips} pips (+$${profit})`, "buy");
                 speak(`Take Profit 3 reached! Full profit! +${levels.tp3Pips} pips`);
             }
             if (!slHit && price <= levels.sl) {
-                slHit = true;
-                flashLevel("displaySL");
+                slHit = true; flashLevel("displaySL");
+                let loss = (Math.abs(levels.slPips) * pipValueUsd).toFixed(2);
+                addAlert(`❌ STOP LOSS HIT! -${Math.abs(levels.slPips)} pips (-$${loss})`, "sell");
                 speak(`Stop Loss hit! -${Math.abs(levels.slPips)} pips`);
             }
         } else if (signalType === "SELL") {
             if (!tp1Hit && price <= levels.tp1) {
-                tp1Hit = true;
-                flashLevel("tp1Box");
+                tp1Hit = true; flashLevel("tp1Box");
+                let profit = (Math.abs(levels.tp1Pips) * pipValueUsd).toFixed(2);
+                addAlert(`✅ TP1 HIT! +${Math.abs(levels.tp1Pips)} pips (+$${profit})`, "sell");
                 speak(`Take Profit 1 reached! +${Math.abs(levels.tp1Pips)} pips`);
             }
             if (!tp2Hit && price <= levels.tp2) {
-                tp2Hit = true;
-                flashLevel("tp2Box");
+                tp2Hit = true; flashLevel("tp2Box");
+                let profit = (Math.abs(levels.tp2Pips) * pipValueUsd).toFixed(2);
+                addAlert(`✅ TP2 HIT! +${Math.abs(levels.tp2Pips)} pips (+$${profit})`, "sell");
                 speak(`Take Profit 2 reached! +${Math.abs(levels.tp2Pips)} pips`);
             }
             if (!tp3Hit && price <= levels.tp3) {
-                tp3Hit = true;
-                flashLevel("tp3Box");
+                tp3Hit = true; flashLevel("tp3Box");
+                let profit = (Math.abs(levels.tp3Pips) * pipValueUsd).toFixed(2);
+                addAlert(`🏆 TP3 HIT! FULL PROFIT! +${Math.abs(levels.tp3Pips)} pips (+$${profit})`, "sell");
                 speak(`Take Profit 3 reached! Full profit! +${Math.abs(levels.tp3Pips)} pips`);
             }
             if (!slHit && price >= levels.sl) {
-                slHit = true;
-                flashLevel("displaySL");
+                slHit = true; flashLevel("displaySL");
+                let loss = (levels.slPips * pipValueUsd).toFixed(2);
+                addAlert(`❌ STOP LOSS HIT! -${levels.slPips} pips (-$${loss})`, "sell");
                 speak(`Stop Loss hit! -${levels.slPips} pips`);
             }
         }
@@ -439,12 +593,7 @@
         document.getElementById("tp2Pips").innerHTML = `${levels.tp2Pips >= 0 ? '+' : ''}${levels.tp2Pips} pips`;
         document.getElementById("tp3Pips").innerHTML = `${levels.tp3Pips >= 0 ? '+' : ''}${levels.tp3Pips} pips`;
         
-        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
-        let pipValueUsd = config[symbol].pipValue * lot;
-        document.getElementById("tp1Profit").innerHTML = `+$${(Math.abs(levels.tp1Pips) * pipValueUsd).toFixed(2)}`;
-        document.getElementById("tp2Profit").innerHTML = `+$${(Math.abs(levels.tp2Pips) * pipValueUsd).toFixed(2)}`;
-        document.getElementById("tp3Profit").innerHTML = `+$${(Math.abs(levels.tp3Pips) * pipValueUsd).toFixed(2)}`;
-        
+        updateProfitDisplay();
         checkTPSLHits(levels, signal.type);
     }
     
@@ -470,7 +619,6 @@
                 }
             }
             
-            // Fallback to CoinGecko
             let fallbackRes = await fetch(c.fallbackUrl);
             let fallbackData = await fallbackRes.json();
             if (fallbackData) {
@@ -488,30 +636,32 @@
                     return true;
                 }
             }
-        } catch(e) { 
-            document.getElementById("dataStatus").innerHTML = "CONNECT..."; 
-        }
+        } catch(e) { document.getElementById("dataStatus").innerHTML = "CONNECT..."; }
         return false;
     }
     
     function initChart() {
         if (chart) try { chart.remove(); } catch(e) {}
         let tvSym = symbol === "XAUUSD" ? "FX_IDC:XAUUSD" : "BINANCE:BTCUSDT";
+        let intervalMap = { "1m": "1", "5m": "5", "15m": "15", "1h": "60", "4h": "240", "1D": "D" };
         chart = new TradingView.widget({
-            container_id: "chart", width: "100%", height: 220,
-            symbol: tvSym, interval: "15", theme: "dark", style: "1",
-            locale: "en", toolbar_bg: "#000", studies: []
+            container_id: "chart", width: "100%", height: 180,
+            symbol: tvSym, interval: intervalMap[currentTF] || "15",
+            theme: "dark", style: "1", locale: "en", toolbar_bg: "#000", studies: []
         });
     }
     
-    async function startTrading() {
+    function startTrading() {
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("mainApp").classList.add("show");
-        document.getElementById("userName").innerHTML = "Trader";
-        document.getElementById("userAvatar").innerHTML = "📊";
-        speak("Trading bot ready. Real signals active.");
+        document.getElementById("userName").innerHTML = "F609 TRADER";
+        document.getElementById("userAvatar").innerHTML = "🎯";
+        addAlert("🟢 F609 MATRIX ACTIVATED", "info");
+        addAlert("📡 Connected to Binance API", "info");
+        speak("F609 Matrix trading bot activated");
+        renderTimeframes();
         initChart();
-        await fetchPrice();
+        fetchPrice();
         updateUI();
         setInterval(async () => { await fetchPrice(); updateUI(); }, 3000);
         setInterval(updateSession, 1000);
@@ -524,10 +674,12 @@
             document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             symbol = btn.getAttribute("data-sym");
-            price = null; history = []; resetHitStatus();
+            price = null; history = [];
+            resetHitStatus();
             initChart();
             fetchPrice();
             updateUI();
+            addAlert(`🔄 Switched to ${symbol}`, "info");
             speak(`Switched to ${symbol}`);
         };
     });
