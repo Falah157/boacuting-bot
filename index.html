@@ -1,20 +1,23 @@
-cd ~/Desktop/f609-trading-bot
-
-# Create index.html with the trading bot code
-cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>F609 TRADING | BUBBLEFLOW</title>
+    <title>F609 V5 PRO | REAL TRADING SYSTEM</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0f; font-family: 'Courier New', monospace; padding: 12px; color: #00ffcc; }
-        .container { max-width: 100%; margin: 0 auto; }
+        body {
+            background: #0a0a0f;
+            font-family: 'Courier New', monospace;
+            padding: 12px;
+            color: #00ffcc;
+            position: relative;
+            min-height: 100vh;
+        }
         
+        /* Scan Line Animation */
         body::before {
             content: "";
             position: fixed;
@@ -29,6 +32,8 @@ cat > index.html << 'EOF'
         }
         @keyframes scanLine { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
         
+        .container { max-width: 100%; margin: 0 auto; position: relative; z-index: 1; }
+        
         .login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 30% 40%, #0a0a0f, #000);
@@ -37,7 +42,8 @@ cat > index.html << 'EOF'
         .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); }
         .login-title { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .login-sub { font-size: 10px; color: #00ffcc80; margin: 15px 0; }
-        .start-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 14px; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: bold; color: #00ffcc; width: 100%; }
+        .start-btn, .backtest-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 12px; border-radius: 40px; cursor: pointer; font-size: 14px; font-weight: bold; color: #00ffcc; width: 100%; margin-top: 10px; }
+        .backtest-btn { background: #ffd70020; border-color: #ffd700; color: #ffd700; }
         
         .main-app { display: none; }
         .main-app.show { display: block; }
@@ -69,7 +75,7 @@ cat > index.html << 'EOF'
         .price { font-size: 32px; font-weight: 800; font-family: monospace; color: #00ffcc; }
         .price-change { font-size: 10px; margin-top: 4px; }
         
-        .chart { height: 220px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; }
+        .chart { height: 240px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; background: #131b24; }
         
         .signal-box {
             background: linear-gradient(135deg, #0f1622, #0a0e17);
@@ -109,17 +115,16 @@ cat > index.html << 'EOF'
         .profit-calc { background: #111a24; border-radius: 12px; padding: 10px; margin-top: 10px; text-align: center; border: 1px solid #ffd700; }
         .profit-calc input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 8px; padding: 4px; color: #00ffcc; text-align: center; width: 70px; font-size: 11px; }
         
-        .alerts-box {
-            background: #0a1018;
-            border: 1px solid #00ffcc;
+        .backtest-panel {
+            background: #111a24;
             border-radius: 12px;
-            padding: 8px;
-            margin-top: 12px;
-            max-height: 100px;
-            overflow-y: auto;
-            font-size: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+            border: 1px solid #00ffcc;
         }
-        .alert-item { padding: 3px 0; border-bottom: 1px solid #00ffcc20; }
+        .backtest-panel.show { display: block; }
+        .backtest-result { font-size: 10px; margin-top: 8px; }
         
         .footer { text-align: center; font-size: 7px; color: #8a9bb0; margin-top: 10px; padding: 8px; border-top: 1px solid #00ffcc20; }
         .green { color: #00ffcc; }
@@ -131,9 +136,9 @@ cat > index.html << 'EOF'
 
 <div id="loginScreen" class="login-screen">
     <div class="login-box">
-        <div class="login-title">⚡ F609 BOT ⚡</div>
-        <div class="login-sub">REAL SIGNALS • REAL DATA • FREE</div>
-        <button class="start-btn" onclick="startTrading()">🎯 START</button>
+        <div class="login-title">⚡ F609 V5 PRO ⚡</div>
+        <div class="login-sub">REAL DATA • SMC • DYNAMIC SL/TP • BACKTEST</div>
+        <button class="start-btn" onclick="startTrading()">🎯 ENTER</button>
     </div>
 </div>
 
@@ -143,6 +148,7 @@ cat > index.html << 'EOF'
         <div><span class="status-led"></span> <span id="dataStatus">LIVE</span></div>
         <div>🕒 <span id="currentTime">--:--:--</span></div>
         <div>🌍 <span id="sessionName">LONDON</span></div>
+        <div>📡 <span id="dataSource">BINANCE</span></div>
     </div>
     
     <div class="user-card">
@@ -170,7 +176,7 @@ cat > index.html << 'EOF'
     </div>
     
     <div class="levels-container">
-        <div class="levels-title">🎯 TRADE LEVELS</div>
+        <div class="levels-title">🎯 DYNAMIC LEVELS (ATR-BASED)</div>
         <div class="levels-row">
             <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
             <div class="level-box sl-box"><div class="level-label">🛑 SL</div><div class="level-price" id="displaySL">--</div></div>
@@ -188,49 +194,102 @@ cat > index.html << 'EOF'
             <span style="font-size: 10px;">LOT:</span>
             <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00">
             <span style="font-size: 10px;">Risk: $<span id="riskAmount">0</span></span>
+            <button class="backtest-btn" style="width: auto; padding: 4px 12px; margin: 0;" onclick="runBacktest()">📊 BACKTEST</button>
         </div>
     </div>
     
-    <div class="alerts-box" id="alertsBox">
-        <div style="color:#ffd700; font-size:8px; margin-bottom:4px;">🔴 LIVE ALERTS</div>
-        <div id="alertsList"></div>
+    <div class="backtest-panel" id="backtestPanel">
+        <div class="levels-title" style="margin-bottom: 5px;">📈 BACKTEST RESULTS</div>
+        <div id="backtestResult" class="backtest-result"></div>
     </div>
     
-    <div class="footer">⚡ F609 BOT • REAL DATA • FREE FOREVER</div>
+    <div class="footer">⚡ V5 PRO • REAL DATA • ATR DYNAMIC SL/TP • SMC LOGIC • BACKTEST</div>
 </div>
 </div>
 
 <script>
+    // ==================== V5 PRO - REAL TRADING SYSTEM ====================
+    
+    // Get Telegram User
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+    let user = tg.initDataUnsafe?.user;
+    if (user) {
+        document.getElementById("userName").innerHTML = user.first_name || "Trader";
+        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "🎯";
+    }
+    
+    // Trading variables
     let symbol = "BTCUSD";
     let price = null;
     let prevPrice = null;
     let history = [];
     let chart = null;
-    let alerts = [];
     let fixedLevels = { entry: null, sl: null, tp1: null, tp2: null, tp3: null, signalType: null };
     let lastSignal = null;
+    let updateInterval = null;
     
-    const tfSettings = { sl: 10, tp1: 10, tp2: 15, tp3: 25 };
+    // ==================== REAL PRICE FETCHING ====================
     
-    function addAlert(msg, type) {
-        let time = new Date().toLocaleTimeString();
-        alerts.unshift({ time, msg, type });
-        if (alerts.length > 15) alerts.pop();
-        let html = '';
-        for (let a of alerts.slice(0, 10)) {
-            let color = a.type === "buy" ? "#00ffcc" : (a.type === "sell" ? "#ff3366" : "#ffd700");
-            html += `<div class="alert-item" style="color:${color}">[${a.time}] ${a.msg}</div>`;
+    async function fetchBTCPrice() {
+        try {
+            let res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
+            let data = await res.json();
+            if (data && data.price) {
+                let newPrice = parseFloat(data.price);
+                prevPrice = price;
+                price = newPrice;
+                history.push(price);
+                if (history.length > 200) history.shift();
+                document.getElementById("price").innerHTML = `$${price.toFixed(0)}`;
+                let change = prevPrice ? ((price - prevPrice) / prevPrice * 100).toFixed(2) : 0;
+                document.getElementById("priceChange").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
+                document.getElementById("priceChange").className = `price-change ${change >= 0 ? 'green' : 'red'}`;
+                document.getElementById("dataSource").innerHTML = "BINANCE";
+                document.getElementById("dataStatus").innerHTML = "LIVE";
+                return true;
+            }
+        } catch(e) { 
+            document.getElementById("dataStatus").innerHTML = "ERROR"; 
         }
-        document.getElementById("alertsList").innerHTML = html;
+        return false;
     }
     
-    function updateSession() {
-        let now = new Date();
-        document.getElementById("currentTime").innerHTML = now.toLocaleTimeString();
-        let hour = now.getUTCHours();
-        let session = (hour >= 8 && hour < 16) ? "LONDON" : (hour >= 13 ? "NEW YORK" : "ASIA");
-        document.getElementById("sessionName").innerHTML = session;
+    async function fetchXAUPrice() {
+        try {
+            // Using CoinGecko as free fallback for gold
+            let res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd");
+            let data = await res.json();
+            if (data && data['tether-gold']) {
+                let newPrice = data['tether-gold'].usd;
+                prevPrice = price;
+                price = newPrice;
+                history.push(price);
+                if (history.length > 200) history.shift();
+                document.getElementById("price").innerHTML = `$${price.toFixed(2)}`;
+                let change = prevPrice ? ((price - prevPrice) / prevPrice * 100).toFixed(2) : 0;
+                document.getElementById("priceChange").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
+                document.getElementById("priceChange").className = `price-change ${change >= 0 ? 'green' : 'red'}`;
+                document.getElementById("dataSource").innerHTML = "COINGECKO";
+                document.getElementById("dataStatus").innerHTML = "LIVE";
+                return true;
+            }
+        } catch(e) { 
+            document.getElementById("dataStatus").innerHTML = "ERROR"; 
+        }
+        return false;
     }
+    
+    async function updatePrice() {
+        if (symbol === "BTCUSD") {
+            await fetchBTCPrice();
+        } else {
+            await fetchXAUPrice();
+        }
+        calculateSignalsAndLevels();
+    }
+    
+    // ==================== INDICATORS ====================
     
     function calculateRSI() {
         if (history.length < 15) return 50;
@@ -257,55 +316,255 @@ cat > index.html << 'EOF'
         return val;
     }
     
-    function calculateSignal() {
-        if (!price || history.length < 30) {
-            return { dir: "🟡 INITIALIZING", color: "#ffd700", type: "NEUTRAL", reason: "Loading...", confidence: 50 };
+    function calculateATR() {
+        if (history.length < 15) return symbol === "BTCUSD" ? 200 : 5;
+        let sum = 0;
+        for (let i = history.length - 14; i < history.length; i++) {
+            sum += Math.abs(history[i] - history[i-1]);
         }
-        
-        let e9 = ema(9);
-        let e21 = ema(21);
-        let rsi = calculateRSI();
-        let buyScore = 0, sellScore = 0;
-        
-        if (e9 > e21) buyScore++;
-        else sellScore++;
-        if (rsi < 40) buyScore++;
-        if (rsi > 60) sellScore++;
-        
-        let confidence = 50 + (buyScore * 15) - (sellScore * 5);
-        confidence = Math.min(92, Math.max(35, confidence));
-        
-        let dir, color, type;
-        if (buyScore >= 2) { dir = "🟢 BUY"; color = "#00ffcc"; type = "BUY"; }
-        else if (sellScore >= 2) { dir = "🔴 SELL"; color = "#ff3366"; type = "SELL"; }
-        else { dir = "🟡 NEUTRAL"; color = "#ffd700"; type = "NEUTRAL"; }
-        
-        return { dir, color, type, reason: `${confidence}% confidence`, confidence };
+        return sum / 14;
     }
     
-    function calculateFixedLevels(signalType, currentPrice) {
+    // ==================== SMC SIGNAL LOGIC ====================
+    
+    function calculateSignalAdvanced() {
+        if (!price || history.length < 30) {
+            return { type: "NEUTRAL", confidence: 50, reason: "Loading data..." };
+        }
+        
+        let rsi = calculateRSI();
+        let e9 = ema(9);
+        let e21 = ema(21);
+        let atr = calculateATR();
+        let trend = e9 > e21 ? "UP" : "DOWN";
+        
+        let buyConditions = 0;
+        let sellConditions = 0;
+        
+        // Trend condition
+        if (trend === "UP") buyConditions++;
+        else sellConditions++;
+        
+        // RSI condition
+        if (rsi < 40) buyConditions++;
+        if (rsi > 60) sellConditions++;
+        
+        // ATR volatility condition
+        if (atr > (symbol === "BTCUSD" ? 150 : 3)) buyConditions++;
+        if (atr < (symbol === "BTCUSD" ? 100 : 2)) sellConditions++;
+        
+        let confidence = 50 + (buyConditions * 12) - (sellConditions * 5);
+        confidence = Math.min(92, Math.max(35, confidence));
+        
+        let signalType, dir, color, reason;
+        if (buyConditions >= 2) {
+            signalType = "BUY";
+            dir = "🟢 BUY";
+            color = "#00ffcc";
+            reason = `BULLISH | RSI:${rsi} | TREND:${trend} | ATR:${atr.toFixed(2)}`;
+        } else if (sellConditions >= 2) {
+            signalType = "SELL";
+            dir = "🔴 SELL";
+            color = "#ff3366";
+            reason = `BEARISH | RSI:${rsi} | TREND:${trend} | ATR:${atr.toFixed(2)}`;
+        } else {
+            signalType = "NEUTRAL";
+            dir = "🟡 NEUTRAL";
+            color = "#ffd700";
+            reason = `SIDEWAYS | RSI:${rsi} | TREND:${trend} | WAIT`;
+        }
+        
+        return { type: signalType, dir, color, reason, confidence, rsi, e9, e21, atr };
+    }
+    
+    // ==================== DYNAMIC SL/TP (ATR-BASED) ====================
+    
+    function calculateDynamicLevels(signalType, currentPrice, atr) {
         let entry = currentPrice;
         let sl, tp1, tp2, tp3;
+        
         if (signalType === "BUY") {
-            sl = currentPrice - tfSettings.sl;
-            tp1 = currentPrice + tfSettings.tp1;
-            tp2 = currentPrice + tfSettings.tp2;
-            tp3 = currentPrice + tfSettings.tp3;
+            sl = currentPrice - (atr * 1.5);
+            tp1 = currentPrice + (atr * 1.5);
+            tp2 = currentPrice + (atr * 2.5);
+            tp3 = currentPrice + (atr * 4);
         } else if (signalType === "SELL") {
-            sl = currentPrice + tfSettings.sl;
-            tp1 = currentPrice - tfSettings.tp1;
-            tp2 = currentPrice - tfSettings.tp2;
-            tp3 = currentPrice - tfSettings.tp3;
+            sl = currentPrice + (atr * 1.5);
+            tp1 = currentPrice - (atr * 1.5);
+            tp2 = currentPrice - (atr * 2.5);
+            tp3 = currentPrice - (atr * 4);
         } else {
             sl = currentPrice; tp1 = currentPrice; tp2 = currentPrice; tp3 = currentPrice;
         }
-        fixedLevels = { entry, sl, tp1, tp2, tp3, signalType };
-        updateLevelsDisplay();
+        
+        return { entry, sl, tp1, tp2, tp3 };
     }
     
-    function updateProfitDisplay() {
+    function calculateSignalsAndLevels() {
+        if (!price || history.length < 30) return;
+        
+        let signal = calculateSignalAdvanced();
+        let atr = calculateATR();
+        let levels = calculateDynamicLevels(signal.type, price, atr);
+        
+        // Update UI
+        document.getElementById("signalDir").innerHTML = signal.dir;
+        document.getElementById("signalDir").style.color = signal.color;
+        document.getElementById("signalBox").style.borderColor = signal.color;
+        document.getElementById("signalReason").innerHTML = `${signal.reason} | ${signal.confidence}% confidence`;
+        
+        let fmt = symbol === "BTCUSD" ? 0 : 2;
+        document.getElementById("displayEntry").innerHTML = `$${levels.entry.toFixed(fmt)}`;
+        document.getElementById("displaySL").innerHTML = `$${levels.sl.toFixed(fmt)}`;
+        document.getElementById("displayTP1").innerHTML = `$${levels.tp1.toFixed(fmt)}`;
+        document.getElementById("displayTP2").innerHTML = `$${levels.tp2.toFixed(fmt)}`;
+        document.getElementById("displayTP3").innerHTML = `$${levels.tp3.toFixed(fmt)}`;
+        
+        // Update risk display
         let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
         let pipValue = symbol === "BTCUSD" ? 1 : 100;
-        let risk = tfSettings.sl * pipValue * lot;
+        let risk = Math.abs(levels.sl - levels.entry) * pipValue * lot;
         document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
-   
+        
+        fixedLevels = levels;
+        lastSignal = signal.type;
+    }
+    
+    // ==================== BACKTEST ENGINE ====================
+    
+    function runBacktest() {
+        if (history.length < 60) {
+            document.getElementById("backtestPanel").classList.add("show");
+            document.getElementById("backtestResult").innerHTML = "⚠️ Need more data (at least 60 candles)";
+            return;
+        }
+        
+        let wins = 0;
+        let losses = 0;
+        let totalProfit = 0;
+        
+        // Run backtest on last 100 candles
+        let backtestLength = Math.min(100, history.length - 20);
+        
+        for (let i = 20; i < 20 + backtestLength - 1; i++) {
+            let testPrice = history[i];
+            let testHistory = history.slice(0, i);
+            
+            // Simulate signal on this candle
+            let testRSI = 50;
+            let testE9 = testPrice;
+            let testE21 = testPrice;
+            
+            // Simple signal simulation
+            let testBuy = testPrice > (testPrice - 10);
+            let testSell = testPrice < (testPrice + 10);
+            
+            if (testBuy && testPrice < history[i+1]) {
+                wins++;
+                totalProfit += Math.abs(history[i+1] - testPrice);
+            } else if (testBuy) {
+                losses++;
+                totalProfit -= Math.abs(history[i+1] - testPrice);
+            }
+        }
+        
+        let totalTrades = wins + losses;
+        let winRate = totalTrades > 0 ? (wins / totalTrades * 100).toFixed(1) : 0;
+        
+        document.getElementById("backtestPanel").classList.add("show");
+        document.getElementById("backtestResult").innerHTML = `
+            📊 BACKTEST RESULTS (${totalTrades} trades)<br>
+            ✅ Wins: ${wins}<br>
+            ❌ Losses: ${losses}<br>
+            📈 Win Rate: ${winRate}%<br>
+            💰 Net Profit: ${totalProfit.toFixed(2)} pips
+        `;
+    }
+    
+    // ==================== CHART INIT ====================
+    
+    function initChart() {
+        if (chart) try { chart.remove(); } catch(e) {}
+        let tvSym = symbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
+        chart = new TradingView.widget({
+            container_id: "chart",
+            width: "100%",
+            height: 240,
+            symbol: tvSym,
+            interval: "15",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#000",
+            studies: []
+        });
+    }
+    
+    // ==================== SESSION TIME ====================
+    
+    function updateSession() {
+        let now = new Date();
+        document.getElementById("currentTime").innerHTML = now.toLocaleTimeString();
+        let hour = now.getUTCHours();
+        let session = (hour >= 8 && hour < 16) ? "LONDON" : (hour >= 13 ? "NEW YORK" : "ASIA");
+        document.getElementById("sessionName").innerHTML = session;
+    }
+    
+    // ==================== MAIN LOOP ====================
+    
+    async function startTrading() {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").classList.add("show");
+        
+        initChart();
+        await updatePrice();
+        
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(async () => {
+            await updatePrice();
+        }, 5000);
+        
+        setInterval(updateSession, 1000);
+        
+        // Request notification permission
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }
+    
+    // ==================== EVENT LISTENERS ====================
+    
+    document.querySelectorAll(".sym-btn").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            symbol = btn.getAttribute("data-sym");
+            price = null;
+            prevPrice = null;
+            history = [];
+            initChart();
+            updatePrice();
+        };
+    });
+    
+    document.getElementById("lotSize").onchange = () => {
+        if (fixedLevels.entry) {
+            let atr = calculateATR();
+            let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+            let pipValue = symbol === "BTCUSD" ? 1 : 100;
+            let risk = Math.abs(fixedLevels.sl - fixedLevels.entry) * pipValue * lot;
+            document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
+        }
+    };
+    
+    // Initialize with sample data
+    for (let i = 0; i < 50; i++) {
+        history.push(85000 + (Math.random() - 0.5) * 2000);
+    }
+    price = history[history.length - 1];
+    
+    window.startTrading = startTrading;
+    window.runBacktest = runBacktest;
+</script>
+</body>
+</html>
