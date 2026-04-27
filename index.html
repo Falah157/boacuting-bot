@@ -3,96 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>F609 V6 | REAL XAUUSD & BTCUSD | SMC ENGINE</title>
+<title>NIGHTMARE SMC | V7</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @keyframes creepyPulse {
+        0% { text-shadow: 0 0 2px #ff0000, 0 0 5px #ff0000; }
+        50% { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #660000; }
+        100% { text-shadow: 0 0 2px #ff0000, 0 0 5px #ff0000; }
+    }
+    
+    @keyframes scanHorror {
+        0% { top: 0; opacity: 0.8; }
+        50% { top: 100%; opacity: 0.3; }
+        100% { top: 0; opacity: 0.8; }
+    }
+    
+    @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        45% { opacity: 0.9; }
+        46% { opacity: 0.3; }
+        47% { opacity: 0.9; }
+        48% { opacity: 0.5; }
+        49% { opacity: 0.9; }
+    }
+    
     body {
-        background: #0a0a0f;
+        background: #000000;
         font-family: 'Courier New', monospace;
         padding: 12px;
-        color: #00ffcc;
+        color: #ff0000;
+        position: relative;
+        min-height: 100vh;
+        animation: flicker 0.3s infinite;
     }
-    .container { max-width: 600px; margin: auto; }
+    
+    /* Horror Scan Line */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #ff0000, #660000, #ff0000, transparent);
+        animation: scanHorror 3s linear infinite;
+        pointer-events: none;
+        z-index: 9999;
+    }
+    
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: repeating-linear-gradient(0deg, rgba(255,0,0,0.05) 0px, rgba(255,0,0,0.05) 2px, transparent 2px, transparent 8px);
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .container { max-width: 600px; margin: auto; position: relative; z-index: 1; }
+    
     .header {
         text-align: center;
         margin-bottom: 16px;
         padding: 16px;
-        background: linear-gradient(135deg, #0f1622, #0a0e17);
+        background: rgba(10,0,0,0.9);
         border-radius: 20px;
-        border: 1px solid #00ffcc;
+        border: 1px solid #ff0000;
+        box-shadow: 0 0 20px rgba(255,0,0,0.3);
     }
+    .header h2 { animation: creepyPulse 2s infinite; letter-spacing: 4px; }
+    
     .user-card {
-        background: #111a24;
+        background: rgba(17,0,0,0.8);
         border-radius: 16px;
         padding: 12px;
         margin-bottom: 12px;
         display: flex;
         align-items: center;
         gap: 12px;
-        border: 1px solid #00ffcc;
+        border: 1px solid #ff0000;
     }
     .avatar {
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #00ffcc, #ffd700);
+        background: linear-gradient(135deg, #ff0000, #660000);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 20px;
+        animation: creepyPulse 1.5s infinite;
     }
+    
     .box {
-        background: #111a24;
-        border: 1px solid #00ffcc;
+        background: rgba(10,0,0,0.8);
+        border: 1px solid #ff0000;
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 12px;
+        backdrop-filter: blur(5px);
     }
+    
     .row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .item { flex: 1; background: #0f1622; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #00ffcc30; }
-    .green { color: #00ffcc; }
-    .red { color: #ff3366; }
-    .yellow { color: #ffd700; }
+    .item { flex: 1; background: rgba(20,0,0,0.6); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #ff3300; }
+    
+    .green { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+    .red { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+    .yellow { color: #ffaa00; text-shadow: 0 0 5px #ffaa00; }
+    
     .price { font-size: 32px; font-weight: 800; font-family: monospace; }
+    
     button {
-        background: #00ffcc20;
-        border: 1px solid #00ffcc;
+        background: #330000;
+        border: 1px solid #ff0000;
         padding: 10px 20px;
         border-radius: 40px;
         cursor: pointer;
-        color: #00ffcc;
+        color: #ff0000;
         font-family: monospace;
         font-weight: bold;
         margin-top: 8px;
         width: 100%;
+        transition: all 0.3s;
     }
+    button:hover {
+        background: #660000;
+        box-shadow: 0 0 15px red;
+        transform: scale(1.02);
+    }
+    
     .levels { display: flex; gap: 8px; margin-top: 10px; }
-    .level { flex: 1; background: #0f1622; padding: 8px; border-radius: 8px; text-align: center; }
-    .level-label { font-size: 9px; color: #8a9bb0; }
+    .level { flex: 1; background: rgba(20,0,0,0.6); padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #ff3300; }
+    .level-label { font-size: 9px; color: #ff6666; }
     .level-value { font-size: 12px; font-weight: 800; }
-    .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 12px; padding: 12px; border-top: 1px solid #00ffcc20; }
-    .signal-box { text-align: center; padding: 20px; }
-    .signal-dir { font-size: 48px; font-weight: 800; margin: 8px 0; }
+    
+    .footer { text-align: center; font-size: 8px; color: #660000; margin-top: 12px; padding: 12px; border-top: 1px solid #ff000020; }
+    
+    .signal-box { text-align: center; padding: 20px; cursor: pointer; }
+    .signal-dir { font-size: 48px; font-weight: 800; margin: 8px 0; letter-spacing: 4px; }
+    
     .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
-    .sym-btn { flex: 1; background: #111a24; padding: 10px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; }
-    .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
+    .sym-btn { 
+        flex: 1; background: #1a0000; padding: 10px; border-radius: 40px; text-align: center; 
+        cursor: pointer; border: 1px solid #ff0000; transition: all 0.2s;
+    }
+    .sym-btn.active { background: #330000; border-color: #ff0000; color: #ff0000; box-shadow: 0 0 10px red; }
+    
+    .live-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff0000;
+        animation: blink 1s infinite;
+        margin-right: 6px;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
 </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2>⚡ F609 V6 SMC ENGINE ⚡</h2>
-        <p style="font-size: 10px;">REAL XAUUSD & BTCUSD • Break of Structure • True ATR • No Fake Data</p>
+        <h2>💀 NIGHTMARE SMC 💀</h2>
+        <p style="font-size: 9px;">⚡ BREAK OF STRUCTURE • LIQUIDITY HUNTS • TRUE ATR ⚡</p>
     </div>
 
     <div class="user-card" id="userCard">
-        <div class="avatar" id="userAvatar">👤</div>
+        <div class="avatar" id="userAvatar">💀</div>
         <div class="user-info">
-            <div style="font-weight: 800;" id="userName">Trader</div>
-            <div style="font-size: 9px; color: #8a9bb0;" id="userId">Connected</div>
+            <div style="font-weight: 800;" id="userName">SACRIFICE</div>
+            <div style="font-size: 8px; color: #660000;" id="userId">Connected to Hell</div>
         </div>
     </div>
 
@@ -102,74 +189,74 @@
     </div>
 
     <div class="box">
-        <div style="font-size: 10px; color: #8a9bb0;">LIVE MARKET PRICE</div>
+        <div style="font-size: 9px; color: #ff6666;"><span class="live-indicator"></span> LIVE TORTURE PRICE</div>
         <div class="price" id="price">$---</div>
         <div style="font-size: 11px;" id="change">---</div>
-        <div style="font-size: 8px; color: #8a9bb0; margin-top: 4px;" id="dataSource">Source: Binance</div>
+        <div style="font-size: 7px; color: #660000; margin-top: 4px;" id="dataSource">Source: Binance</div>
     </div>
 
     <div class="box">
         <div class="row">
-            <div class="item">ATR (TR)<div id="atr" style="font-size: 16px; font-weight: 800;">--</div></div>
-            <div class="item">BOS<div id="bos" style="font-size: 16px; font-weight: 800;">--</div></div>
-            <div class="item">STRUCTURE<div id="structure" style="font-size: 16px; font-weight: 800;">--</div></div>
+            <div class="item"><span style="font-size: 9px;">⌛ ATR (TR)</span><div id="atr" style="font-size: 18px; font-weight: 800;">--</div></div>
+            <div class="item"><span style="font-size: 9px;">💀 BOS</span><div id="bos" style="font-size: 18px; font-weight: 800;">--</div></div>
+            <div class="item"><span style="font-size: 9px;">🔪 STRUCTURE</span><div id="structure" style="font-size: 18px; font-weight: 800;">--</div></div>
         </div>
     </div>
 
     <div class="box signal-box" id="signalBox">
-        <div class="signal-dir" id="signal">🟡 LOADING</div>
-        <div id="signalReason" style="font-size: 10px;">Fetching market data...</div>
+        <div class="signal-dir" id="signal">👻 INITIALIZING</div>
+        <div id="signalReason" style="font-size: 9px;">Loading hell data...</div>
     </div>
 
     <div class="box">
-        <div style="font-size: 10px; color: #ffd700; text-align: center; margin-bottom: 8px;">🎯 DYNAMIC LEVELS (ATR-BASED)</div>
+        <div style="font-size: 9px; color: #ff6666; text-align: center; margin-bottom: 8px;">🎯 SACRIFICE LEVELS (ATR-BASED)</div>
         <div class="levels">
             <div class="level"><div class="level-label">📌 ENTRY</div><div class="level-value" id="entry">--</div></div>
-            <div class="level"><div class="level-label">🛑 SL</div><div class="level-value" id="sl">--</div></div>
+            <div class="level"><div class="level-label">🛑 SL (HELL)</div><div class="level-value" id="sl">--</div></div>
         </div>
         <div class="levels">
-            <div class="level"><div class="level-label">✅ TP1</div><div class="level-value" id="tp1">--</div></div>
-            <div class="level"><div class="level-label">✅ TP2</div><div class="level-value" id="tp2">--</div></div>
-            <div class="level"><div class="level-label">✅ TP3</div><div class="level-value" id="tp3">--</div></div>
+            <div class="level"><div class="level-label">✅ TP1 (GREED)</div><div class="level-value" id="tp1">--</div></div>
+            <div class="level"><div class="level-label">✅ TP2 (PANIC)</div><div class="level-value" id="tp2">--</div></div>
+            <div class="level"><div class="level-label">✅ TP3 (MASSACRE)</div><div class="level-value" id="tp3">--</div></div>
         </div>
     </div>
 
     <div class="box">
-        <div style="font-size: 10px; color: #ffd700; text-align: center; margin-bottom: 8px;">💰 RISK MANAGEMENT</div>
+        <div style="font-size: 9px; color: #ff6666; text-align: center; margin-bottom: 8px;">💰 RISK MANAGEMENT</div>
         <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
             <span>LOT:</span>
-            <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00" style="background:#0a1018; border:1px solid #00ffcc; border-radius:8px; padding:6px; color:#00ffcc; width:80px;">
+            <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00" style="background:#1a0000; border:1px solid #ff0000; border-radius:8px; padding:6px; color:#ff0000; width:80px;">
             <span>Risk: $<span id="riskAmount">0</span></span>
             <button onclick="runBacktest()" style="width: auto; padding: 6px 12px;">📊 BACKTEST</button>
         </div>
-        <div id="backtestResult" style="margin-top: 10px; font-size: 10px;"></div>
+        <div id="backtestResult" style="margin-top: 10px; font-size: 9px;"></div>
     </div>
 
     <div class="footer">
-        ⚡ V6 SMC ENGINE • Real Binance BTCUSD • Real XAUUSD via Chart • BOS Detection • True ATR
+        💀 V7 NIGHTMARE SMC • REAL DATA • BOS DETECTION • TRUE ATR • NO MERCY 💀
     </div>
 </div>
 
 <script>
-    // ==================== V6 SMC ENGINE - REAL DATA ONLY ====================
+    // ==================== V7 NIGHTMARE SMC ENGINE ====================
     
-    // Telegram WebApp
+    // Telegram
     let tg = window.Telegram.WebApp;
     tg.expand();
     let user = tg.initDataUnsafe?.user;
     if (user) {
-        document.getElementById("userName").innerHTML = user.first_name || "Trader";
-        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "👤";
-        document.getElementById("userId").innerHTML = `@${user.username || 'user'}`;
+        document.getElementById("userName").innerHTML = user.first_name?.toUpperCase() || "SACRIFICE";
+        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0) || "💀";
+        document.getElementById("userId").innerHTML = `@${user.username || 'sacrifice'}`;
     }
     
-    // Trading variables
     let candles = [];
     let price = 0;
     let currentSymbol = "BTCUSD";
     let updateInterval = null;
+    let tvWidget = null;
     
-    // ==================== FETCH REAL BTCUSD CANDLES ====================
+    // ==================== FETCH REAL BTCUSD ====================
     async function fetchBTCUSD() {
         try {
             let url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=100`;
@@ -191,61 +278,29 @@
                 
                 document.getElementById("price").innerHTML = `$${price.toFixed(0)}`;
                 document.getElementById("change").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
-                document.getElementById("change").style.color = change >= 0 ? "#00ffcc" : "#ff3366";
-                document.getElementById("dataSource").innerHTML = "Source: Binance LIVE";
+                document.getElementById("change").style.color = change >= 0 ? "#00ff00" : "#ff0000";
+                document.getElementById("dataSource").innerHTML = "Source: Binance";
                 
                 return true;
             }
-        } catch(e) {
-            console.log("BTC fetch error:", e);
-        }
+        } catch(e) { console.log(e); }
         return false;
     }
     
-    // ==================== FOR XAUUSD - USE CHART ONLY (NO FAKE API) ====================
-    function initChart() {
-        let chartContainer = document.getElementById("price").parentElement;
-        let tvSym = currentSymbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
-        
-        // Create chart on the fly if needed
-        if (window.tvWidget) {
-            try { window.tvWidget.remove(); } catch(e) {}
-        }
-        
-        window.tvWidget = new TradingView.widget({
-            container_id: "price",
-            width: "100%",
-            height: 240,
-            symbol: tvSym,
-            interval: "15",
-            theme: "dark",
-            style: "1",
-            locale: "en",
-            toolbar_bg: "#000",
-            studies: []
-        });
-    }
-    
-    // ==================== TRUE ATR CALCULATION ====================
+    // ==================== TRUE ATR ====================
     function calculateATR() {
         if (candles.length < 15) return currentSymbol === "BTCUSD" ? 150 : 15;
         
         let trueRanges = [];
         for (let i = 1; i < candles.length; i++) {
-            let high = candles[i].high;
-            let low = candles[i].low;
-            let prevClose = candles[i-1].close;
-            
-            let tr = Math.max(
-                high - low,
-                Math.abs(high - prevClose),
-                Math.abs(low - prevClose)
-            );
-            trueRanges.push(tr);
+            let h = candles[i].high;
+            let l = candles[i].low;
+            let pc = candles[i-1].close;
+            trueRanges.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
         }
         
         let period = Math.min(14, trueRanges.length);
-        let sum = trueRanges.slice(-period).reduce((a, b) => a + b, 0);
+        let sum = trueRanges.slice(-period).reduce((a,b) => a + b, 0);
         return sum / period;
     }
     
@@ -256,19 +311,20 @@
         let last = candles[candles.length - 1];
         let highs = candles.slice(-10).map(c => c.high);
         let lows = candles.slice(-10).map(c => c.low);
+        let maxH = Math.max(...highs);
+        let minL = Math.min(...lows);
         
-        let maxHigh = Math.max(...highs);
-        let minLow = Math.min(...lows);
-        
-        if (last.close > maxHigh) return "BOS_UP";
-        if (last.close < minLow) return "BOS_DOWN";
+        if (last.close > maxH) return "BOS_UP";
+        if (last.close < minL) return "BOS_DOWN";
         return "RANGE";
     }
     
     // ==================== GENERATE SIGNAL ====================
     function generateSignal() {
         if (candles.length < 30 || !price) {
-            return { type: "NEUTRAL", color: "#ffd700", dir: "🟡 LOADING", reason: "Loading market data...", atr: 0 };
+            document.getElementById("signal").innerHTML = "👻 LOADING";
+            document.getElementById("signal").style.color = "#ff6666";
+            return { type: "NEUTRAL" };
         }
         
         let atr = calculateATR();
@@ -278,30 +334,30 @@
         document.getElementById("bos").innerHTML = bos;
         
         let structure = "CONSOLIDATION";
-        if (bos === "BOS_UP") structure = "BULLISH";
-        if (bos === "BOS_DOWN") structure = "BEARISH";
+        if (bos === "BOS_UP") structure = "BULLISH 🔥";
+        if (bos === "BOS_DOWN") structure = "BEARISH 💀";
         document.getElementById("structure").innerHTML = structure;
-        document.getElementById("structure").style.color = bos === "BOS_UP" ? "#00ffcc" : (bos === "BOS_DOWN" ? "#ff3366" : "#ffd700");
+        document.getElementById("structure").style.color = bos === "BOS_UP" ? "#00ff00" : (bos === "BOS_DOWN" ? "#ff0000" : "#ffaa00");
         
         let type, dir, color, reason;
         
         if (bos === "BOS_UP") {
             type = "BUY";
-            dir = "🟢 BUY";
-            color = "#00ffcc";
-            reason = "Break of structure UP → Institutional buying detected";
+            dir = "🟢 BUY 🔥";
+            color = "#00ff00";
+            reason = "BREAK OF STRUCTURE UP → Institutional buying detected";
         }
         else if (bos === "BOS_DOWN") {
             type = "SELL";
-            dir = "🔴 SELL";
-            color = "#ff3366";
-            reason = "Break of structure DOWN → Institutional selling detected";
+            dir = "🔴 SELL 💀";
+            color = "#ff0000";
+            reason = "BREAK OF STRUCTURE DOWN → Institutional selling detected";
         }
         else {
             type = "NEUTRAL";
-            dir = "🟡 NEUTRAL";
-            color = "#ffd700";
-            reason = "No structure break. Market consolidating. Wait for BOS.";
+            dir = "🟡 WAIT 👻";
+            color = "#ffaa00";
+            reason = "No structure break. Market consolidating. Watch for BOS.";
         }
         
         document.getElementById("signal").innerHTML = dir;
@@ -309,11 +365,9 @@
         document.getElementById("signalBox").style.borderColor = color;
         document.getElementById("signalReason").innerHTML = reason;
         
-        // Calculate dynamic levels
         let levels = calculateLevels(type, price, atr);
-        updateLevelsDisplay(levels);
+        updateLevels(levels);
         
-        // Update risk
         let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
         let risk = Math.abs(levels.sl - levels.entry) * lot;
         document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
@@ -321,7 +375,6 @@
         return { type, atr, bos, levels };
     }
     
-    // ==================== DYNAMIC LEVELS ====================
     function calculateLevels(signalType, currentPrice, atr) {
         let entry = currentPrice;
         let sl, tp1, tp2, tp3;
@@ -338,16 +391,12 @@
             tp2 = currentPrice - (atr * 2.0);
             tp3 = currentPrice - (atr * 3.0);
         } else {
-            sl = currentPrice;
-            tp1 = currentPrice;
-            tp2 = currentPrice;
-            tp3 = currentPrice;
+            sl = currentPrice; tp1 = currentPrice; tp2 = currentPrice; tp3 = currentPrice;
         }
-        
         return { entry, sl, tp1, tp2, tp3 };
     }
     
-    function updateLevelsDisplay(levels) {
+    function updateLevels(levels) {
         let fmt = currentSymbol === "BTCUSD" ? 0 : 2;
         document.getElementById("entry").innerHTML = `$${levels.entry.toFixed(fmt)}`;
         document.getElementById("sl").innerHTML = `$${levels.sl.toFixed(fmt)}`;
@@ -356,70 +405,46 @@
         document.getElementById("tp3").innerHTML = `$${levels.tp3.toFixed(fmt)}`;
     }
     
-    // ==================== REAL BACKTEST ====================
+    // ==================== BACKTEST ====================
     function runBacktest() {
         if (candles.length < 50) {
-            document.getElementById("backtestResult").innerHTML = "⚠️ Need more data (at least 50 candles)";
+            document.getElementById("backtestResult").innerHTML = "⚠️ Need more sacrifices (50+ candles)";
             return;
         }
         
-        let wins = 0;
-        let losses = 0;
+        let wins = 0, losses = 0;
         
         for (let i = 20; i < candles.length - 1; i++) {
             let testCandles = candles.slice(0, i);
             let testPrice = testCandles[testCandles.length - 1].close;
             let nextPrice = candles[i + 1].close;
             
-            // Detect BOS on test data
             let highs = testCandles.slice(-10).map(c => c.high);
             let lows = testCandles.slice(-10).map(c => c.low);
-            let maxHigh = Math.max(...highs);
-            let minLow = Math.min(...lows);
+            let maxH = Math.max(...highs);
+            let minL = Math.min(...lows);
             
-            if (testPrice > maxHigh && nextPrice > testPrice) {
-                wins++;
-            } else if (testPrice > maxHigh) {
-                losses++;
-            }
-            else if (testPrice < minLow && nextPrice < testPrice) {
-                wins++;
-            } else if (testPrice < minLow) {
-                losses++;
-            }
+            if (testPrice > maxH && nextPrice > testPrice) wins++;
+            else if (testPrice > maxH) losses++;
+            else if (testPrice < minL && nextPrice < testPrice) wins++;
+            else if (testPrice < minL) losses++;
         }
         
         let total = wins + losses;
         let winRate = total > 0 ? (wins / total * 100).toFixed(1) : 0;
         
         document.getElementById("backtestResult").innerHTML = `
-            📊 BACKTEST RESULTS (SMC Strategy - BOS)<br>
-            ✅ Wins: ${wins} | ❌ Losses: ${losses}<br>
-            📈 Win Rate: ${winRate}% | 📊 Total: ${total} trades
+            💀 BACKTEST RESULTS 💀<br>
+            ✅ WINS: ${wins} | ❌ LOSSES: ${losses}<br>
+            📈 WIN RATE: ${winRate}% | 📊 TOTAL: ${total}
         `;
     }
     
-    // ==================== SYMBOL SWITCH ====================
-    async function switchSymbol(symbol) {
-        currentSymbol = symbol;
-        if (symbol === "BTCUSD") {
-            await fetchBTCUSD();
-        } else {
-            // For XAUUSD, we don't fetch price - use chart only
-            candles = [];
-            price = null;
-            document.getElementById("price").innerHTML = "$---";
-            document.getElementById("dataSource").innerHTML = "Source: TradingView Chart";
-            document.getElementById("change").innerHTML = "---";
-        }
-        generateSignal();
-        
-        // Update chart
-        if (window.tvWidget) {
-            try { window.tvWidget.remove(); } catch(e) {}
-        }
-        let tvSym = symbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
-        window.tvWidget = new TradingView.widget({
+    // ==================== CHART ====================
+    function initChart() {
+        if (tvWidget) try { tvWidget.remove(); } catch(e) {}
+        let tvSym = currentSymbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
+        tvWidget = new TradingView.widget({
             container_id: "price",
             width: "100%",
             height: 240,
@@ -428,44 +453,41 @@
             theme: "dark",
             style: "1",
             locale: "en",
-            toolbar_bg: "#000",
+            toolbar_bg: "#000000",
             studies: []
         });
     }
     
-    // ==================== MAIN LOOP ====================
-    async function update() {
-        if (currentSymbol === "BTCUSD") {
+    // ==================== SYMBOL SWITCH ====================
+    async function switchSymbol(symbol) {
+        currentSymbol = symbol;
+        if (symbol === "BTCUSD") {
             await fetchBTCUSD();
+        } else {
+            candles = [];
+            price = null;
+            document.getElementById("price").innerHTML = "$---";
+            document.getElementById("dataSource").innerHTML = "Source: TradingView";
         }
+        generateSignal();
+        initChart();
+    }
+    
+    // ==================== MAIN ====================
+    async function update() {
+        if (currentSymbol === "BTCUSD") await fetchBTCUSD();
         generateSignal();
     }
     
     async function start() {
         await fetchBTCUSD();
         generateSignal();
-        
-        // Initialize chart
-        window.tvWidget = new TradingView.widget({
-            container_id: "price",
-            width: "100%",
-            height: 240,
-            symbol: "BINANCE:BTCUSDT",
-            interval: "15",
-            theme: "dark",
-            style: "1",
-            locale: "en",
-            toolbar_bg: "#000",
-            studies: []
-        });
-        
+        initChart();
         if (updateInterval) clearInterval(updateInterval);
-        updateInterval = setInterval(update, 10000);
-        
+        updateInterval = setInterval(update, 8000);
         if (Notification.permission === "default") Notification.requestPermission();
     }
     
-    // Event listeners
     document.querySelectorAll(".sym-btn").forEach(btn => {
         btn.onclick = () => {
             document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
