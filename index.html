@@ -2,187 +2,490 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>F609 V6 FIXED | SMC ENGINE</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>F609 V6 | REAL XAUUSD & BTCUSD | SMC ENGINE</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
-
 <style>
-body {margin:0;background:#0a0a0f;color:#00ffcc;font-family:monospace;padding:12px;}
-button{cursor:pointer}
-.container{max-width:900px;margin:auto}
-.box{background:#111a24;border:1px solid #00ffcc;border-radius:12px;padding:10px;margin:10px 0}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.item{flex:1;background:#0f1622;padding:8px;border-radius:10px;text-align:center}
-.green{color:#00ffcc}
-.red{color:#ff3366}
-.yellow{color:#ffd700}
-.price{font-size:28px}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: #0a0a0f;
+        font-family: 'Courier New', monospace;
+        padding: 12px;
+        color: #00ffcc;
+    }
+    .container { max-width: 600px; margin: auto; }
+    .header {
+        text-align: center;
+        margin-bottom: 16px;
+        padding: 16px;
+        background: linear-gradient(135deg, #0f1622, #0a0e17);
+        border-radius: 20px;
+        border: 1px solid #00ffcc;
+    }
+    .user-card {
+        background: #111a24;
+        border-radius: 16px;
+        padding: 12px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #00ffcc;
+    }
+    .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00ffcc, #ffd700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+    .box {
+        background: #111a24;
+        border: 1px solid #00ffcc;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .item { flex: 1; background: #0f1622; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #00ffcc30; }
+    .green { color: #00ffcc; }
+    .red { color: #ff3366; }
+    .yellow { color: #ffd700; }
+    .price { font-size: 32px; font-weight: 800; font-family: monospace; }
+    button {
+        background: #00ffcc20;
+        border: 1px solid #00ffcc;
+        padding: 10px 20px;
+        border-radius: 40px;
+        cursor: pointer;
+        color: #00ffcc;
+        font-family: monospace;
+        font-weight: bold;
+        margin-top: 8px;
+        width: 100%;
+    }
+    .levels { display: flex; gap: 8px; margin-top: 10px; }
+    .level { flex: 1; background: #0f1622; padding: 8px; border-radius: 8px; text-align: center; }
+    .level-label { font-size: 9px; color: #8a9bb0; }
+    .level-value { font-size: 12px; font-weight: 800; }
+    .footer { text-align: center; font-size: 8px; color: #8a9bb0; margin-top: 12px; padding: 12px; border-top: 1px solid #00ffcc20; }
+    .signal-box { text-align: center; padding: 20px; }
+    .signal-dir { font-size: 48px; font-weight: 800; margin: 8px 0; }
+    .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .sym-btn { flex: 1; background: #111a24; padding: 10px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; }
+    .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
+    <div class="header">
+        <h2>⚡ F609 V6 SMC ENGINE ⚡</h2>
+        <p style="font-size: 10px;">REAL XAUUSD & BTCUSD • Break of Structure • True ATR • No Fake Data</p>
+    </div>
 
-<h2>⚡ V6 FIXED SMC ENGINE</h2>
+    <div class="user-card" id="userCard">
+        <div class="avatar" id="userAvatar">👤</div>
+        <div class="user-info">
+            <div style="font-weight: 800;" id="userName">Trader</div>
+            <div style="font-size: 9px; color: #8a9bb0;" id="userId">Connected</div>
+        </div>
+    </div>
 
-<div class="box">
-Price: <div id="price" class="price">---</div>
-Change: <span id="change">---</span>
-</div>
+    <div class="symbol-row">
+        <div class="sym-btn active" data-sym="BTCUSD">₿ BTCUSD</div>
+        <div class="sym-btn" data-sym="XAUUSD">🥇 XAUUSD</div>
+    </div>
 
-<div class="box">
-Signal: <div id="signal">Loading...</div>
-</div>
+    <div class="box">
+        <div style="font-size: 10px; color: #8a9bb0;">LIVE MARKET PRICE</div>
+        <div class="price" id="price">$---</div>
+        <div style="font-size: 11px;" id="change">---</div>
+        <div style="font-size: 8px; color: #8a9bb0; margin-top: 4px;" id="dataSource">Source: Binance</div>
+    </div>
 
-<div class="box row">
-<div class="item">ATR <div id="atr">--</div></div>
-<div class="item">BOS <div id="bos">--</div></div>
-<div class="item">Structure <div id="structure">--</div></div>
-</div>
+    <div class="box">
+        <div class="row">
+            <div class="item">ATR (TR)<div id="atr" style="font-size: 16px; font-weight: 800;">--</div></div>
+            <div class="item">BOS<div id="bos" style="font-size: 16px; font-weight: 800;">--</div></div>
+            <div class="item">STRUCTURE<div id="structure" style="font-size: 16px; font-weight: 800;">--</div></div>
+        </div>
+    </div>
 
-<div class="box">
-<button onclick="runBacktest()">BACKTEST</button>
-<div id="backtest"></div>
-</div>
+    <div class="box signal-box" id="signalBox">
+        <div class="signal-dir" id="signal">🟡 LOADING</div>
+        <div id="signalReason" style="font-size: 10px;">Fetching market data...</div>
+    </div>
 
+    <div class="box">
+        <div style="font-size: 10px; color: #ffd700; text-align: center; margin-bottom: 8px;">🎯 DYNAMIC LEVELS (ATR-BASED)</div>
+        <div class="levels">
+            <div class="level"><div class="level-label">📌 ENTRY</div><div class="level-value" id="entry">--</div></div>
+            <div class="level"><div class="level-label">🛑 SL</div><div class="level-value" id="sl">--</div></div>
+        </div>
+        <div class="levels">
+            <div class="level"><div class="level-label">✅ TP1</div><div class="level-value" id="tp1">--</div></div>
+            <div class="level"><div class="level-label">✅ TP2</div><div class="level-value" id="tp2">--</div></div>
+            <div class="level"><div class="level-label">✅ TP3</div><div class="level-value" id="tp3">--</div></div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div style="font-size: 10px; color: #ffd700; text-align: center; margin-bottom: 8px;">💰 RISK MANAGEMENT</div>
+        <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <span>LOT:</span>
+            <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00" style="background:#0a1018; border:1px solid #00ffcc; border-radius:8px; padding:6px; color:#00ffcc; width:80px;">
+            <span>Risk: $<span id="riskAmount">0</span></span>
+            <button onclick="runBacktest()" style="width: auto; padding: 6px 12px;">📊 BACKTEST</button>
+        </div>
+        <div id="backtestResult" style="margin-top: 10px; font-size: 10px;"></div>
+    </div>
+
+    <div class="footer">
+        ⚡ V6 SMC ENGINE • Real Binance BTCUSD • Real XAUUSD via Chart • BOS Detection • True ATR
+    </div>
 </div>
 
 <script>
-// ================= STATE =================
-let symbol="BTCUSD";
-let candles=[];
-let price=0;
-
-// ================= FETCH CANDLES (FIXED) =================
-async function fetchCandles(){
-    try{
-        let binanceSymbol="BTCUSDT"; // FIX: always correct
-        let url=`https://api.binance.com/api/v3/klines?symbol=${binanceSymbol}&interval=15m&limit=120`;
-
-        let res=await fetch(url);
-        let data=await res.json();
-
-        candles=data.map(c=>({
-            open:+c[1],
-            high:+c[2],
-            low:+c[3],
-            close:+c[4]
-        }));
-
-        price=candles[candles.length-1].close;
-
-        document.getElementById("price").innerHTML=price.toFixed(2);
-
-    }catch(e){
-        console.log(e);
+    // ==================== V6 SMC ENGINE - REAL DATA ONLY ====================
+    
+    // Telegram WebApp
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+    let user = tg.initDataUnsafe?.user;
+    if (user) {
+        document.getElementById("userName").innerHTML = user.first_name || "Trader";
+        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "👤";
+        document.getElementById("userId").innerHTML = `@${user.username || 'user'}`;
     }
-}
-
-// ================= ATR (FIXED TRUE RANGE) =================
-function ATR(){
-    if(candles.length<15) return 100;
-
-    let tr=[];
-    for(let i=1;i<candles.length;i++){
-        let h=candles[i].high;
-        let l=candles[i].low;
-        let pc=candles[i-1].close;
-
-        tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
+    
+    // Trading variables
+    let candles = [];
+    let price = 0;
+    let currentSymbol = "BTCUSD";
+    let updateInterval = null;
+    
+    // ==================== FETCH REAL BTCUSD CANDLES ====================
+    async function fetchBTCUSD() {
+        try {
+            let url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=100`;
+            let res = await fetch(url);
+            let data = await res.json();
+            
+            if (data && data.length > 0) {
+                candles = data.map(c => ({
+                    open: parseFloat(c[1]),
+                    high: parseFloat(c[2]),
+                    low: parseFloat(c[3]),
+                    close: parseFloat(c[4]),
+                    volume: parseFloat(c[5])
+                }));
+                
+                price = candles[candles.length - 1].close;
+                let prevPrice = candles[candles.length - 2]?.close || price;
+                let change = ((price - prevPrice) / prevPrice * 100).toFixed(2);
+                
+                document.getElementById("price").innerHTML = `$${price.toFixed(0)}`;
+                document.getElementById("change").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
+                document.getElementById("change").style.color = change >= 0 ? "#00ffcc" : "#ff3366";
+                document.getElementById("dataSource").innerHTML = "Source: Binance LIVE";
+                
+                return true;
+            }
+        } catch(e) {
+            console.log("BTC fetch error:", e);
+        }
+        return false;
     }
-
-    return tr.slice(-14).reduce((a,b)=>a+b,0)/14;
-}
-
-// ================= BOS =================
-function BOS(){
-    if(candles.length<10) return "NONE";
-
-    let last=candles[candles.length-1];
-    let highs=candles.slice(-10).map(c=>c.high);
-    let lows=candles.slice(-10).map(c=>c.low);
-
-    let maxH=Math.max(...highs);
-    let minL=Math.min(...lows);
-
-    if(last.close>maxH) return "BOS_UP";
-    if(last.close<minL) return "BOS_DOWN";
-    return "RANGE";
-}
-
-// ================= SIGNAL =================
-function signal(){
-    let atr=ATR();
-    let bos=BOS();
-
-    document.getElementById("atr").innerHTML=atr.toFixed(2);
-    document.getElementById("bos").innerHTML=bos;
-
-    let type="NEUTRAL";
-    let color="yellow";
-
-    if(bos==="BOS_UP"){
-        type="BUY"; color="green";
+    
+    // ==================== FOR XAUUSD - USE CHART ONLY (NO FAKE API) ====================
+    function initChart() {
+        let chartContainer = document.getElementById("price").parentElement;
+        let tvSym = currentSymbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
+        
+        // Create chart on the fly if needed
+        if (window.tvWidget) {
+            try { window.tvWidget.remove(); } catch(e) {}
+        }
+        
+        window.tvWidget = new TradingView.widget({
+            container_id: "price",
+            width: "100%",
+            height: 240,
+            symbol: tvSym,
+            interval: "15",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#000",
+            studies: []
+        });
     }
-    if(bos==="BOS_DOWN"){
-        type="SELL"; color="red";
+    
+    // ==================== TRUE ATR CALCULATION ====================
+    function calculateATR() {
+        if (candles.length < 15) return currentSymbol === "BTCUSD" ? 150 : 15;
+        
+        let trueRanges = [];
+        for (let i = 1; i < candles.length; i++) {
+            let high = candles[i].high;
+            let low = candles[i].low;
+            let prevClose = candles[i-1].close;
+            
+            let tr = Math.max(
+                high - low,
+                Math.abs(high - prevClose),
+                Math.abs(low - prevClose)
+            );
+            trueRanges.push(tr);
+        }
+        
+        let period = Math.min(14, trueRanges.length);
+        let sum = trueRanges.slice(-period).reduce((a, b) => a + b, 0);
+        return sum / period;
     }
-
-    document.getElementById("signal").innerHTML=`<span class="${color}">${type}</span>`;
-
-    return {type,atr};
-}
-
-// ================= BACKTEST (FIXED LOOP) =================
-function runBacktest(){
-    let wins=0,loss=0;
-
-    if(candles.length<50){
-        document.getElementById("backtest").innerHTML="Need more data";
-        return;
+    
+    // ==================== BOS DETECTION ====================
+    function detectBOS() {
+        if (candles.length < 10) return "NONE";
+        
+        let last = candles[candles.length - 1];
+        let highs = candles.slice(-10).map(c => c.high);
+        let lows = candles.slice(-10).map(c => c.low);
+        
+        let maxHigh = Math.max(...highs);
+        let minLow = Math.min(...lows);
+        
+        if (last.close > maxHigh) return "BOS_UP";
+        if (last.close < minLow) return "BOS_DOWN";
+        return "RANGE";
     }
-
-    for(let i=20;i<candles.length-1;i++){ // FIXED
-        let slice=candles.slice(0,i);
-        let testLast=slice[slice.length-1];
-        let next=candles[i+1];
-
-        let highs=slice.slice(-10).map(c=>c.high);
-        let lows=slice.slice(-10).map(c=>c.low);
-
-        let maxH=Math.max(...highs);
-        let minL=Math.min(...lows);
-
-        if(testLast.close>maxH && next.close>testLast.close) wins++;
-        else if(testLast.close<minL && next.close<testLast.close) wins++;
-        else loss++;
+    
+    // ==================== GENERATE SIGNAL ====================
+    function generateSignal() {
+        if (candles.length < 30 || !price) {
+            return { type: "NEUTRAL", color: "#ffd700", dir: "🟡 LOADING", reason: "Loading market data...", atr: 0 };
+        }
+        
+        let atr = calculateATR();
+        let bos = detectBOS();
+        
+        document.getElementById("atr").innerHTML = atr.toFixed(currentSymbol === "BTCUSD" ? 0 : 2);
+        document.getElementById("bos").innerHTML = bos;
+        
+        let structure = "CONSOLIDATION";
+        if (bos === "BOS_UP") structure = "BULLISH";
+        if (bos === "BOS_DOWN") structure = "BEARISH";
+        document.getElementById("structure").innerHTML = structure;
+        document.getElementById("structure").style.color = bos === "BOS_UP" ? "#00ffcc" : (bos === "BOS_DOWN" ? "#ff3366" : "#ffd700");
+        
+        let type, dir, color, reason;
+        
+        if (bos === "BOS_UP") {
+            type = "BUY";
+            dir = "🟢 BUY";
+            color = "#00ffcc";
+            reason = "Break of structure UP → Institutional buying detected";
+        }
+        else if (bos === "BOS_DOWN") {
+            type = "SELL";
+            dir = "🔴 SELL";
+            color = "#ff3366";
+            reason = "Break of structure DOWN → Institutional selling detected";
+        }
+        else {
+            type = "NEUTRAL";
+            dir = "🟡 NEUTRAL";
+            color = "#ffd700";
+            reason = "No structure break. Market consolidating. Wait for BOS.";
+        }
+        
+        document.getElementById("signal").innerHTML = dir;
+        document.getElementById("signal").style.color = color;
+        document.getElementById("signalBox").style.borderColor = color;
+        document.getElementById("signalReason").innerHTML = reason;
+        
+        // Calculate dynamic levels
+        let levels = calculateLevels(type, price, atr);
+        updateLevelsDisplay(levels);
+        
+        // Update risk
+        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+        let risk = Math.abs(levels.sl - levels.entry) * lot;
+        document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
+        
+        return { type, atr, bos, levels };
     }
-
-    let total=wins+loss;
-    let winrate=(wins/total*100).toFixed(1);
-
-    document.getElementById("backtest").innerHTML=`
-    Wins: ${wins}<br>
-    Loss: ${loss}<br>
-    Winrate: ${winrate}%
-    `;
-}
-
-// ================= LOOP =================
-async function start(){
-    await fetchCandles();
-    signal();
-    setInterval(async()=>{
-        await fetchCandles();
-        signal();
-    },8000);
-}
-
-start();
+    
+    // ==================== DYNAMIC LEVELS ====================
+    function calculateLevels(signalType, currentPrice, atr) {
+        let entry = currentPrice;
+        let sl, tp1, tp2, tp3;
+        let fmt = currentSymbol === "BTCUSD" ? 0 : 2;
+        
+        if (signalType === "BUY") {
+            sl = currentPrice - (atr * 1.2);
+            tp1 = currentPrice + (atr * 1.2);
+            tp2 = currentPrice + (atr * 2.0);
+            tp3 = currentPrice + (atr * 3.0);
+        } else if (signalType === "SELL") {
+            sl = currentPrice + (atr * 1.2);
+            tp1 = currentPrice - (atr * 1.2);
+            tp2 = currentPrice - (atr * 2.0);
+            tp3 = currentPrice - (atr * 3.0);
+        } else {
+            sl = currentPrice;
+            tp1 = currentPrice;
+            tp2 = currentPrice;
+            tp3 = currentPrice;
+        }
+        
+        return { entry, sl, tp1, tp2, tp3 };
+    }
+    
+    function updateLevelsDisplay(levels) {
+        let fmt = currentSymbol === "BTCUSD" ? 0 : 2;
+        document.getElementById("entry").innerHTML = `$${levels.entry.toFixed(fmt)}`;
+        document.getElementById("sl").innerHTML = `$${levels.sl.toFixed(fmt)}`;
+        document.getElementById("tp1").innerHTML = `$${levels.tp1.toFixed(fmt)}`;
+        document.getElementById("tp2").innerHTML = `$${levels.tp2.toFixed(fmt)}`;
+        document.getElementById("tp3").innerHTML = `$${levels.tp3.toFixed(fmt)}`;
+    }
+    
+    // ==================== REAL BACKTEST ====================
+    function runBacktest() {
+        if (candles.length < 50) {
+            document.getElementById("backtestResult").innerHTML = "⚠️ Need more data (at least 50 candles)";
+            return;
+        }
+        
+        let wins = 0;
+        let losses = 0;
+        
+        for (let i = 20; i < candles.length - 1; i++) {
+            let testCandles = candles.slice(0, i);
+            let testPrice = testCandles[testCandles.length - 1].close;
+            let nextPrice = candles[i + 1].close;
+            
+            // Detect BOS on test data
+            let highs = testCandles.slice(-10).map(c => c.high);
+            let lows = testCandles.slice(-10).map(c => c.low);
+            let maxHigh = Math.max(...highs);
+            let minLow = Math.min(...lows);
+            
+            if (testPrice > maxHigh && nextPrice > testPrice) {
+                wins++;
+            } else if (testPrice > maxHigh) {
+                losses++;
+            }
+            else if (testPrice < minLow && nextPrice < testPrice) {
+                wins++;
+            } else if (testPrice < minLow) {
+                losses++;
+            }
+        }
+        
+        let total = wins + losses;
+        let winRate = total > 0 ? (wins / total * 100).toFixed(1) : 0;
+        
+        document.getElementById("backtestResult").innerHTML = `
+            📊 BACKTEST RESULTS (SMC Strategy - BOS)<br>
+            ✅ Wins: ${wins} | ❌ Losses: ${losses}<br>
+            📈 Win Rate: ${winRate}% | 📊 Total: ${total} trades
+        `;
+    }
+    
+    // ==================== SYMBOL SWITCH ====================
+    async function switchSymbol(symbol) {
+        currentSymbol = symbol;
+        if (symbol === "BTCUSD") {
+            await fetchBTCUSD();
+        } else {
+            // For XAUUSD, we don't fetch price - use chart only
+            candles = [];
+            price = null;
+            document.getElementById("price").innerHTML = "$---";
+            document.getElementById("dataSource").innerHTML = "Source: TradingView Chart";
+            document.getElementById("change").innerHTML = "---";
+        }
+        generateSignal();
+        
+        // Update chart
+        if (window.tvWidget) {
+            try { window.tvWidget.remove(); } catch(e) {}
+        }
+        let tvSym = symbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
+        window.tvWidget = new TradingView.widget({
+            container_id: "price",
+            width: "100%",
+            height: 240,
+            symbol: tvSym,
+            interval: "15",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#000",
+            studies: []
+        });
+    }
+    
+    // ==================== MAIN LOOP ====================
+    async function update() {
+        if (currentSymbol === "BTCUSD") {
+            await fetchBTCUSD();
+        }
+        generateSignal();
+    }
+    
+    async function start() {
+        await fetchBTCUSD();
+        generateSignal();
+        
+        // Initialize chart
+        window.tvWidget = new TradingView.widget({
+            container_id: "price",
+            width: "100%",
+            height: 240,
+            symbol: "BINANCE:BTCUSDT",
+            interval: "15",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#000",
+            studies: []
+        });
+        
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(update, 10000);
+        
+        if (Notification.permission === "default") Notification.requestPermission();
+    }
+    
+    // Event listeners
+    document.querySelectorAll(".sym-btn").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            switchSymbol(btn.getAttribute("data-sym"));
+        };
+    });
+    
+    document.getElementById("lotSize").onchange = () => {
+        let atr = calculateATR();
+        let signal = generateSignal();
+        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
+        if (signal.levels) {
+            let risk = Math.abs(signal.levels.sl - signal.levels.entry) * lot;
+            document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
+        }
+    };
+    
+    start();
+    window.runBacktest = runBacktest;
 </script>
-
 </body>
 </html>
