@@ -1,575 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>F609 V6 | TRUE SMC ENGINE</title>
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0f;
-            font-family: 'Courier New', monospace;
-            padding: 12px;
-            color: #00ffcc;
-            position: relative;
-            min-height: 100vh;
-        }
-        
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #00ffcc, #ffd700, #00ffcc, transparent);
-            animation: scanLine 4s linear infinite;
-            pointer-events: none;
-            z-index: 9999;
-        }
-        @keyframes scanLine { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
-        
-        .container { max-width: 100%; margin: 0 auto; position: relative; z-index: 1; }
-        
-        .login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 30% 40%, #0a0a0f, #000);
-            z-index: 10000; display: flex; align-items: center; justify-content: center;
-        }
-        .login-box { background: rgba(17,26,36,0.95); border-radius: 32px; padding: 40px 24px; text-align: center; border: 2px solid #00ffcc; max-width: 320px; backdrop-filter: blur(10px); }
-        .login-title { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #00ffcc, #ffd700); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .login-sub { font-size: 10px; color: #00ffcc80; margin: 15px 0; }
-        .start-btn { background: #00ffcc20; border: 2px solid #00ffcc; padding: 12px; border-radius: 40px; cursor: pointer; font-size: 14px; font-weight: bold; color: #00ffcc; width: 100%; margin-top: 10px; }
-        
-        .main-app { display: none; }
-        .main-app.show { display: block; }
-        
-        .status-bar {
-            background: #00ffcc10;
-            border: 1px solid #00ffcc;
-            border-radius: 12px;
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 9px;
-            flex-wrap: wrap;
-        }
-        .status-led { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ffcc; animation: blink 1s infinite; margin-right: 4px; }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        
-        .user-card { background: linear-gradient(135deg, #0f1622, #0a0e17); border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid #00ffcc; margin-bottom: 12px; }
-        .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00ffcc, #ffd700); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .user-info { flex: 1; }
-        .user-name { font-size: 14px; font-weight: 800; }
-        
-        .symbol-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        .sym-btn { flex: 1; background: #111a24; padding: 10px; border-radius: 40px; text-align: center; cursor: pointer; border: 1px solid #00ffcc; font-size: 12px; font-weight: bold; }
-        .sym-btn.active { background: #00ffcc20; border-color: #00ffcc; color: #00ffcc; }
-        
-        .price-card { background: #111a24; border-radius: 16px; padding: 12px; text-align: center; margin-bottom: 12px; border: 1px solid #00ffcc; }
-        .price { font-size: 32px; font-weight: 800; font-family: monospace; color: #00ffcc; }
-        .price-change { font-size: 10px; margin-top: 4px; }
-        
-        .chart { height: 240px; border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid #00ffcc; background: #131b24; }
-        
-        .smc-box {
-            background: linear-gradient(135deg, #0f1622, #0a0e17);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid #ffd700;
-        }
-        .smc-title { font-size: 10px; color: #ffd700; margin-bottom: 8px; text-align: center; }
-        .smc-row { display: flex; gap: 8px; flex-wrap: wrap; }
-        .smc-item { flex: 1; background: #111a24; border-radius: 12px; padding: 8px; text-align: center; }
-        .smc-label { font-size: 8px; color: #8a9bb0; }
-        .smc-value { font-size: 12px; font-weight: 800; }
-        
-        .signal-box {
-            background: linear-gradient(135deg, #0f1622, #0a0e17);
-            border-radius: 20px;
-            padding: 16px;
-            text-align: center;
-            margin-bottom: 12px;
-            border: 2px solid;
-            cursor: pointer;
-        }
-        .signal-dir { font-size: 40px; font-weight: 800; margin: 6px 0; }
-        .signal-strength { font-size: 9px; margin-top: 4px; }
-        
-        .levels-container {
-            background: linear-gradient(135deg, #0f1622, #0a0e17);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #00ffcc;
-        }
-        .levels-title { font-size: 10px; color: #ffd700; margin-bottom: 8px; text-align: center; }
-        .levels-row { display: flex; gap: 6px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 8px; }
-        .level-box {
-            flex: 1;
-            background: #111a24;
-            border-radius: 12px;
-            padding: 8px;
-            text-align: center;
-            min-width: 65px;
-        }
-        .level-label { font-size: 8px; color: #8a9bb0; margin-bottom: 3px; }
-        .level-price { font-size: 12px; font-weight: 800; font-family: monospace; }
-        .entry-box .level-price { color: #00ffcc; }
-        .sl-box .level-price { color: #ff3366; }
-        .tp-box .level-price { color: #ffd700; }
-        
-        .profit-calc { background: #111a24; border-radius: 12px; padding: 10px; margin-top: 10px; text-align: center; border: 1px solid #ffd700; }
-        .profit-calc input { background: #0a1018; border: 1px solid #00ffcc; border-radius: 8px; padding: 4px; color: #00ffcc; text-align: center; width: 70px; font-size: 11px; }
-        .backtest-btn { background: #00ffcc20; border: 1px solid #00ffcc; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 10px; color: #00ffcc; margin-left: 8px; }
-        
-        .backtest-panel {
-            background: #111a24;
-            border-radius: 12px;
-            padding: 10px;
-            margin-top: 10px;
-            display: none;
-            border: 1px solid #00ffcc;
-        }
-        .backtest-panel.show { display: block; }
-        
-        .footer { text-align: center; font-size: 7px; color: #8a9bb0; margin-top: 10px; padding: 8px; border-top: 1px solid #00ffcc20; }
-        .green { color: #00ffcc; }
-        .red { color: #ff3366; }
-        .yellow { color: #ffd700; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F609 V6 FIXED | SMC ENGINE</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<style>
+body {margin:0;background:#0a0a0f;color:#00ffcc;font-family:monospace;padding:12px;}
+button{cursor:pointer}
+.container{max-width:900px;margin:auto}
+.box{background:#111a24;border:1px solid #00ffcc;border-radius:12px;padding:10px;margin:10px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.item{flex:1;background:#0f1622;padding:8px;border-radius:10px;text-align:center}
+.green{color:#00ffcc}
+.red{color:#ff3366}
+.yellow{color:#ffd700}
+.price{font-size:28px}
+</style>
 </head>
+
 <body>
 
-<div id="loginScreen" class="login-screen">
-    <div class="login-box">
-        <div class="login-title">⚡ F609 V6 SMC ⚡</div>
-        <div class="login-sub">TRUE SMART MONEY CONCEPTS • BOS • CHoCH • REAL BACKTEST</div>
-        <button class="start-btn" onclick="startTrading()">🎯 ENTER</button>
-    </div>
+<div class="container">
+
+<h2>⚡ V6 FIXED SMC ENGINE</h2>
+
+<div class="box">
+Price: <div id="price" class="price">---</div>
+Change: <span id="change">---</span>
 </div>
 
-<div id="mainApp" class="main-app">
-<div class="container">
-    <div class="status-bar">
-        <div><span class="status-led"></span> <span id="dataStatus">LIVE</span></div>
-        <div>🕒 <span id="currentTime">--:--:--</span></div>
-        <div>🌍 <span id="sessionName">LONDON</span></div>
-        <div>📡 <span id="dataSource">BINANCE</span></div>
-    </div>
-    
-    <div class="user-card">
-        <div class="avatar" id="userAvatar">🎯</div>
-        <div class="user-info">
-            <div class="user-name" id="userName">Trader</div>
-        </div>
-    </div>
-    
-    <div class="symbol-row">
-        <div class="sym-btn active" data-sym="BTCUSD">₿ BTCUSD</div>
-        <div class="sym-btn" data-sym="XAUUSD">🥇 XAUUSD</div>
-    </div>
-    
-    <div class="price-card">
-        <div class="price" id="price">$---</div>
-        <div class="price-change" id="priceChange">---</div>
-    </div>
-    
-    <div class="chart" id="chart"></div>
-    
-    <!-- SMC Analysis Box -->
-    <div class="smc-box">
-        <div class="smc-title">🏛️ SMART MONEY CONCEPTS (SMC)</div>
-        <div class="smc-row">
-            <div class="smc-item"><div class="smc-label">BOS/CHoCH</div><div class="smc-value" id="bosValue">--</div></div>
-            <div class="smc-item"><div class="smc-label">ATR (TR)</div><div class="smc-value" id="atrValue">--</div></div>
-            <div class="smc-item"><div class="smc-label">STRUCTURE</div><div class="smc-value" id="structureValue">--</div></div>
-        </div>
-    </div>
-    
-    <div class="signal-box" id="signalBox">
-        <div class="signal-dir" id="signalDir">🟡 INITIALIZING</div>
-        <div class="signal-strength" id="signalStrength">Loading SMC data...</div>
-    </div>
-    
-    <div class="levels-container">
-        <div class="levels-title">🎯 DYNAMIC LEVELS (ATR-BASED)</div>
-        <div class="levels-row">
-            <div class="level-box entry-box"><div class="level-label">📌 ENTRY</div><div class="level-price" id="displayEntry">--</div></div>
-            <div class="level-box sl-box"><div class="level-label">🛑 SL</div><div class="level-price" id="displaySL">--</div></div>
-        </div>
-        <div class="levels-row">
-            <div class="level-box tp-box"><div class="level-label">✅ TP1</div><div class="level-price" id="displayTP1">--</div></div>
-            <div class="level-box tp-box"><div class="level-label">✅ TP2</div><div class="level-price" id="displayTP2">--</div></div>
-            <div class="level-box tp-box"><div class="level-label">✅ TP3</div><div class="level-price" id="displayTP3">--</div></div>
-        </div>
-    </div>
-    
-    <div class="profit-calc">
-        <div class="levels-title" style="margin-bottom: 4px;">💰 RISK MANAGEMENT</div>
-        <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 10px;">LOT:</span>
-            <input type="number" id="lotSize" value="0.01" step="0.01" min="0.01" max="1.00">
-            <span style="font-size: 10px;">Risk: $<span id="riskAmount">0</span></span>
-            <button class="backtest-btn" onclick="runRealBacktest()">📊 BACKTEST</button>
-        </div>
-    </div>
-    
-    <div class="backtest-panel" id="backtestPanel">
-        <div class="levels-title" style="margin-bottom: 5px;">📈 REAL BACKTEST RESULTS</div>
-        <div id="backtestResult" class="backtest-result" style="font-size: 9px;"></div>
-    </div>
-    
-    <div class="footer">⚡ V6 SMC ENGINE • REAL BOS/CHoCH • TRUE ATR • REAL BACKTEST • OHLC DATA</div>
+<div class="box">
+Signal: <div id="signal">Loading...</div>
 </div>
+
+<div class="box row">
+<div class="item">ATR <div id="atr">--</div></div>
+<div class="item">BOS <div id="bos">--</div></div>
+<div class="item">Structure <div id="structure">--</div></div>
+</div>
+
+<div class="box">
+<button onclick="runBacktest()">BACKTEST</button>
+<div id="backtest"></div>
+</div>
+
 </div>
 
 <script>
-    // ==================== V6 TRUE SMC ENGINE ====================
-    
-    let tg = window.Telegram.WebApp;
-    tg.expand();
-    let user = tg.initDataUnsafe?.user;
-    if (user) {
-        document.getElementById("userName").innerHTML = user.first_name || "Trader";
-        document.getElementById("userAvatar").innerHTML = user.first_name?.charAt(0).toUpperCase() || "🎯";
+// ================= STATE =================
+let symbol="BTCUSD";
+let candles=[];
+let price=0;
+
+// ================= FETCH CANDLES (FIXED) =================
+async function fetchCandles(){
+    try{
+        let binanceSymbol="BTCUSDT"; // FIX: always correct
+        let url=`https://api.binance.com/api/v3/klines?symbol=${binanceSymbol}&interval=15m&limit=120`;
+
+        let res=await fetch(url);
+        let data=await res.json();
+
+        candles=data.map(c=>({
+            open:+c[1],
+            high:+c[2],
+            low:+c[3],
+            close:+c[4]
+        }));
+
+        price=candles[candles.length-1].close;
+
+        document.getElementById("price").innerHTML=price.toFixed(2);
+
+    }catch(e){
+        console.log(e);
     }
-    
-    // ==================== DATA STRUCTURES ====================
-    let symbol = "BTCUSD";
-    let candles = [];  // OHLC candle data
-    let interval = "15m";
-    let chart = null;
-    let updateInterval = null;
-    
-    // ==================== FETCH REAL OHLC CANDLES FROM BINANCE ====================
-    async function fetchCandles() {
-        try {
-            let limit = 200;
-            let binanceSymbol = symbol === "BTCUSD" ? "BTCUSDT" : "BTCUSDT"; // XAUUSD not on Binance
-            let url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`;
-            
-            let res = await fetch(url);
-            let data = await res.json();
-            
-            if (data && data.length > 0) {
-                candles = data.map(c => ({
-                    open: parseFloat(c[1]),
-                    high: parseFloat(c[2]),
-                    low: parseFloat(c[3]),
-                    close: parseFloat(c[4]),
-                    volume: parseFloat(c[5]),
-                    time: c[0]
-                }));
-                
-                // Update price display
-                let lastCandle = candles[candles.length - 1];
-                let prevCandle = candles[candles.length - 2];
-                document.getElementById("price").innerHTML = `$${lastCandle.close.toFixed(0)}`;
-                let change = prevCandle ? ((lastCandle.close - prevCandle.close) / prevCandle.close * 100).toFixed(2) : 0;
-                document.getElementById("priceChange").innerHTML = `${change >= 0 ? '+' : ''}${change}%`;
-                document.getElementById("priceChange").className = `price-change ${change >= 0 ? 'green' : 'red'}`;
-                document.getElementById("dataSource").innerHTML = "BINANCE";
-                document.getElementById("dataStatus").innerHTML = "LIVE";
-                
-                return true;
-            }
-        } catch(e) {
-            document.getElementById("dataStatus").innerHTML = "ERROR";
-            console.log("Fetch error:", e);
-        }
-        return false;
+}
+
+// ================= ATR (FIXED TRUE RANGE) =================
+function ATR(){
+    if(candles.length<15) return 100;
+
+    let tr=[];
+    for(let i=1;i<candles.length;i++){
+        let h=candles[i].high;
+        let l=candles[i].low;
+        let pc=candles[i-1].close;
+
+        tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
     }
-    
-    // ==================== TRUE ATR CALCULATION (High-Low, High-PrevClose, Low-PrevClose) ====================
-    function calculateTrueATR(candlesData, period = 14) {
-        if (candlesData.length < period + 1) return symbol === "BTCUSD" ? 200 : 20;
-        
-        let trueRanges = [];
-        for (let i = 1; i < candlesData.length; i++) {
-            let high = candlesData[i].high;
-            let low = candlesData[i].low;
-            let prevClose = candlesData[i-1].close;
-            
-            let tr = Math.max(
-                high - low,
-                Math.abs(high - prevClose),
-                Math.abs(low - prevClose)
-            );
-            trueRanges.push(tr);
-        }
-        
-        let sum = trueRanges.slice(-period).reduce((a, b) => a + b, 0);
-        return sum / period;
+
+    return tr.slice(-14).reduce((a,b)=>a+b,0)/14;
+}
+
+// ================= BOS =================
+function BOS(){
+    if(candles.length<10) return "NONE";
+
+    let last=candles[candles.length-1];
+    let highs=candles.slice(-10).map(c=>c.high);
+    let lows=candles.slice(-10).map(c=>c.low);
+
+    let maxH=Math.max(...highs);
+    let minL=Math.min(...lows);
+
+    if(last.close>maxH) return "BOS_UP";
+    if(last.close<minL) return "BOS_DOWN";
+    return "RANGE";
+}
+
+// ================= SIGNAL =================
+function signal(){
+    let atr=ATR();
+    let bos=BOS();
+
+    document.getElementById("atr").innerHTML=atr.toFixed(2);
+    document.getElementById("bos").innerHTML=bos;
+
+    let type="NEUTRAL";
+    let color="yellow";
+
+    if(bos==="BOS_UP"){
+        type="BUY"; color="green";
     }
-    
-    // ==================== BOS (Break of Structure) DETECTION ====================
-    function detectBOS(candlesData) {
-        if (candlesData.length < 5) return { bos: null, ch: null };
-        
-        let last = candlesData[candlesData.length - 1];
-        let prev = candlesData[candlesData.length - 2];
-        let prevHigh = Math.max(...candlesData.slice(-5).map(c => c.high));
-        let prevLow = Math.min(...candlesData.slice(-5).map(c => c.low));
-        
-        let bos = null;
-        let ch = null;
-        
-        // BOS UP - price breaks previous high
-        if (last.close > prevHigh) {
-            bos = "BOS_UP";
-        }
-        // BOS DOWN - price breaks previous low
-        else if (last.close < prevLow) {
-            bos = "BOS_DOWN";
-        }
-        
-        // CHoCH (Change of Character) - price breaks structure then retraces
-        if (prev.close > prevHigh && last.close < prevHigh) {
-            ch = "CHoCH_BEARISH";
-        } else if (prev.close < prevLow && last.close > prevLow) {
-            ch = "CHoCH_BULLISH";
-        }
-        
-        return { bos, ch };
+    if(bos==="BOS_DOWN"){
+        type="SELL"; color="red";
     }
-    
-    // ==================== SMC SIGNAL GENERATION ====================
-    function generateSMCSignal(candlesData) {
-        if (candlesData.length < 30) {
-            return { type: "NEUTRAL", strength: "LOADING", confidence: 0, reason: "Loading market structure..." };
-        }
-        
-        let atr = calculateTrueATR(candlesData);
-        let { bos, ch } = detectBOS(candlesData);
-        let lastCandle = candlesData[candlesData.length - 1];
-        
-        // Update UI
-        document.getElementById("atrValue").innerHTML = atr.toFixed(2);
-        document.getElementById("bosValue").innerHTML = bos || (ch || "NO STRUCTURE");
-        document.getElementById("bosValue").style.color = bos === "BOS_UP" ? "#00ffcc" : (bos === "BOS_DOWN" ? "#ff3366" : "#ffd700");
-        
-        let structure = "CONSOLIDATION";
-        if (bos === "BOS_UP") structure = "BULLISH STRUCTURE";
-        if (bos === "BOS_DOWN") structure = "BEARISH STRUCTURE";
-        document.getElementById("structureValue").innerHTML = structure;
-        
-        let signalType = "NEUTRAL";
-        let strength = "";
-        let confidence = 50;
-        let reason = "";
-        
-        // SMC SIGNAL LOGIC
-        if (bos === "BOS_UP") {
-            signalType = "BUY";
-            strength = "BOS CONFIRMED";
-            confidence = 75;
-            reason = "Break of structure UP → Institutional buying pressure";
-        } 
-        else if (bos === "BOS_DOWN") {
-            signalType = "SELL";
-            strength = "BOS CONFIRMED";
-            confidence = 75;
-            reason = "Break of structure DOWN → Institutional selling pressure";
-        }
-        else if (ch === "CHoCH_BULLISH") {
-            signalType = "BUY";
-            strength = "CHoCH DETECTED";
-            confidence = 70;
-            reason = "Change of character → Trend reversal potential";
-        }
-        else if (ch === "CHoCH_BEARISH") {
-            signalType = "SELL";
-            strength = "CHoCH DETECTED";
-            confidence = 70;
-            reason = "Change of character → Trend reversal potential";
-        }
-        else {
-            signalType = "NEUTRAL";
-            strength = "NO STRUCTURE BREAK";
-            confidence = 40;
-            reason = "Market consolidating. Wait for BOS.";
-        }
-        
-        let dir, color;
-        if (signalType === "BUY") { dir = "🟢 BUY"; color = "#00ffcc"; }
-        else if (signalType === "SELL") { dir = "🔴 SELL"; color = "#ff3366"; }
-        else { dir = "🟡 NEUTRAL"; color = "#ffd700"; }
-        
-        // Calculate dynamic levels
-        let levels = calculateDynamicLevels(signalType, lastCandle.close, atr);
-        
-        return { type: signalType, dir, color, strength, confidence, reason, levels, atr, bos, ch };
+
+    document.getElementById("signal").innerHTML=`<span class="${color}">${type}</span>`;
+
+    return {type,atr};
+}
+
+// ================= BACKTEST (FIXED LOOP) =================
+function runBacktest(){
+    let wins=0,loss=0;
+
+    if(candles.length<50){
+        document.getElementById("backtest").innerHTML="Need more data";
+        return;
     }
-    
-    // ==================== DYNAMIC SL/TP ====================
-    function calculateDynamicLevels(signalType, price, atr) {
-        let entry = price;
-        let sl, tp1, tp2, tp3;
-        
-        if (signalType === "BUY") {
-            sl = price - (atr * 1.2);
-            tp1 = price + (atr * 1.2);
-            tp2 = price + (atr * 2.0);
-            tp3 = price + (atr * 3.0);
-        } else if (signalType === "SELL") {
-            sl = price + (atr * 1.2);
-            tp1 = price - (atr * 1.2);
-            tp2 = price - (atr * 2.0);
-            tp3 = price - (atr * 3.0);
-        } else {
-            sl = price; tp1 = price; tp2 = price; tp3 = price;
-        }
-        
-        return { entry, sl, tp1, tp2, tp3 };
+
+    for(let i=20;i<candles.length-1;i++){ // FIXED
+        let slice=candles.slice(0,i);
+        let testLast=slice[slice.length-1];
+        let next=candles[i+1];
+
+        let highs=slice.slice(-10).map(c=>c.high);
+        let lows=slice.slice(-10).map(c=>c.low);
+
+        let maxH=Math.max(...highs);
+        let minL=Math.min(...lows);
+
+        if(testLast.close>maxH && next.close>testLast.close) wins++;
+        else if(testLast.close<minL && next.close<testLast.close) wins++;
+        else loss++;
     }
-    
-    // ==================== UPDATE UI ====================
-    function updateUI() {
-        if (candles.length === 0) return;
-        
-        let signal = generateSMCSignal(candles);
-        
-        document.getElementById("signalDir").innerHTML = signal.dir;
-        document.getElementById("signalDir").style.color = signal.color;
-        document.getElementById("signalBox").style.borderColor = signal.color;
-        document.getElementById("signalStrength").innerHTML = `${signal.strength} | ${signal.reason} | ${signal.confidence}% confidence`;
-        
-        let fmt = symbol === "BTCUSD" ? 0 : 2;
-        document.getElementById("displayEntry").innerHTML = `$${signal.levels.entry.toFixed(fmt)}`;
-        document.getElementById("displaySL").innerHTML = `$${signal.levels.sl.toFixed(fmt)}`;
-        document.getElementById("displayTP1").innerHTML = `$${signal.levels.tp1.toFixed(fmt)}`;
-        document.getElementById("displayTP2").innerHTML = `$${signal.levels.tp2.toFixed(fmt)}`;
-        document.getElementById("displayTP3").innerHTML = `$${signal.levels.tp3.toFixed(fmt)}`;
-        
-        let lot = parseFloat(document.getElementById("lotSize").value) || 0.01;
-        let pipValue = symbol === "BTCUSD" ? 1 : 100;
-        let risk = Math.abs(signal.levels.sl - signal.levels.entry) * pipValue * lot;
-        document.getElementById("riskAmount").innerHTML = risk.toFixed(2);
-    }
-    
-    // ==================== REAL BACKTEST ENGINE ====================
-    function runRealBacktest() {
-        if (candles.length < 50) {
-            document.getElementById("backtestPanel").classList.add("show");
-            document.getElementById("backtestResult").innerHTML = "⚠️ Need more candles (at least 50)";
-            return;
-        }
-        
-        let wins = 0;
-        let losses = 0;
-        let totalProfit = 0;
-        let trades = [];
-        
-        // Run backtest on last 100 candles
-        let backtestLength = Math.min(100, candles.length - 20);
-        
-        for (let i = 20; i < backtestLength; i++) {
-            let testCandles = candles.slice(0, i);
-            let signal = generateSMCSignal(testCandles);
-            
-            let entryPrice = candles[i].close;
-            let exitPrice = candles[i+1]?.close || entryPrice;
-            
-            if (signal.type === "BUY") {
-                let profit = exitPrice - entryPrice;
-                totalProfit += profit;
-                if (profit > 0) wins++;
-                else losses++;
-                trades.push({ type: "BUY", profit });
-            }
-            else if (signal.type === "SELL") {
-                let profit = entryPrice - exitPrice;
-                totalProfit += profit;
-                if (profit > 0) wins++;
-                else losses++;
-                trades.push({ type: "SELL", profit });
-            }
-        }
-        
-        let totalTrades = wins + losses;
-        let winRate = totalTrades > 0 ? (wins / totalTrades * 100).toFixed(1) : 0;
-        let avgProfit = totalTrades > 0 ? (totalProfit / totalTrades).toFixed(2) : 0;
-        
-        document.getElementById("backtestPanel").classList.add("show");
-        document.getElementById("backtestResult").innerHTML = `
-            📊 REAL BACKTEST (SMC STRATEGY)<br>
-            📈 Total Trades: ${totalTrades}<br>
-            ✅ Wins: ${wins}<br>
-            ❌ Losses: ${losses}<br>
-            📊 Win Rate: ${winRate}%<br>
-            💰 Net P&L: ${totalProfit.toFixed(2)} points<br>
-            📉 Avg/Trade: ${avgProfit} points
-        `;
-    }
-    
-    // ==================== CHART INIT ====================
-    function initChart() {
-        if (chart) try { chart.remove(); } catch(e) {}
-        let tvSym = symbol === "BTCUSD" ? "BINANCE:BTCUSDT" : "FX_IDC:XAUUSD";
-        chart = new TradingView.widget({
-            container_id: "chart",
-            width: "100%",
-            height: 240,
-            symbol: tvSym,
-            interval: "15",
-            theme: "dark",
-            style: "1",
-            locale: "en",
-            toolbar_bg: "#000",
-            studies: []
-        });
-    }
-    
-    // ==================== SESSION TIME ====================
-    function updateSession() {
-        let now = new Date();
-        document.getElementById("currentTime").innerHTML = now.toLocaleTimeString();
-        let hour = now.getUTCHours();
-        let session = (hour >= 8 && hour < 16) ? "LONDON" : (hour >= 13 ? "NEW YORK" : "ASIA");
-        document.getElementById("sessionName").innerHTML = session;
-    }
-    
-    // ==================== MAIN LOOP ====================
-    async function updateAll() {
+
+    let total=wins+loss;
+    let winrate=(wins/total*100).toFixed(1);
+
+    document.getElementById("backtest").innerHTML=`
+    Wins: ${wins}<br>
+    Loss: ${loss}<br>
+    Winrate: ${winrate}%
+    `;
+}
+
+// ================= LOOP =================
+async function start(){
+    await fetchCandles();
+    signal();
+    setInterval(async()=>{
         await fetchCandles();
-        updateUI();
-    }
-    
-    async function startTrading() {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("mainApp").classList.add("show");
-        
-        initChart();
-        await updateAll();
-        
-        if (updateInterval) clearInterval(updateInterval);
-        updateInterval = setInterval(updateAll, 10000);
-        setInterval(updateSession, 1000);
-        
-        if (Notification.permission === "default") Notification.requestPermission();
-    }
-    
-    // ==================== EVENT LISTENERS ====================
-    document.querySelectorAll(".sym-btn").forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll(".sym-btn").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            symbol = btn.getAttribute("data-sym");
-            candles = [];
-            initChart();
-            updateAll();
-        };
-    });
-    
-    document.getElementById("lotSize").onchange = () => updateUI();
-    
-    window.startTrading = startTrading;
-    window.runRealBacktest = runRealBacktest;
+        signal();
+    },8000);
+}
+
+start();
 </script>
+
 </body>
 </html>
