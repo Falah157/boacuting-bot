@@ -1,188 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI TRADING COPILOT PRO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI CHART SIGNAL OVERLAY</title>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
-body { background:#000; color:#fff; font-family:Arial; padding:10px; }
-.card { background:#0a0a0a; padding:12px; margin-bottom:10px; border-radius:12px; border:1px solid #222;}
-.title { font-size:12px; color:#888; margin-bottom:6px;}
-.big { font-size:26px; font-weight:bold;}
-.green { color:#00ff88;}
-.red { color:#ff4444;}
-.yellow { color:#ffaa00;}
-button { padding:10px; border-radius:20px; border:none; background:#222; color:#fff; width:100%; }
-.row { display:flex; gap:6px;}
+body{background:#000;color:#fff;font-family:Arial;padding:10px;}
+.card{background:#0a0a0a;border:1px solid #222;padding:12px;margin-bottom:10px;border-radius:12px;}
+
+#chartContainer{
+ position:relative;
+ width:100%;
+ height:350px;
+}
+
+#tvchart{
+ width:100%;
+ height:100%;
+}
+
+.overlay{
+ position:absolute;
+ left:0;
+ top:0;
+ width:100%;
+ height:100%;
+ pointer-events:none;
+}
+
+.signal-arrow{
+ position:absolute;
+ font-size:24px;
+ font-weight:bold;
+}
+
+.buy{ color:#00ff88; }
+.sell{ color:#ff4444; }
+
+.line{
+ position:absolute;
+ width:100%;
+ height:1px;
+}
+
+.entry{ background:#00ff88; }
+.sl{ background:#ff4444; }
+.tp{ background:#ffaa00; }
+
 </style>
 </head>
 
 <body>
 
 <div class="card">
-<div class="title">LIVE PRICE</div>
-<div class="big" id="price">Loading...</div>
-</div>
+<div id="chartContainer">
+<div id="tvchart"></div>
 
-<div class="card">
-<div class="title">AI SIGNAL</div>
-<div class="big" id="signal">WAIT</div>
-<div id="confidence"></div>
-<div id="reason" style="font-size:11px;color:#888;"></div>
-</div>
+<!-- Overlay -->
+<div class="overlay" id="overlay"></div>
 
-<div class="card">
-<div class="title">MULTI TIMEFRAME</div>
-<div id="mtf"></div>
 </div>
-
-<div class="card">
-<div class="title">LEVELS</div>
-<div id="levels"></div>
-</div>
-
-<div class="card">
-<div class="title">RISK</div>
-Balance: <input id="bal" value="100"><br>
-Risk %: <input id="riskp" value="1"><br>
-<div id="risk"></div>
-</div>
-
-<div class="card">
-<div class="title">HISTORY</div>
-<div id="history"></div>
 </div>
 
 <script>
 
-let price = 0;
-let history = [];
-let signals = [];
+let price=0,history=[];
+let symbol="BINANCE:BTCUSDT";
+
+function loadChart(){
+ document.getElementById("tvchart").innerHTML="";
+ new TradingView.widget({
+  container_id:"tvchart",
+  width:"100%",
+  height:350,
+  symbol:symbol,
+  interval:"15",
+  theme:"dark"
+ });
+}
 
 async function fetchPrice(){
- let r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
- let d = await r.json();
- price = parseFloat(d.price);
- document.getElementById("price").innerText = "$"+price.toFixed(0);
+ let r=await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
+ let d=await r.json();
+ price=parseFloat(d.price);
 
  history.push(price);
- if(history.length>200) history.shift();
+ if(history.length>100) history.shift();
 
  runAI();
 }
 
-function EMA(period){
- let k = 2/(period+1);
- let ema = history[0];
- for(let i=1;i<history.length;i++){
-  ema = history[i]*k + ema*(1-k);
- }
+function EMA(p){
+ let k=2/(p+1),ema=history[0];
+ for(let i=1;i<history.length;i++) ema=history[i]*k+ema*(1-k);
  return ema;
-}
-
-function RSI(){
- if(history.length<15) return 50;
- let g=0,l=0;
- for(let i=history.length-14;i<history.length;i++){
-  let d = history[i]-history[i-1];
-  if(d>0) g+=d; else l-=d;
- }
- let rs = g/(l||1);
- return 100 - (100/(1+rs));
-}
-
-function ATR(){
- if(history.length<20) return 100;
- let t=0;
- for(let i=1;i<history.length;i++){
-  t+=Math.abs(history[i]-history[i-1]);
- }
- return t/14;
-}
-
-function getTrend(tf){
- let slice = history.slice(-tf);
- let avg = slice.reduce((a,b)=>a+b,0)/slice.length;
- return price>avg ? "BUY":"SELL";
 }
 
 function runAI(){
 
  if(history.length<50) return;
 
- let rsi = RSI();
- let ema50 = EMA(50);
- let ema200 = EMA(200);
- let atr = ATR();
-
- let m1 = getTrend(10);
- let m5 = getTrend(30);
- let m15 = getTrend(60);
- let h1 = getTrend(120);
-
- let align = [m1,m5,m15,h1].filter(x=>x=="BUY").length;
+ let ema50=EMA(50);
+ let ema200=EMA(200);
 
  let signal="WAIT";
- let conf=0;
- let reason=[];
 
- if(align>=3 && price>ema50 && ema50>ema200 && rsi<70){
+ if(price>ema50 && ema50>ema200){
   signal="BUY";
-  conf=80;
-  reason.push("Trend aligned");
-  reason.push("EMA bullish");
- }
-
- else if(align<=1 && price<ema50 && ema50<ema200 && rsi>30){
+ }else if(price<ema50 && ema50<ema200){
   signal="SELL";
-  conf=80;
-  reason.push("Trend bearish");
  }
 
- else{
-  signal="WAIT";
-  conf=50;
-  reason.push("Market unclear");
- }
-
- document.getElementById("signal").innerText=signal;
- document.getElementById("signal").className = "big "+(signal=="BUY"?"green":signal=="SELL"?"red":"yellow");
- document.getElementById("confidence").innerText="Confidence: "+conf+"%";
- document.getElementById("reason").innerText=reason.join(" | ");
-
- document.getElementById("mtf").innerText=
- `M1:${m1} M5:${m5} M15:${m15} H1:${h1}`;
-
- let sl,tp;
- if(signal=="BUY"){
-  sl = price - atr*1.2;
-  tp = price + atr*2;
- }else{
-  sl = price + atr*1.2;
-  tp = price - atr*2;
- }
-
- document.getElementById("levels").innerText=
- `Entry:${price.toFixed(0)} SL:${sl.toFixed(0)} TP:${tp.toFixed(0)}`;
-
- calcRisk(sl);
-
- if(signal!="WAIT"){
-  signals.push(signal);
-  if(signals.length>10) signals.shift();
-  document.getElementById("history").innerText = signals.join(" | ");
- }
+ drawOverlay(signal);
 }
 
-function calcRisk(sl){
- let bal = parseFloat(document.getElementById("bal").value);
- let riskp = parseFloat(document.getElementById("riskp").value);
- let risk = bal*(riskp/100);
- document.getElementById("risk").innerText = "Risk: $"+risk.toFixed(2);
+function drawOverlay(signal){
+
+ let overlay=document.getElementById("overlay");
+ overlay.innerHTML="";
+
+ if(signal==="WAIT") return;
+
+ // random vertical position (simulate real placement)
+ let y = Math.random()*300 + 20;
+
+ // arrow
+ let arrow=document.createElement("div");
+ arrow.className="signal-arrow "+(signal==="BUY"?"buy":"sell");
+ arrow.style.left="10px";
+ arrow.style.top=y+"px";
+ arrow.innerText= signal==="BUY"?"▲":"▼";
+ overlay.appendChild(arrow);
+
+ // levels
+ let entryY=y;
+ let slY= signal==="BUY"?y+40:y-40;
+ let tpY= signal==="BUY"?y-40:y+40;
+
+ overlay.appendChild(createLine(entryY,"entry"));
+ overlay.appendChild(createLine(slY,"sl"));
+ overlay.appendChild(createLine(tpY,"tp"));
+}
+
+function createLine(y,type){
+ let line=document.createElement("div");
+ line.className="line "+type;
+ line.style.top=y+"px";
+ return line;
 }
 
 setInterval(fetchPrice,5000);
+loadChart();
 
 </script>
 
