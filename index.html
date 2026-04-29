@@ -3,579 +3,648 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PRO TRADING ASSISTANT — BTC & XAU (Advanced Prototype)</title>
-
-  <!-- Lightweight Charts (free) -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-  <!-- Chart.js for equity sparkline -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
+  <title>Pro Fibonacci Chart — XAUUSD / BTCUSD</title>
   <style>
     :root {
-      --bg: #030617;
-      --card: #071021;
-      --muted: #95a0bd;
-      --accent: #00e096;
-      --danger: #ff5e7e;
-      --panel: rgba(255,255,255,0.03);
+      --bg: #050a12;
+      --panel: rgba(11,16,32,0.85);
+      --muted: #8f9bb5;
+      --accent: #7c9eff;
+      --good: #00e096;
+      --bad: #ff5e7e;
+      --fib: rgba(255,221,153,0.07);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: linear-gradient(180deg,#02040a 0%, #041026 100%);
-      color: #dfe9ff;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      padding: 20px;
-      -webkit-font-smoothing:antialiased;
+    html,body { height:100%; margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); color:#eef2ff; }
+    #app { height:100%; display:flex; align-items:stretch; justify-content:center; padding:8px; }
+    .chart-wrap {
+      width:100%; max-width:1600px; height:calc(100vh - 16px); background:linear-gradient(180deg,#061018 0%, #071322 100%); border-radius:12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position:relative; overflow:hidden;
+      border: 1px solid rgba(40,48,70,0.6);
     }
-    .container { max-width: 1400px; margin: 0 auto; display: grid; gap: 18px; }
-    header { display:flex; gap:12px; align-items:center; justify-content:space-between; }
-    h1 { font-size:18px; letter-spacing:0.2px; }
-    .controls { display:flex; gap:8px; align-items:center; }
-    button, .btn {
-      background:#0f2038; color:#e8f0ff; border:1px solid rgba(255,255,255,0.04); padding:8px 12px; border-radius:10px;
-      cursor:pointer; font-weight:600;
+    canvas { display:block; width:100%; height:100%; }
+    .controls {
+      position:absolute; top:12px; left:12px; display:flex; gap:8px; z-index:30; align-items:center;
     }
-    button.ghost { background:transparent; border:1px solid rgba(255,255,255,0.03); }
-    .badge { background:#071b2b; padding:6px 10px; border-radius:12px; color:var(--muted); font-size:13px; }
-    main { display:grid; grid-template-columns: 1fr 360px; gap:18px; align-items:start; }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:14px; padding:12px; border:1px solid rgba(255,255,255,0.03); box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
-    .chart-wrap { height:520px; display:flex; flex-direction:column; gap:8px; }
-    #chart { height:420px; border-radius:10px; overflow:hidden; }
-    .info-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:8px; }
-    .panel { background:transparent; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); }
-    .panel .title { font-size:12px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
-    .tf-badge { display:flex; gap:6px; flex-wrap:wrap; }
-    .tf-pill { min-width:64px; padding:8px 10px; border-radius:8px; background:#051229; text-align:center; font-weight:700; }
-    .tf-buy { color:var(--accent); }
-    .tf-sell { color:var(--danger); }
-    .tf-neutral { color:#94a3c6; }
-    .recommend { font-size:20px; font-weight:800; margin-top:6px; }
-    .right-col { display:flex; flex-direction:column; gap:12px; }
-    .small-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; }
-    .fibs, .sr { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:13px; color:#cfe6ff; }
-    .equity { height:72px; }
-    footer { text-align:center; font-size:12px; color:var(--muted); margin-top:8px; }
-    .meta { font-size:12px; color:var(--muted); }
-    .sig-legend { display:flex; gap:8px; align-items:center; font-size:12px; color:var(--muted); }
-    .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
-    @media (max-width: 980px) {
-      main { grid-template-columns: 1fr; }
-      .info-grid { grid-template-columns: repeat(2,1fr); }
+    .btn {
+      background:#0e1726; border:1px solid rgba(255,255,255,0.03); color:#dfe8ff; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+    .btn.active { background: linear-gradient(90deg,#25324f,#2f446f); border-color:var(--accent); box-shadow:0 6px 18px rgba(124,158,255,0.08); }
+    .tf-group { display:flex; gap:6px; }
+    .symbol-group { display:flex; gap:6px; }
+    .status {
+      position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:10px; font-size:13px; color:#cfe3ff; z-index:30;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .legend {
+      position:absolute; left:12px; bottom:12px; background:rgba(0,0,0,0.18); padding:10px 12px; border-radius:10px; z-index:30; font-size:13px; color:#e6eefc;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .small { font-size:12px; color:var(--muted); display:inline-block; margin-left:8px; }
+    .label-pill { background:rgba(255,255,255,0.03); padding:6px 8px; border-radius:8px; margin-left:8px; font-weight:700; font-family:monospace; color:#fff; }
+    .overlay-note { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.03); font-size:42px; pointer-events:none; z-index:5; display:none; }
+    @media (max-width:700px) {
+      .controls { top:8px; left:8px; flex-wrap:wrap; gap:6px; }
+      .status { top:8px; right:8px; font-size:12px; padding:6px 8px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div style="display:flex;gap:12px;align-items:center">
-        <h1>PRO TRADING ASSISTANT — BTC / XAU (Advanced Prototype)</h1>
-        <div class="badge" id="sessionBadge">LONDON • AUTO</div>
-      </div>
-      <div class="controls">
-        <button class="btn" id="startBtn">Start</button>
-        <button class="btn ghost" id="stopBtn">Stop</button>
-        <button class="btn" id="switchBtn">Switch: BTC → XAU</button>
-      </div>
-    </header>
+  <div id="app">
+    <div class="chart-wrap" id="chartWrap" aria-label="Fibonacci trading chart area">
+      <canvas id="chartCanvas" role="img" aria-label="Price chart"></canvas>
 
-    <main>
-      <div class="card chart-wrap">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="meta">Symbol: <strong id="symDisplay">BTCUSDT</strong> • Price: <span id="priceLive">—</span></div>
-          <div class="sig-legend">
-            <span class="dot" style="background:var(--accent)"></span><span>Buy</span>
-            <span style="width:8px"></span>
-            <span class="dot" style="background:var(--danger)"></span><span>Sell</span>
-            <span style="width:8px"></span>
-            <span class="dot" style="background:#94a3c6"></span><span>Neutral</span>
-          </div>
+      <div class="controls" id="controls">
+        <div class="symbol-group" role="group" aria-label="Symbols">
+          <button class="btn active" data-symbol="XAUUSD" id="symXAU">XAUUSD</button>
+          <button class="btn" data-symbol="BTCUSD" id="symBTC">BTCUSD</button>
         </div>
 
-        <div id="chart" class="card"></div>
-
-        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:6px">
-          <div>
-            <div class="recommend" id="recommend">RECOMMENDATION: WAIT</div>
-            <div class="meta" id="confText">Confidence: —</div>
-          </div>
-
-          <div style="display:flex;gap:10px;align-items:center">
-            <div style="min-width:180px">
-              <canvas id="equitySpark" class="equity"></canvas>
-            </div>
-            <div style="text-align:right">
-              <div class="meta">Next News</div>
-              <div id="newsTxt" style="color:#ffb347">—</div>
-            </div>
-          </div>
+        <div class="tf-group" role="group" aria-label="Timeframes">
+          <button class="btn" data-tf="5">M5</button>
+          <button class="btn active" data-tf="15">M15</button>
+          <button class="btn" data-tf="30">M30</button>
+          <button class="btn" data-tf="60">H1</button>
+          <button class="btn" data-tf="240">H4</button>
+          <button class="btn" data-tf="1440">D1</button>
         </div>
 
-        <div class="info-grid">
-          <div class="panel">
-            <div class="title"><div>Multi-Timeframe</div><div class="meta">TF EMAs</div></div>
-            <div id="tfBadges" class="tf-badge"></div>
-          </div>
-
-          <div class="panel">
-            <div class="title"><div>Power & Momentum</div><div class="meta">Indicators</div></div>
-            <div class="small-row"><div>Momentum</div><div id="momentum">—</div></div>
-            <div class="small-row"><div>RSI (14)</div><div id="rsi">—</div></div>
-            <div class="small-row"><div>ATR (14)</div><div id="atr">—</div></div>
-          </div>
-
-          <div class="panel">
-            <div class="title"><div>Levels</div><div class="meta">Fib & S/R</div></div>
-            <div class="fibs" id="fibBlock">—</div>
-          </div>
-        </div>
+        <button class="btn" id="refreshBtn" title="Force refresh">⟳</button>
       </div>
 
-      <aside class="right-col">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>Risk / Trade</strong></div>
-            <div class="meta">Balance: <strong id="balance">$10,000</strong></div>
-          </div>
-          <div style="margin-top:8px">
-            <div class="small-row"><div>Risk per trade</div><div id="riskPct">1.5%</div></div>
-            <div class="small-row"><div>Lot size (est)</div><div id="lotCalc">—</div></div>
-            <div class="small-row"><div>Risk/Reward</div><div id="rr">1 : 2.3</div></div>
-          </div>
-        </div>
+      <div class="status" id="statusBox">
+        <div>Symbol: <span id="statusSymbol">XAUUSD</span> <span class="label-pill" id="statusPrice">—</span></div>
+        <div style="margin-top:6px;">TF: <span id="statusTF">M15</span> <span class="small" id="liveState">(live)</span></div>
+      </div>
 
-        <div class="card">
-          <div class="title"><div>Support / Resistance</div></div>
-          <div class="sr" id="srBlock">—</div>
-        </div>
+      <div class="legend" id="legend">
+        <div>Legend: <span style="color:var(--good)">▉</span> Bull TP &nbsp; <span style="color:var(--bad)">▉</span> Bear SL &nbsp; <span style="color:#ffdd99">→</span> Projection</div>
+      </div>
 
-        <div class="card">
-          <div class="title"><div>Signal Summary</div></div>
-          <div style="margin-top:8px">
-            <div class="small-row"><div>Recommendation</div><div id="recSmall">WAIT</div></div>
-            <div class="small-row"><div>Confidence</div><div id="confSmall">—</div></div>
-            <div class="small-row"><div>Buy TF count</div><div id="buyCount">0</div></div>
-          </div>
-        </div>
-      </aside>
-    </main>
-
-    <footer>Prototype for research & paper-trading. Use only for learning — not production trading.</footer>
+      <div class="overlay-note" id="overlayNote">LOADING…</div>
+    </div>
   </div>
 
 <script>
 /*
-  Advanced client-side prototype:
-  - Live BTC stream via Binance WS
-  - XAU polling via free endpoints (best-effort)
-  - Tick -> 1m candle aggregation -> build 5m/15m/60m candles
-  - Deterministic indicators: EMA, RSI (Wilder), ATR
-  - Multi-timeframe EMA alignment
-  - Lightweight Charts for candlesticks and createPriceLine for ENTRY/SL/TP
-  - No randomness, reproducible signals
+  Pro Fibonacci Chart
+  - BTC candles: Binance klines (real OHLC)
+  - XAU: attempt multiple endpoints for current price / history; fallback to synthetic seeded candles
+  - Single large canvas, devicePixelRatio-aware
+  - Detect swing high/low and draw Fib lines, entry (current price), stop loss, TP lines, projection
+  - Controls: symbol and timeframe (minutes). Timeframes map to intervals used when fetching (or aggregating) data.
 */
 
-/* ----------------- Config & Globals ----------------- */
-const SYMBOLS = {
-  BTC: { id: 'BTCUSDT', chartSymbol: 'BINANCE:BTCUSDT', type: 'crypto' },
-  XAU: { id: 'XAUUSD', chartSymbol: 'FX_IDC:XAUUSD', type: 'fx' }
+// ========== CONFIG ==========
+const canvas = document.getElementById('chartCanvas');
+const ctx = canvas.getContext('2d');
+const chartWrap = document.getElementById('chartWrap');
+const overlayNote = document.getElementById('overlayNote');
+
+const btnSymXAU = document.getElementById('symXAU');
+const btnSymBTC = document.getElementById('symBTC');
+const tfButtons = Array.from(document.querySelectorAll('.tf-group .btn'));
+const statusPrice = document.getElementById('statusPrice');
+const statusTF = document.getElementById('statusTF');
+const statusSymbol = document.getElementById('statusSymbol');
+const liveState = document.getElementById('liveState');
+const refreshBtn = document.getElementById('refreshBtn');
+
+let symbol = 'XAUUSD';      // 'XAUUSD' or 'BTCUSD'
+let timeframe = 15;        // minutes (5,15,30,60,240,1440)
+let candles = [];          // array of {t,o,h,l,c,v} time in ms
+let deviceDPR = window.devicePixelRatio || 1;
+let priceNow = 0;
+let usingLiveXAU = false;
+let usingLiveHistory = false;
+
+// mapping minutes -> Binance interval strings
+const BINANCE_INTERVALS = {
+  1: '1m', 3: '3m', 5: '5m', 15: '15m', 30: '30m', 60: '1h', 120: '2h', 240: '4h', 360: '6h', 720: '12h', 1440: '1d'
 };
 
-let active = false;
-let current = 'BTC'; // 'BTC' or 'XAU'
-let priceSeries = []; // raw tick prices for current symbol (recent)
-const MAX_TICKS = 12 * 60; // keep 12 minutes of seconds (~720)
-const candleStore = { '1': [], '5': [], '15': [], '60': [] }; // arrays of closed candles per TF, format {time, open, high, low, close, volume}
-let currentMinuteCandle = null;
-let ws = null;
-let pollXauTimer = null;
+// utility: format number
+function fmt(v, dp=2) { return Number(v).toLocaleString(undefined, {minimumFractionDigits: dp, maximumFractionDigits: dp}); }
 
-/* ----------------- UI elements ----------------- */
-const startBtn = document.getElementById('startBtn');
-const stopBtn  = document.getElementById('stopBtn');
-const switchBtn = document.getElementById('switchBtn');
-const symDisplay = document.getElementById('symDisplay');
-const priceLive = document.getElementById('priceLive');
-const recommend = document.getElementById('recommend');
-const confText = document.getElementById('confText');
-const tfBadges = document.getElementById('tfBadges');
-const momentumEl = document.getElementById('momentum');
-const rsiEl = document.getElementById('rsi');
-const atrEl = document.getElementById('atr');
-const fibBlock = document.getElementById('fibBlock');
-const srBlock = document.getElementById('srBlock');
-const recSmall = document.getElementById('recSmall');
-const confSmall = document.getElementById('confSmall');
-const buyCountEl = document.getElementById('buyCount');
-const newsTxt = document.getElementById('newsTxt');
-const priceToLineColor = { entry: '#00e096', stop: '#ff5e7e', tp: '#fbbf24' };
+// ========== RESIZE & DPR ==========
+function resizeCanvas() {
+  const rect = chartWrap.getBoundingClientRect();
+  const w = Math.max(200, rect.width);
+  const h = Math.max(200, rect.height);
+  deviceDPR = window.devicePixelRatio || 1;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  canvas.width = Math.floor(w * deviceDPR);
+  canvas.height = Math.floor(h * deviceDPR);
+  ctx.setTransform(deviceDPR,0,0,deviceDPR,0,0);
+  draw();
+}
+window.addEventListener('resize', resizeCanvas);
 
-/* ----------------- Chart setup (Lightweight) ----------------- */
-const chartContainer = document.getElementById('chart');
-const chart = LightweightCharts.createChart(chartContainer, {
-  width: chartContainer.clientWidth,
-  height: 420,
-  layout: { backgroundColor: '#071026', textColor: '#dbe9ff' },
-  grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
-  rightPriceScale: { visible: true, borderColor: 'rgba(255,255,255,0.03)' },
-  timeScale: { borderColor: 'rgba(255,255,255,0.03)' }
-});
-window.addEventListener('resize', () => chart.applyOptions({ width: chartContainer.clientWidth }));
-
-const candleSeries = chart.addCandlestickSeries({ upColor: '#00b37a', downColor: '#ff5e7e', borderVisible: false, wickColor: '#9fb0d9' });
-let entryLine = null, stopLine = null, tpLine = null;
-
-/* ----------------- Equity sparkline (Chart.js) ----------------- */
-const equityData = [10000, 10010, 9995, 10050, 10120, 10070, 10150, 10130, 10180, 10250, 10210, 10280];
-const eqCtx = document.getElementById('equitySpark').getContext('2d');
-const equityChart = new Chart(eqCtx, {
-  type: 'line',
-  data: { labels: equityData.map((_,i)=>i+1), datasets: [{ data: equityData, borderColor: '#00e096', backgroundColor: '#00e09622', fill: true, tension: 0.3, pointRadius:0 }] },
-  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false}, y:{display:false}} }
-});
-
-/* ----------------- Utility indicator functions ----------------- */
-// EMA (seeded with SMA)
-function ema(period, arr) {
-  if (!arr || arr.length === 0) return null;
-  if (arr.length <= period) return arr.reduce((a,b)=>a+b,0)/arr.length;
-  const k = 2/(period+1);
-  let seed = arr.slice(0,period).reduce((a,b)=>a+b,0)/period;
-  let prev = seed;
-  for (let i = period; i < arr.length; i++) prev = arr[i] * k + prev * (1-k);
-  return prev;
+// ========== DATA FETCHING ==========
+async function fetchBTCklines(intervalStr, limit=500) {
+  // Binance public klines for BTCUSDT
+  const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${intervalStr}&limit=${limit}`;
+  const resp = await fetch(url, {cache:'no-store'});
+  if (!resp.ok) throw new Error(`Binance fetch failed: ${resp.status}`);
+  const arr = await resp.json();
+  // arr elements: [ openTime, open, high, low, close, volume, closeTime, ... ]
+  return arr.map(a => ({ t: a[0], o: parseFloat(a[1]), h: parseFloat(a[2]), l: parseFloat(a[3]), c: parseFloat(a[4]), v: parseFloat(a[5]) }));
 }
 
-// RSI (Wilder)
-function rsiFromCloses(closes, period=14) {
-  if (!closes || closes.length < period + 1) return null;
-  let gains = 0, losses = 0;
-  for (let i = 1; i <= period; i++) {
-    const d = closes[i] - closes[i-1];
-    if (d > 0) gains += d; else losses += Math.abs(d);
-  }
-  let avgGain = gains / period, avgLoss = losses / period;
-  for (let i = period+1; i < closes.length; i++) {
-    const d = closes[i] - closes[i-1];
-    avgGain = (avgGain * (period-1) + (d > 0 ? d : 0))/period;
-    avgLoss = (avgLoss * (period-1) + (d < 0 ? Math.abs(d) : 0))/period;
-  }
-  if (avgLoss === 0) return 100;
-  const rs = avgGain/avgLoss;
-  return 100 - (100/(1+rs));
-}
-
-// ATR (true range average)
-function atrFromCandles(candles, period=14) {
-  if (!candles || candles.length < period+1) return null;
-  const trs = [];
-  for (let i = 1; i < candles.length; i++) {
-    const c = candles[i], p = candles[i-1];
-    const tr = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
-    trs.push(tr);
-  }
-  // Wilder smoothing
-  let atr = trs.slice(0,period).reduce((a,b)=>a+b,0)/period;
-  for (let i = period; i < trs.length; i++) atr = (atr*(period-1) + trs[i]) / period;
-  return atr;
-}
-
-/* ----------------- Candle aggregation ----------------- */
-function startNewMinuteCandle(ts, price, volume=0) {
-  const t = Math.floor(ts / 60000) * 60000;
-  currentMinuteCandle = { time: t/1000, open: price, high: price, low: price, close: price, volume: volume };
-}
-
-function updateMinuteCandle(ts, price, volume=0) {
-  if (!currentMinuteCandle) {
-    startNewMinuteCandle(ts, price, volume);
-    return;
-  }
-  const candleMin = Math.floor(ts / 60000) * 60000;
-  if (candleMin !== currentMinuteCandle.time*1000) {
-    // close current and push
-    candleStore['1'].push(currentMinuteCandle);
-    if (candleStore['1'].length > 1000) candleStore['1'].shift();
-    startNewMinuteCandle(ts, price, volume);
-  } else {
-    currentMinuteCandle.high = Math.max(currentMinuteCandle.high, price);
-    currentMinuteCandle.low = Math.min(currentMinuteCandle.low, price);
-    currentMinuteCandle.close = price;
-    currentMinuteCandle.volume += volume;
-  }
-}
-
-function buildHigherTFCandles() {
-  const ones = candleStore['1'];
-  if (!ones.length) return;
-  ['5','15','60'].forEach(tf => {
-    const tfMinutes = parseInt(tf,10);
-    const out = [];
-    for (let i = 0; i < ones.length; i += tfMinutes) {
-      const block = ones.slice(i, i + tfMinutes);
-      if (block.length < 1) continue;
-      const first = block[0];
-      const last = block[block.length -1];
-      const candle = {
-        time: first.time,
-        open: first.open,
-        high: Math.max(...block.map(b=>b.high)),
-        low: Math.min(...block.map(b=>b.low)),
-        close: last.close,
-        volume: block.reduce((s,b)=>s+b.volume,0)
-      };
-      out.push(candle);
+// Try multiple sources for XAU current price (USD per ounce)
+async function fetchXAUcurrent() {
+  // 1) data-asg.goldprice.org (commonly used) — may include items and historic data
+  try {
+    const url = 'https://data-asg.goldprice.org/dbXRates/USD';
+    const r = await fetch(url, {cache:'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      // j.items may include "xauPrice" or items[0].xauPrice?
+      if (j && j.items && j.items[0] && (j.items[0].xauPrice || j.items[0].price)) {
+        const p = parseFloat(j.items[0].xauPrice || j.items[0].price);
+        if (!isNaN(p)) return { price: p, source: 'data-asg.goldprice.org', history: j.items };
+      }
+      // or j.items[x].price_usd
+      if (j && j.items && j.items[0] && j.items[0].price_usd) {
+        const p = parseFloat(j.items[0].price_usd);
+        if (!isNaN(p)) return { price: p, source: 'data-asg.goldprice.org', history: j.items };
+      }
     }
-    candleStore[tf] = out;
-  });
-}
-
-/* ----------------- Indicators & signals ----------------- */
-function computeSignalsForSymbol() {
-  buildHigherTFCandles();
-  const tfConfig = { '1': { fast:5, slow:20 }, '5': { fast:8, slow:30 }, '15': { fast:12, slow:40 }, '60': { fast:20, slow:80 } };
-  const tfNames = ['1','5','15','60'];
-  const signals = {}; let buyCount = 0;
-  tfNames.forEach(tf => {
-    const cls = candleStore[tf];
-    if (!cls || cls.length < 10) { signals[tf] = 'NEUTRAL'; return; }
-    const closes = cls.map(c=>c.close);
-    const fast = ema(tfConfig[tf].fast, closes);
-    const slow = ema(tfConfig[tf].slow, closes);
-    const lastPrice = closes[closes.length-1];
-    if (lastPrice > fast && fast > slow) { signals[tf] = 'BUY'; buyCount++; }
-    else if (lastPrice < fast && fast < slow) { signals[tf] = 'SELL'; }
-    else signals[tf] = 'NEUTRAL';
-  });
-
-  const closes1 = candleStore['1'].map(c=>c.close);
-  const avg5 = closes1.slice(-5).reduce((a,b)=>a+b,0)/Math.max(1, Math.min(5, closes1.slice(-5).length));
-  const avg15 = closes1.slice(-15).reduce((a,b)=>a+b,0)/Math.max(1, Math.min(15, closes1.slice(-15).length));
-  const momentumRaw = (avg5 - avg15) / (avg15 || avg5 || 1);
-  let momentumScore = Math.round(50 + momentumRaw * 200);
-  momentumScore = Math.max(0, Math.min(100, momentumScore));
-
-  const rsiVal = rsiFromCloses(closes1, 14);
-  const rsiScore = rsiVal !== null ? Math.round(rsiVal) : 50;
-  const atrVal = atrFromCandles(candleStore['1'], 14) || 0;
-
-  const confidence = Math.round(momentumScore * 0.45 + rsiScore * 0.35 + (Math.max(0, Math.min(100, 100 - (atrVal / (closes1.slice(-20).reduce((a,b)=>a+b,0)/closes1.slice(-20).length || 1) * 100))) * 0.2));
-
-  const recommendation = (buyCount >= 3 && confidence > 60) ? 'BUY' : (( (tfNames.length - buyCount) >= 3 && confidence > 60) ? 'SELL' : 'WAIT');
-
-  return { signals, buyCount, momentum: momentumScore, rsi: rsiScore, atr: atrVal, confidence, recommendation };
-}
-
-/* ----------------- Price line helpers ----------------- */
-function clearPriceLines() {
-  if (entryLine) { candleSeries.removePriceLine(entryLine); entryLine = null; }
-  if (stopLine)  { candleSeries.removePriceLine(stopLine); stopLine = null; }
-  if (tpLine)    { candleSeries.removePriceLine(tpLine); tpLine = null; }
-}
-function drawPriceLines(entry, stop, tp) {
-  clearPriceLines();
-  if (entry !== null && entry !== undefined) entryLine = candleSeries.createPriceLine({ price: entry, color: priceToLineColor.entry, lineWidth: 2, axisLabelVisible: true, title: 'ENTRY' });
-  if (stop  !== null && stop  !== undefined) stopLine  = candleSeries.createPriceLine({ price: stop,  color: priceToLineColor.stop,  lineWidth: 1, axisLabelVisible: true, title: 'STOP' });
-  if (tp    !== null && tp    !== undefined) tpLine    = candleSeries.createPriceLine({ price: tp,    color: priceToLineColor.tp,    lineWidth: 1, axisLabelVisible: true, title: 'TP' });
-}
-
-/* ----------------- UI Update ----------------- */
-function updateUIFromSignals(sigObj) {
-  tfBadges.innerHTML = '';
-  const mapping = { '1':'M1','5':'M5','15':'M15','60':'H1' };
-  Object.entries(sigObj.signals).forEach(([tf,val])=>{
-    const pill = document.createElement('div');
-    pill.className = 'tf-pill ' + (val==='BUY'?'tf-buy':(val==='SELL'?'tf-sell':'tf-neutral'));
-    pill.innerHTML = `<div style="font-size:11px;color:var(--muted)">${mapping[tf] || tf}</div><div style="font-size:13px;margin-top:2px">${val}</div>`;
-    tfBadges.appendChild(pill);
-  });
-
-  document.getElementById('momentum').textContent = sigObj.momentum + '%';
-  document.getElementById('rsi').textContent = sigObj.rsi;
-  document.getElementById('atr').textContent = sigObj.atr ? sigObj.atr.toFixed(4) : '—';
-  recommend.textContent = 'RECOMMENDATION: ' + sigObj.recommendation;
-  confText.textContent = 'Confidence: ' + sigObj.confidence + '%';
-  recSmall.textContent = sigObj.recommendation;
-  confSmall.textContent = sigObj.confidence + '%';
-  buyCountEl.textContent = sigObj.buyCount;
-
-  const last = candleStore['1'].slice(-60);
-  if (last.length) {
-    const highs = last.map(c=>c.high), lows = last.map(c=>c.low);
-    const high = Math.max(...highs), low = Math.min(...lows);
-    const range = high - low;
-    const fibs = {
-      '0.0': high,
-      '0.382': high - range*0.382,
-      '0.500': high - range*0.5,
-      '0.618': high - range*0.618,
-      '1.0': low
-    };
-    fibBlock.innerHTML = Object.entries(fibs).map(([k,v]) => `${k.padEnd(5,' ')} : ${Number(v).toFixed(2)}`).join('<br>');
-    const lvl = computeSREntriesFromRange((last[last.length-1].close), range);
-    srBlock.innerHTML = `R1: ${lvl.r1.toFixed(2)}<br>R2: ${lvl.r2.toFixed(2)}<br>R3: ${lvl.r3.toFixed(2)}<br>S1: ${lvl.s1.toFixed(2)}<br>S2: ${lvl.s2.toFixed(2)}<br>S3: ${lvl.s3.toFixed(2)}`;
-
-    const lastPrice = last[last.length-1].close;
-    let entry = lastPrice, stop = null, tp = null;
-    if (sigObj.recommendation === 'BUY') {
-      stop = lastPrice - sigObj.atr * 1.2;
-      tp = lastPrice + sigObj.atr * 2.0;
-    } else if (sigObj.recommendation === 'SELL') {
-      stop = lastPrice + sigObj.atr * 1.2;
-      tp = lastPrice - sigObj.atr * 2.0;
-    }
-    drawPriceLines(entry, stop, tp);
+  } catch (e) {
+    console.warn('goldprice org failed', e && e.message);
   }
+
+  // 2) exchangerate.host convert (XAU -> USD)
+  try {
+    const url = 'https://api.exchangerate.host/convert?from=XAU&to=USD';
+    const r = await fetch(url, {cache:'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      if (j && typeof j.result === 'number') return { price: j.result, source: 'exchangerate.host' };
+    }
+  } catch (e) {
+    console.warn('exchangerate.host failed', e && e.message);
+  }
+
+  // 3) try metals.live (may be blocked by CORS)
+  try {
+    const url = 'https://api.metals.live/v1/spot/gold';
+    const r = await fetch(url, {cache:'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      if (Array.isArray(j) && j[0] && j[0].price) return { price: parseFloat(j[0].price), source: 'metals.live' };
+      if (j && j.price) return { price: parseFloat(j.price), source: 'metals.live' };
+    }
+  } catch (e) {
+    console.warn('metals.live failed (likely CORS)', e && e.message);
+  }
+
+  // no success
+  return null;
 }
 
-/* compute simple S/R based on price and recent range */
-function computeSREntriesFromRange(price, range) {
-  return {
-    r1: price + range * 0.5,
-    r2: price + range * 1.0,
-    r3: price + range * 1.5,
-    s1: price - range * 0.5,
-    s2: price - range * 1.0,
-    s3: price - range * 1.5
-  };
+// Attempt to fetch historical XAU; if not possible, return null so caller fallbacks to synthetic history
+async function fetchXAUhistoryDaily(days=180) {
+  // exchangerate.host timeseries supports dates but granularity is daily only; we can use daily as long timeframe selected is D1/H4
+  try {
+    const end = new Date();
+    const start = new Date(end.getTime() - days * 86400000);
+    const url = `https://api.exchangerate.host/timeseries?start_date=${start.toISOString().slice(0,10)}&end_date=${end.toISOString().slice(0,10)}&base=XAU&symbols=USD`;
+    const r = await fetch(url, {cache:'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      if (j && j.rates) {
+        // convert to array of daily candles (o/h/l/c where all same because only daily)
+        const arr = Object.keys(j.rates).sort().map(d => {
+          const price = j.rates[d].USD;
+          const t = new Date(d + 'T00:00:00Z').getTime();
+          return { t, o: price, h: price, l: price, c: price, v: 0 };
+        });
+        return arr;
+      }
+    }
+  } catch (e) {
+    console.warn('XAU timeseries failed', e && e.message);
+  }
+  return null;
 }
 
-/* update chart candles (1m closed candles plus current minute) */
-function refreshChartDisplay() {
-  const ones = candleStore['1'].slice(-200);
-  const display = ones.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close }));
-  if (currentMinuteCandle) {
-    display.push({
-      time: currentMinuteCandle.time,
-      open: currentMinuteCandle.open,
-      high: currentMinuteCandle.high,
-      low: currentMinuteCandle.low,
-      close: currentMinuteCandle.close
+// Build synthetic candles (random walk) anchored to current price for the chosen timeframe and number of bars
+function buildSyntheticCandles(anchorPrice, minutesPerBar, bars=300) {
+  const out = [];
+  let tNow = Date.now();
+  const msPerBar = minutesPerBar * 60 * 1000;
+  // start in the past
+  let timeStart = tNow - (bars - 1) * msPerBar;
+  let p = anchorPrice;
+  for (let i = 0; i < bars; i++) {
+    // make small moves; scale move by timeframe (larger TF -> potentially larger moves)
+    const volScale = Math.max(0.0005, minutesPerBar / 1440); // small scale
+    const change = (Math.random() - 0.5) * (p * volScale * (0.05 + Math.random()*0.95));
+    const o = p;
+    p = Math.max(0.0001, p + change);
+    // create h/l by adding some intrabar noise
+    const hi = Math.max(o, p) * (1 + Math.random() * 0.002 * (1 + minutesPerBar/60));
+    const lo = Math.min(o, p) * (1 - Math.random() * 0.002 * (1 + minutesPerBar/60));
+    const c = p;
+    const v = 1000 + Math.random() * 50000;
+    out.push({ t: timeStart, o, h: hi, l: lo, c, v });
+    timeStart += msPerBar;
+  }
+  return out;
+}
+
+// ========== AGGREGATION helpers ==========
+function aggregateToTF(ticks, minutes) {
+  // ticks: array of {t, price, v} or candles; this will produce candles of timeframe 'minutes'
+  // If input looks like candles (has o,h,l,c) and timeframe matches, just return last N
+  if (!Array.isArray(ticks) || ticks.length === 0) return [];
+  if (ticks[0].o !== undefined && ticks[0].h !== undefined) {
+    // these are candles already - if their timeframe is different we can't re-aggregate reliably; assume they match
+    return ticks.slice(-400);
+  }
+  // otherwise ticks are price points {t, price, v}
+  const ms = minutes * 60 * 1000;
+  const res = [];
+  let bucketStart = Math.floor(ticks[0].t / ms) * ms;
+  let o = ticks[0].price, h = ticks[0].price, l = ticks[0].price, c = ticks[0].price, v = ticks[0].v || 0;
+  for (let i=1;i<ticks.length;i++) {
+    const tk = ticks[i];
+    const b = Math.floor(tk.t / ms) * ms;
+    if (b !== bucketStart) {
+      res.push({ t: bucketStart, o, h, l, c, v });
+      bucketStart = b;
+      o = tk.price; h = tk.price; l = tk.price; c = tk.price; v = tk.v || 0;
+    } else {
+      h = Math.max(h, tk.price);
+      l = Math.min(l, tk.price);
+      c = tk.price;
+      v += tk.v || 0;
+    }
+  }
+  res.push({ t: bucketStart, o, h, l, c, v });
+  return res.slice(-400);
+}
+
+// ========== SWING DETECTION & FIB ==========
+// detect swing high/low in a visible window: use last N bars
+function detectSwing(candlesArr) {
+  if (!candlesArr || candlesArr.length < 12) return null;
+  const lookback = Math.min(60, Math.floor(candlesArr.length / 3));
+  let high = -Infinity, low = Infinity, hiIdx = 0, loIdx = 0;
+  for (let i = candlesArr.length - lookback; i < candlesArr.length; i++) {
+    const c = candlesArr[i];
+    if (c.h > high) { high = c.h; hiIdx = i; }
+    if (c.l < low) { low = c.l; loIdx = i; }
+  }
+  return { high: { idx: hiIdx, price: high }, low: { idx: loIdx, price: low } };
+}
+
+function computeFibLevels(highPrice, lowPrice, isUptrend) {
+  const diff = highPrice - lowPrice;
+  if (!isFinite(diff) || diff === 0) return [];
+  const ratios = [0.236, 0.382, 0.5, 0.618, 0.786];
+  return ratios.map(r => {
+    const price = isUptrend ? highPrice - diff * r : lowPrice + diff * r;
+    return { r, price };
+  });
+}
+
+// ========== DRAW ==========
+function drawGrid(ctx, w, h) {
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,0.03)";
+  ctx.lineWidth = 1;
+  const rows = 8;
+  for (let i=0;i<=rows;i++) {
+    const y = 30 + (h - 70) * (i / rows);
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(w - 20, y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawCandles(ctx, arr, viewStartIdx, viewCount, w, h) {
+  // arr: candles
+  const visible = arr.slice(Math.max(0, arr.length - viewCount), arr.length);
+  const len = visible.length;
+  if (len === 0) return;
+  const spacing = (w - 120) / Math.max(1, len - 1);
+  const maxP = Math.max(...visible.map(c => c.h));
+  const minP = Math.min(...visible.map(c => c.l));
+  const pad = (maxP - minP) * 0.08 || maxP*0.02 || 1;
+  const pMax = maxP + pad, pMin = minP - pad;
+  const getX = i => 60 + i * spacing;
+  const getY = p => 35 + (h - 75) * (1 - (p - pMin) / (pMax - pMin));
+
+  // draw candle wicks and bodies
+  for (let i=0;i<len;i++) {
+    const c = visible[i];
+    const x = getX(i);
+    const yOpen = getY(c.o), yHigh = getY(c.h), yLow = getY(c.l), yClose = getY(c.c);
+    // wick
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(200,200,255,0.35)";
+    ctx.lineWidth = 1;
+    ctx.moveTo(x, yHigh); ctx.lineTo(x, yLow); ctx.stroke();
+    // body
+    const bodyTop = Math.min(yOpen, yClose), bodyBottom = Math.max(yOpen, yClose);
+    const bodyH = Math.max(1, bodyBottom - bodyTop);
+    const bodyW = Math.max(6, spacing * 0.6);
+    if (c.c >= c.o) {
+      // green
+      ctx.fillStyle = "#00e096";
+      ctx.fillRect(x - bodyW/2, bodyTop, bodyW, bodyH);
+    } else {
+      ctx.fillStyle = "#ff5e7e";
+      ctx.fillRect(x - bodyW/2, bodyTop, bodyW, bodyH);
+    }
+  }
+
+  return { getX, getY, pMin, pMax, visible };
+}
+
+function drawAnnotations(ctx, meta, w, h) {
+  // meta contains: visible candles, getX, getY, pMin,pMax, swing, fib levels, entries...
+  if (!meta) return;
+  const { getX, getY, visible, pMin, pMax, swing, fibs, projTargets } = meta;
+
+  ctx.save();
+  ctx.font = '12px monospace';
+  // draw fib lines
+  if (fibs && fibs.length) {
+    fibs.forEach((f, idx) => {
+      const y = getY(f.price);
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(${[240,220,150][idx%3]}, ${200}, ${140}, 0.9)`.replace(' undefined','');
+      ctx.setLineDash([6,6]); ctx.lineWidth = 1;
+      ctx.moveTo(40, y); ctx.lineTo(w - 20, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ffdd99';
+      ctx.fillText(`${(f.r*100).toFixed(1)}% ${fmt(f.price,2)}`, w - 140, y - 6);
     });
   }
-  if (display.length) candleSeries.setData(display);
-}
 
-/* handle incoming trade/tick (for BTC ws or XAU polling) */
-function handleTick(price, ts = Date.now(), volume = 0) {
-  priceSeries.push(price);
-  if (priceSeries.length > MAX_TICKS) priceSeries.shift();
-  priceLive.textContent = Number(price).toFixed(2);
-  updateMinuteCandle(ts, price, volume);
-  buildHigherTFCandles();
-  refreshChartDisplay();
-  const sig = computeSignalsForSymbol();
-  if (sig) updateUIFromSignals(sig);
-}
-
-/* ----------------- Binance websocket for BTC ----------------- */
-function startBinanceWS() {
-  if (ws) return;
-  const url = 'wss://stream.binance.com:9443/ws/btcusdt@trade';
-  ws = new WebSocket(url);
-  ws.onopen = () => console.log('Binance WS open');
-  ws.onmessage = (evt) => {
-    try {
-      const d = JSON.parse(evt.data);
-      const p = parseFloat(d.p);
-      const ts = d.T || Date.now();
-      if (!isNaN(p)) handleTick(p, ts, parseFloat(d.q || 0));
-    } catch (e) { console.warn('WS parse', e); }
-  };
-  ws.onerror = (e) => console.warn('Binance WS error', e);
-  ws.onclose = () => { console.log('Binance WS closed'); ws = null; if (active) setTimeout(startBinanceWS, 3000); };
-}
-
-function stopBinanceWS() {
-  if (!ws) return;
-  try { ws.close(); } catch (e) {}
-  ws = null;
-}
-
-/* ----------------- XAU polling (best-effort free feeds) ----------------- */
-async function pollXAU() {
-  try {
-    let price = null;
-    try {
-      const r = await fetch('https://api.metals.live/v1/spot/gold');
-      if (r.ok) {
-        const j = await r.json();
-        if (Array.isArray(j) && j.length) {
-          if (typeof j[0] === 'object' && j[0].price) price = parseFloat(j[0].price);
-          else if (typeof j[0] === 'number') price = parseFloat(j[0]);
-        }
-      }
-    } catch (e) { /* fallback */ }
-    if (!price) {
-      try {
-        const r2 = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
-        if (r2.ok) {
-          const j2 = await r2.json();
-          if (j2 && j2.items && j2.items.length) price = parseFloat(j2.items[0].xauPrice);
-        }
-      } catch (e) {}
+  // draw swing markers
+  if (swing && swing.high) {
+    const idx = swing.high.idx - (candles.length - meta.visible.length);
+    if (idx >= 0 && idx < visible.length) {
+      const x = getX(idx), y = getY(swing.high.price);
+      ctx.beginPath(); ctx.fillStyle = '#ff5e7e'; ctx.arc(x, y, 6, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.fillText('H', x-4, y+4);
     }
-    if (!price && candleStore['1'].length) price = candleStore['1'][candleStore['1'].length - 1].close;
-    if (price) handleTick(price, Date.now(), 0);
-  } catch (e) {
-    console.warn('XAU poll error', e);
+  }
+  if (swing && swing.low) {
+    const idx = swing.low.idx - (candles.length - meta.visible.length);
+    if (idx >= 0 && idx < visible.length) {
+      const x = getX(idx), y = getY(swing.low.price);
+      ctx.beginPath(); ctx.fillStyle = '#00e096'; ctx.arc(x, y, 6, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = '#000'; ctx.fillText('L', x-4, y+4);
+    }
+  }
+
+  // entry/current price line
+  if (typeof priceNow === 'number' && isFinite(priceNow)) {
+    const yCurr = getY(priceNow);
+    ctx.beginPath();
+    ctx.strokeStyle = '#ffffaa'; ctx.setLineDash([4,6]); ctx.lineWidth = 1;
+    ctx.moveTo(0, yCurr); ctx.lineTo(w, yCurr); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ffffaa';
+    ctx.fillRect(8, yCurr-12, 8, 8);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`Price ${fmt(priceNow,2)}`, 22, yCurr - 2);
+  }
+
+  // compute and draw SL/TP based on fib/projection
+  if (projTargets) {
+    const { isUptrend, stopLoss, tp1, tp2, tp3 } = projTargets;
+    const colorTP = '#ffdd99';
+    if (tp1) {
+      const y = getY(tp1);
+      ctx.beginPath(); ctx.strokeStyle = colorTP; ctx.lineWidth = 1.2; ctx.setLineDash([4,6]);
+      ctx.moveTo(40, y); ctx.lineTo(w - 20, y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = colorTP; ctx.fillText(`TP1 ${fmt(tp1,2)}`, 46, y - 6);
+    }
+    if (tp2) {
+      const y = getY(tp2);
+      ctx.beginPath(); ctx.strokeStyle = colorTP; ctx.lineWidth = 1.2; ctx.setLineDash([2,4]);
+      ctx.moveTo(40, y); ctx.lineTo(w - 20, y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = colorTP; ctx.fillText(`TP2 ${fmt(tp2,2)}`, 46, y - 6);
+    }
+    if (tp3) {
+      const y = getY(tp3);
+      ctx.beginPath(); ctx.strokeStyle = colorTP; ctx.lineWidth = 1.4;
+      ctx.moveTo(40, y); ctx.lineTo(w - 20, y); ctx.stroke();
+      ctx.fillStyle = colorTP; ctx.fillText(`TP3 ${fmt(tp3,2)}`, 46, y - 6);
+    }
+    if (stopLoss) {
+      const y = getY(stopLoss);
+      ctx.beginPath(); ctx.strokeStyle = '#ff5e7e'; ctx.lineWidth = 1.2; ctx.setLineDash([3,5]);
+      ctx.moveTo(40, y); ctx.lineTo(w - 20, y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#ff5e7e'; ctx.fillText(`SL ${fmt(stopLoss,2)}`, w - 160, y - 6);
+    }
+    // projection arrow + label
+    if (projTargets.target1272) {
+      const lastX = getX(visible.length - 1);
+      const tx = lastX + 80;
+      const ty = getY(projTargets.target1272);
+      ctx.beginPath(); ctx.strokeStyle = '#ffdd99'; ctx.setLineDash([6,4]); ctx.moveTo(lastX + 10, getY(visible[visible.length-1].c)); ctx.lineTo(tx, ty); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ffdd99'; ctx.fillText(`Proj ${fmt(projTargets.target1272,2)}`, tx + 6, ty + 4);
+    }
+  }
+
+  ctx.restore();
+}
+
+// main draw
+function draw() {
+  if (!ctx) return;
+  const w = canvas.width / deviceDPR;
+  const h = canvas.height / deviceDPR;
+  ctx.clearRect(0,0,w,h);
+
+  drawGrid(ctx, w, h);
+
+  // decide visible candles count by width
+  const visibleCount = Math.min(240, Math.max(40, Math.floor(w / 6)));
+  const meta = drawCandles(ctx, candles, Math.max(0, candles.length - visibleCount), visibleCount, w, h);
+  if (meta) {
+    // detect swing using full candles array (so swing idx refers to global candles)
+    const swing = detectSwing(candles);
+    // compute fibs
+    let fibs = null, projTargets = null;
+    if (swing && swing.high && swing.low) {
+      const isUptrend = swing.high.idx > swing.low.idx;
+      fibs = computeFibLevels(swing.high.price, swing.low.price, isUptrend);
+      const diff = Math.abs(swing.high.price - swing.low.price);
+      const fibExt = diff * 0.618;
+      const target1 = isUptrend ? swing.high.price + fibExt : swing.low.price - fibExt;
+      const target1272 = isUptrend ? swing.high.price + fibExt * 1.272 : swing.low.price - fibExt * 1.272;
+      const entry = priceNow;
+      const stopLoss = isUptrend ? swing.low.price - diff * 0.15 : swing.high.price + diff * 0.15;
+      const tp1 = fibs.find(f=>Math.abs(f.r - 0.5) < 0.001)?.price || (isUptrend ? swing.high.price - diff*0.5 : swing.low.price + diff*0.5);
+      const tp2 = fibs.find(f=>Math.abs(f.r - 0.786) < 0.01)?.price || (isUptrend ? swing.high.price - diff*0.786 : swing.low.price + diff*0.786);
+      const tp3 = target1272;
+      projTargets = { isUptrend, target1, target1272, stopLoss, tp1, tp2, tp3 };
+    }
+    drawAnnotations(ctx, Object.assign(meta, { swing, fibs, projTargets }), w, h);
+  }
+
+  // small header overlay inside canvas (price & symbol)
+  ctx.save();
+  ctx.font = '14px Inter, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillText(`${symbol} ${fmt(priceNow,2)}`, 14, 22);
+  ctx.fillStyle = 'rgba(200,220,255,0.6)';
+  ctx.fillText(`${timeframe>=1440?'D1':(timeframe>=240?'H4':(timeframe>=60?('H'+(timeframe/60)):('M'+timeframe)))}`, 140, 22);
+  ctx.restore();
+}
+
+// ========== REFRESH / LOAD LOGIC ==========
+async function loadDataAndRender(force=false) {
+  overlayNote.style.display = 'block';
+  overlayNote.innerText = 'LOADING…';
+  try {
+    if (symbol === 'BTCUSD') {
+      // fetch klines from Binance for chosen interval
+      const interval = BINANCE_INTERVALS[timeframe] || BINANCE_INTERVALS[15];
+      try {
+        const kl = await fetchBTCklines(interval, 500);
+        candles = kl.map(k => ({ t: k.t, o: k.o, h: k.h, l: k.l, c: k.c, v: k.v }));
+        // set priceNow to latest close
+        priceNow = candles[candles.length - 1].c;
+        usingLiveXAU = false;
+        usingLiveHistory = true;
+        liveState.innerText = '(live via Binance)';
+      } catch (e) {
+        console.error('Binance fetch failed:', e);
+        // fallback: synthetic around previous priceNow
+        candles = buildSyntheticCandles(priceNow || 30000, timeframe, 300);
+        usingLiveHistory = false;
+        liveState.innerText = '(synthetic)';
+      }
+    } else {
+      // XAUUSD
+      const xcur = await fetchXAUcurrent();
+      if (xcur && typeof xcur.price === 'number') {
+        priceNow = xcur.price;
+        usingLiveXAU = true;
+        liveState.innerText = `(live ${xcur.source})`;
+      } else {
+        // keep previous priceNow or default
+        if (!priceNow || !isFinite(priceNow)) priceNow = 2336.80; // default
+        usingLiveXAU = false;
+        liveState.innerText = '(simulated)';
+      }
+
+      // try to fetch a historical source for XAU (daily)
+      const dailyHistory = await fetchXAUhistoryDaily(365);
+      if (dailyHistory && dailyHistory.length > 10 && timeframe >= 60) {
+        // If timeframe is >= hourly/daily, we can use daily data and aggregate as needed
+        // For TF D1/H4/H1 we can create candles by repeating daily bars or interpolating
+        // We'll use dailyHistory for D1; for lower TF we'll synthesize intraday bars anchored to daily points
+        if (timeframe >= 1440) {
+          candles = dailyHistory.slice(-400);
+          usingLiveHistory = true;
+          liveState.innerText = `(live daily)`;
+        } else {
+          // build synthetic intraday candles anchored to daily closes (simple interpolation)
+          const barsPerDay = Math.max(1, Math.floor(1440 / timeframe));
+          const out = [];
+          for (let i = Math.max(0, dailyHistory.length - 120); i < dailyHistory.length; i++) {
+            const d = dailyHistory[i];
+            // produce barsPerDay bars between this day and next (or small random if none)
+            let base = d.c || d.o;
+            for (let b=0;b<barsPerDay;b++) {
+              const t = d.t + b * timeframe * 60000;
+              const change = (Math.random() - 0.5) * (base * 0.002);
+              const o = base; const c = Math.max(0.0001, base + change);
+              const h = Math.max(o, c) * (1 + Math.random()*0.001);
+              const l = Math.min(o, c) * (1 - Math.random()*0.001);
+              out.push({ t, o, h, l, c, v: 1000 + Math.random()*8000 });
+            }
+          }
+          candles = out.slice(-400);
+          usingLiveHistory = true;
+          liveState.innerText = `(live daily→intraday)`;
+        }
+      } else {
+        // no useful history; create synthetic candles anchored to current price
+        candles = buildSyntheticCandles(priceNow || 2336.80, timeframe, 400);
+        usingLiveHistory = false;
+        if (usingLiveXAU) liveState.innerText = `(live price; synthetic history)`;
+      }
+    }
+
+    // update UI labels
+    statusPrice.innerText = fmt(priceNow,2);
+    statusTF.innerText = timeframe >= 1440 ? 'D1' : (timeframe >= 240 ? 'H4' : (timeframe >= 60 ? 'H'+(timeframe/60) : 'M'+timeframe));
+    statusSymbol.innerText = symbol;
+
+    // final draw
+    resizeCanvas();
+  } catch (err) {
+    console.error('loadDataAndRender error', err);
+    overlayNote.innerText = 'Error loading data';
   } finally {
-    if (active && current === 'XAU') pollXauTimer = setTimeout(pollXAU, 5000);
+    overlayNote.style.display = 'none';
   }
 }
 
-/* ----------------- Controls: start / stop / switch ----------------- */
-function startAll() {
-  if (active) return;
-  active = true;
-  priceSeries = [];
-  candleStore['1'] = [];
-  candleStore['5'] = [];
-  candleStore['15'] = [];
-  candleStore['60'] = [];
-  currentMinuteCandle = null;
+// ========== UI Handlers ==========
+btnSymXAU.addEventListener('click', async () => {
+  symbol = 'XAUUSD';
+  btnSymXAU.classList.add('active'); btnSymBTC.classList.remove('active');
+  await loadDataAndRender(true);
+});
+btnSymBTC.addEventListener('click', async () => {
+  symbol = 'BTCUSD';
+  btnSymBTC.classList.add('active'); btnSymXAU.classList.remove('active');
+  await loadDataAndRender(true);
+});
+tfButtons.forEach(btn => {
+  btn.addEventListener('click', async () => {
+    tfButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    timeframe = parseInt(btn.dataset.tf,10);
+    await loadDataAndRender(true);
+  });
+});
+refreshBtn.addEventListener('click', async () => {
+  await loadDataAndRender(true);
+});
 
-  if (current === 'BTC') startBinanceWS();
-  else pollXAU();
+// initial load
+(async () => {
+  overlayNote.style.display = 'block';
+  overlayNote.innerText = 'INITIALIZING…';
+  // initial symbol/timeframe values set above
+  await loadDataAndRender();
+  // set periodic refresh: smaller interval for short TFs
+  setInterval(async () => {
+    await loadDataAndRender();
+  }, 7000); // every 7s attempt refresh; the fetch functions are robust and will fallback if blocked
+  overlayNote.style.display = 'none';
+})();
 
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
-  startBtn.textContent = 'Running';
-}
-
-function stopAll() {
-  active = false;
-  stopBinanceWS();
-  if (pollXauTimer) { clearTimeout(pollXauTimer); pollXauTimer = null; }
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-  startBtn.textContent = 'Start';
-}
-
-function switchSymbol() {
-  if (current === 'BTC') {
-    current = 'XAU';
-    symDisplay.textContent = SYMBOLS.XAU.id;
-    switchBtn.textContent = 'Switch: XAU → BTC';
-  } else {
-    current = 'BTC';
-    symDisplay.textContent = SYMBOLS.BTC.id;
-    switchBtn.textContent = 'Switch: BTC → XAU';
+// redraw loop to keep current price marker moving slightly if synthetic
+setInterval(() => {
+  // if synthetic XAU history, nudge price slightly to show live feel
+  if (symbol === 'XAUUSD' && !usingLiveXAU) {
+    // small random walk around current price
+    priceNow = Math.max(0.0001, priceNow + (Math.random()-0.5) * priceNow * 0.0004);
+    statusPrice.innerText = fmt(priceNow,2);
+  } else if (symbol === 'BTCUSD' && !usingLiveHistory) {
+    // small nudge
+    priceNow = Math.max(0.0001, priceNow + (Math.random()-0.5) * priceNow * 0.0006);
+    statusPrice.innerText = fmt(priceNow,2);
   }
-  stopAll();
-  setTimeout(() => { if (active || confirm('Start streaming for ' + current + '?')) startAll(); }, 200);
-}
+  draw();
+}, 1500);
 
-/* ----------------- Wire UI events ----------------- */
-startBtn.addEventListener('click', () => { startAll(); });
-stopBtn.addEventListener('click', () => { stopAll(); });
-switchBtn.addEventListener('click', () => { switchSymbol(); });
-
-/* init state */
-stopBtn.disabled = true;
-symDisplay.textContent = SYMBOLS.BTC.id;
-newsTxt.textContent = 'USD CPI m/m 02:14:27 (demo)';
-
-console.log('Prototype loaded — press Start to begin streams');
+// initial canvas size
+resizeCanvas();
 </script>
 </body>
 </html>
