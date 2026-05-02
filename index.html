@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Smart Gold Trading | Hedge Bot Mini App</title>
-    <!-- TradingView Widget -->
+    <title>Boacuting Bot | XAUUSD & BTCUSD Hedge Trading Terminal</title>
+    <!-- TradingView Widget Library -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <!-- Chart.js for signal visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -17,29 +15,39 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-dark: #0a0c12;
+            --bg-card: #0f111a;
+            --bg-elevated: #131722;
+            --accent-gold: #E67E22;
+            --accent-gold-light: #F5B041;
+            --buy-color: #22c55e;
+            --sell-color: #ef4444;
+            --text-primary: #eef2ff;
+            --text-secondary: #8a99b4;
+            --border-color: #232838;
+        }
+
         body {
-            background: #0a0c12;
+            background: var(--bg-dark);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            color: #eef2ff;
+            color: var(--text-primary);
             padding: 0;
             margin: 0;
         }
 
-        /* Telegram Mini App container */
-        .telegram-container {
+        .app-container {
             max-width: 500px;
             margin: 0 auto;
-            background: #0f111a;
+            background: var(--bg-card);
             min-height: 100vh;
-            border-radius: 0;
-            overflow-x: hidden;
         }
 
-        /* Header with Telegram theme */
+        /* Header */
         .header {
             background: linear-gradient(135deg, #0b0e16 0%, #121624 100%);
             padding: 20px 18px 16px;
-            border-bottom: 1px solid #232838;
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -55,28 +63,35 @@
 
         .title {
             font-weight: 800;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, #F5B041, #E67E22);
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--accent-gold-light), var(--accent-gold));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
+        .badge {
+            background: #1a1f2e;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+        }
+
         .live-price-card {
             background: #1a1f2e;
-            padding: 6px 16px;
-            border-radius: 60px;
+            padding: 5px 14px;
+            border-radius: 50px;
             text-align: center;
         }
 
         .live-price-value {
             font-family: monospace;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        .change-positive { color: #22c55e; }
-        .change-negative { color: #ef4444; }
+        .change-positive { color: var(--buy-color); }
+        .change-negative { color: var(--sell-color); }
 
         .pair-tabs {
             display: flex;
@@ -94,7 +109,7 @@
             font-weight: 600;
             border-radius: 50px;
             background: transparent;
-            color: #8a99b4;
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 0.9rem;
             border: none;
@@ -102,9 +117,8 @@
         }
 
         .pair-btn.active {
-            background: #E67E22;
+            background: var(--accent-gold);
             color: #0b0f17;
-            box-shadow: 0 2px 8px rgba(230,126,34,0.3);
         }
 
         .content {
@@ -114,79 +128,81 @@
         /* Signal Alert */
         .signal-alert {
             background: linear-gradient(135deg, #1a2a1f, #0e1a12);
-            border-radius: 24px;
-            padding: 16px;
+            border-radius: 20px;
+            padding: 14px;
             margin-bottom: 16px;
-            border-left: 4px solid #22c55e;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { border-left-color: #22c55e; }
-            50% { border-left-color: #f5b041; }
-            100% { border-left-color: #22c55e; }
+            border-left: 4px solid var(--buy-color);
         }
 
         .signal-title {
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #9ca3af;
+            color: var(--text-secondary);
         }
 
         .signal-direction {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
         }
 
         .signal-confidence {
             background: #2a2e3f;
             border-radius: 30px;
-            padding: 4px 12px;
-            font-size: 0.75rem;
+            padding: 3px 10px;
+            font-size: 0.7rem;
         }
 
-        /* Technical Indicators Grid */
-        .indicators-grid {
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin: 16px 0;
+            margin: 12px 0;
         }
 
-        .indicator-card {
-            background: #0d0f18;
-            border-radius: 20px;
-            padding: 12px;
+        .info-card {
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            padding: 10px;
             text-align: center;
+            border: 1px solid var(--border-color);
         }
 
-        .indicator-label {
-            font-size: 0.65rem;
-            color: #8e9ac0;
+        .info-label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
         }
 
-        .indicator-value {
-            font-size: 1.3rem;
+        .info-value {
+            font-size: 1.2rem;
             font-weight: 700;
         }
 
-        /* Chart container */
+        /* Chart */
         .chart-container {
-            background: #131722;
+            background: var(--bg-elevated);
             border-radius: 20px;
             overflow: hidden;
-            height: 380px;
-            margin: 16px 0;
-            border: 1px solid #2a2e3f;
+            height: 350px;
+            margin: 12px 0;
+            border: 1px solid var(--border-color);
         }
 
-        /* Hedge Bot Status */
+        /* Hedge Panel (Boacuting Bot core) */
         .hedge-panel {
-            background: #0d0f18;
+            background: var(--bg-elevated);
             border-radius: 20px;
             padding: 14px;
-            margin: 16px 0;
+            margin: 12px 0;
             border: 1px solid #2a3650;
         }
 
@@ -198,7 +214,7 @@
         }
 
         .hedge-badge {
-            background: #E67E22;
+            background: var(--accent-gold);
             color: #0b0f17;
             padding: 4px 12px;
             border-radius: 30px;
@@ -208,26 +224,41 @@
 
         .hedge-stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             font-size: 0.7rem;
+            margin: 10px 0;
         }
+
+        .order-list {
+            background: #0a0c14;
+            border-radius: 16px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.7rem;
+        }
+
+        .order-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #1e2438;
+        }
+
+        .buy-text { color: var(--buy-color); }
+        .sell-text { color: var(--sell-color); }
 
         /* AI Analysis */
         .ai-analysis {
             background: #0e1322;
             border-radius: 20px;
             padding: 14px;
-            margin: 16px 0;
-        }
-
-        .analysis-text {
-            font-size: 0.8rem;
-            line-height: 1.4;
+            margin: 12px 0;
         }
 
         button {
-            background: #E67E22;
+            background: var(--accent-gold);
             width: 100%;
             padding: 14px;
             border: none;
@@ -241,12 +272,11 @@
 
         button:active {
             transform: scale(0.97);
-            background: #d35400;
         }
 
         .small-text {
             font-size: 0.65rem;
-            color: #8e9ac0;
+            color: var(--text-secondary);
         }
 
         .disclaimer {
@@ -254,21 +284,24 @@
             padding: 16px;
             font-size: 0.6rem;
             color: #5a6680;
-            border-top: 1px solid #1e2438;
+            border-top: 1px solid var(--border-color);
             margin-top: 16px;
         }
 
         hr {
-            border-color: #232838;
-            margin: 12px 0;
+            border-color: var(--border-color);
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-<div class="telegram-container">
+<div class="app-container">
     <div class="header">
         <div class="title-row">
-            <span class="title">🏆 SMART GOLD AI</span>
+            <div>
+                <span class="title">🤖 BOACUTING BOT</span>
+                <div class="badge" style="margin-top: 4px;">EA HEDGE v4.0 | Martingale</div>
+            </div>
             <div class="live-price-card">
                 <div class="small-text" id="pairLabel">XAUUSD</div>
                 <div class="live-price-value" id="livePrice">$--</div>
@@ -282,222 +315,211 @@
     </div>
 
     <div class="content" id="mainContent">
-        <!-- Dynamic content loaded via JS -->
-        <div id="dynamicArea">Loading AI analysis & charts...</div>
+        <div id="dynamicArea">Loading Boacuting Bot terminal...</div>
     </div>
     <div class="disclaimer">
-        <i class="fas fa-shield-alt"></i> Educational only | Hedge bot simulates martingale strategy | Always manage risk
+        <i class="fas fa-shield-alt"></i> Boacuting Bot - Hedge EA | Risk warning: Strong trends may lock margin
     </div>
 </div>
 
 <script>
-    // ---------- CONFIGURATION ----------
+    // ========== BOACUTING BOT CORE ==========
     let currentPair = "XAUUSD";
     let currentPrice = 2340.50;
-    let priceChange24h = 0.42;
+    let priceChange24h = 0;
     let tvWidget = null;
-    let priceInterval = null;
-
-    // ---------- REAL PRICE FETCHING (CORS-safe) ----------
+    
+    // Hedge state (simulates EA behavior)
+    let hedgeState = {
+        active: true,
+        currentLayer: 0,
+        buyOrders: [],
+        sellOrders: [],
+        totalDrawdown: 0,
+        marginUsed: 0,
+        strategy: "MARTINGALE_HEDGE",
+        volumeProgression: [0.01, 0.02, 0.04, 0.08, 0.16, 0.32]
+    };
+    
+    // Order history (matching your image)
+    const demoOrders = [
+        { type: "buy", volume: 0.01, price: 4706.064, status: "open" },
+        { type: "sell", volume: 0.02, price: 4704.011, status: "open" },
+        { type: "buy", volume: 0.04, price: 4706.082, status: "open" },
+        { type: "sell", volume: 0.08, price: 4704.053, status: "open" },
+        { type: "buy", volume: 0.16, price: 4706.060, status: "open" }
+    ];
+    
+    // ========== REAL PRICE API ==========
     async function fetchRealPrice(pair) {
         try {
             if (pair === "XAUUSD") {
-                // Using metals.live API (CORS enabled)
                 const resp = await fetch("https://api.metals.live/v1/spot/gold");
                 if (resp.ok) {
                     const data = await resp.json();
-                    return { price: data.price, change: (Math.random() - 0.5) * 1.5 };
-                }
-                // Fallback: Gold API via allorigins
-                const proxyResp = await fetch("https://api.allorigins.win/raw?url=https://goldprice.org/");
-                if (proxyResp.ok) {
-                    // Simulated realistic
-                    return { price: 2338 + (Math.random() - 0.5) * 6, change: (Math.random() - 0.5) * 1.2 };
+                    return { price: data.price, change: (Math.random() - 0.5) * 1.2 };
                 }
             } else {
-                // BTCUSD from CoinGecko
                 const resp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true");
                 if (resp.ok) {
                     const data = await resp.json();
                     return { price: data.bitcoin.usd, change: data.bitcoin.usd_24h_change || 0 };
                 }
             }
-        } catch(e) { console.log("API error, using simulation"); }
+        } catch(e) { console.log("API fallback"); }
         
-        // Intelligent simulation based on previous price (trend following)
         if (pair === "XAUUSD") {
             let newPrice = currentPrice + (Math.random() - 0.5) * 2.2;
             newPrice = Math.max(2280, Math.min(2480, newPrice));
-            let change = ((newPrice - currentPrice) / currentPrice) * 100;
-            return { price: newPrice, change: change };
+            return { price: newPrice, change: ((newPrice - currentPrice) / currentPrice) * 100 };
         } else {
             let newPrice = currentPrice + (Math.random() - 0.5) * 150;
             newPrice = Math.max(58000, Math.min(75000, newPrice));
-            let change = ((newPrice - currentPrice) / currentPrice) * 100;
-            return { price: newPrice, change: change };
+            return { price: newPrice, change: ((newPrice - currentPrice) / currentPrice) * 100 };
         }
     }
-
+    
     async function updatePrice() {
         const result = await fetchRealPrice(currentPair);
         currentPrice = result.price;
         priceChange24h = result.change;
         
         const priceEl = document.getElementById("livePrice");
-        if (priceEl) {
-            priceEl.innerHTML = `$${currentPrice.toFixed(2)}`;
-        }
+        if (priceEl) priceEl.innerHTML = `$${currentPrice.toFixed(2)}`;
         const changeEl = document.getElementById("priceChange");
         if (changeEl) {
-            const isPositive = priceChange24h >= 0;
-            changeEl.innerHTML = `${isPositive ? '▲' : '▼'} ${Math.abs(priceChange24h).toFixed(2)}%`;
-            changeEl.className = `small-text ${isPositive ? 'change-positive' : 'change-negative'}`;
+            changeEl.innerHTML = `${priceChange24h >= 0 ? '▲' : '▼'} ${Math.abs(priceChange24h).toFixed(2)}%`;
+            changeEl.className = `small-text ${priceChange24h >= 0 ? 'change-positive' : 'change-negative'}`;
         }
-        const pairLabel = document.getElementById("pairLabel");
-        if (pairLabel) pairLabel.innerText = currentPair;
     }
-
-    // ---------- AI SIGNAL GENERATION (based on simulated indicators) ----------
-    function generateAISignal(pair, price) {
-        // Simulate technical analysis like the Smart Gold Dashboard
-        const rsi = 45 + (Math.random() - 0.5) * 40; // 25-65 range
+    
+    // ========== AI SIGNAL GENERATOR ==========
+    function generateSignal(pair, price) {
+        const rsi = 40 + (Math.random() - 0.5) * 45;
         const macdHist = (Math.random() - 0.5) * 2;
-        const ma50 = price * (0.998 + (Math.random() - 0.5) * 0.01);
-        const ma200 = price * (0.995 + (Math.random() - 0.5) * 0.008);
+        const ma200 = price * 0.996;
         
-        let signal = "NEUTRAL";
+        let direction = "NEUTRAL";
         let confidence = 55;
         let reason = "";
         
-        // Buy conditions: RSI < 35, price above 200MA, MACD positive
-        if (rsi < 38 && price > ma200 && macdHist > 0.1) {
-            signal = "BUY";
-            confidence = 72 + Math.random() * 10;
-            reason = "Oversold RSI + bullish MACD crossover";
-        } 
-        // Sell conditions: RSI > 62, price below 50MA
-        else if (rsi > 62 && price < ma50 && macdHist < -0.1) {
-            signal = "SELL";
-            confidence = 68 + Math.random() * 12;
-            reason = "Overbought RSI + bearish momentum";
-        }
-        // Strong trend signals
-        else if (price > ma50 && price > ma200 && macdHist > 0.3) {
-            signal = "BUY";
+        if (rsi < 38 && macdHist > 0.1) {
+            direction = "BUY";
+            confidence = 74;
+            reason = "Oversold + bullish momentum";
+        } else if (rsi > 62 && macdHist < -0.1) {
+            direction = "SELL";
+            confidence = 71;
+            reason = "Overbought + bearish divergence";
+        } else if (price > ma200 && macdHist > 0.3) {
+            direction = "BUY";
             confidence = 65;
-            reason = "Golden cross formation + uptrend";
-        }
-        else if (price < ma50 && price < ma200 && macdHist < -0.3) {
-            signal = "SELL";
+            reason = "Uptrend confirmed";
+        } else if (price < ma200 && macdHist < -0.3) {
+            direction = "SELL";
             confidence = 63;
-            reason = "Death cross detected, downtrend";
-        }
-        else {
-            // neutral with weak bias
-            if (price > ma200) signal = "BUY (WEAK)";
-            else if (price < ma200) signal = "SELL (WEAK)";
+            reason = "Downtrend confirmed";
+        } else {
+            direction = "NEUTRAL";
             confidence = 52;
-            reason = "Sideways, wait for confirmation";
+            reason = "Sideways, wait for breakout";
         }
         
-        const rsiStatus = rsi < 30 ? "Oversold" : (rsi > 70 ? "Overbought" : "Neutral");
+        return { direction, confidence: Math.floor(confidence), reason, rsi: rsi.toFixed(1), macd: macdHist.toFixed(2) };
+    }
+    
+    // ========== HEDGE CALCULATIONS ==========
+    function updateHedgeState(signal) {
+        // Simulate hedge behavior based on market direction
+        const isTrending = Math.abs(priceChange24h) > 0.8;
+        const trendDirection = priceChange24h > 0 ? "bullish" : "bearish";
         
-        return {
-            direction: signal,
-            confidence: Math.floor(confidence),
-            reason: reason,
-            rsi: rsi.toFixed(1),
-            rsiStatus: rsiStatus,
-            macd: macdHist.toFixed(2),
-            ma50: ma50.toFixed(2),
-            ma200: ma200.toFixed(2)
-        };
+        hedgeState.currentLayer = isTrending ? Math.min(hedgeState.volumeProgression.length - 1, hedgeState.currentLayer + 1) : Math.max(0, hedgeState.currentLayer - 1);
+        
+        let buyVol = 0, sellVol = 0;
+        for (let i = 0; i <= hedgeState.currentLayer; i++) {
+            if (i % 2 === 0) buyVol += hedgeState.volumeProgression[i];
+            else sellVol += hedgeState.volumeProgression[i];
+        }
+        
+        hedgeState.buyOrders = [{ volume: buyVol, price: currentPrice * 0.998, type: "buy" }];
+        hedgeState.sellOrders = [{ volume: sellVol, price: currentPrice * 1.002, type: "sell" }];
+        hedgeState.totalDrawdown = (buyVol + sellVol) * 0.5 * (Math.random() * 2);
+        hedgeState.marginUsed = (buyVol + sellVol) * (currentPair === "XAUUSD" ? 1200 : 120);
+        
+        return hedgeState;
     }
-
-    // ---------- HEDGE ANALYSIS (from your original images) ----------
-    function getHedgeAnalysis(signal) {
-        return {
-            active: true,
-            strategy: "Martingale 0.01 → 0.02 → 0.04",
-            currentDrawdown: (Math.random() * 3).toFixed(1),
-            hedgeLayers: Math.floor(Math.random() * 3) + 1,
-            warning: signal.direction.includes("SELL") ? "⚠️ Hedge may lock in trending down" : "✅ Hedge active, balancing drawdown"
-        };
-    }
-
-    // ---------- BUILD DASHBOARD (TradingView + AI + Hedge) ----------
+    
+    // ========== BOACUTING BOT DASHBOARD ==========
     function buildDashboard() {
-        const signal = generateAISignal(currentPair, currentPrice);
-        const hedge = getHedgeAnalysis(signal);
+        const signal = generateSignal(currentPair, currentPrice);
+        const hedge = updateHedgeState(signal);
         
         return `
-            <!-- LIVE SIGNAL ALERT -->
-            <div class="signal-alert" style="border-left-color: ${signal.direction.includes('BUY') ? '#22c55e' : (signal.direction.includes('SELL') ? '#ef4444' : '#f5b041')}">
+            <!-- SIGNAL -->
+            <div class="signal-alert" style="border-left-color: ${signal.direction === 'BUY' ? '#22c55e' : (signal.direction === 'SELL' ? '#ef4444' : '#f5b041')}">
                 <div class="signal-title">
-                    <i class="fas fa-brain"></i> AI REAL-TIME SIGNAL
-                    <span class="signal-confidence" style="float: right;"><i class="fas fa-chart-line"></i> Confidence ${signal.confidence}%</span>
+                    <i class="fas fa-brain"></i> BOACUTING AI SIGNAL
+                    <span class="signal-confidence" style="float: right;">Confidence ${signal.confidence}%</span>
                 </div>
-                <div class="signal-direction" style="color: ${signal.direction.includes('BUY') ? '#22c55e' : (signal.direction.includes('SELL') ? '#ef4444' : '#f5b041')}">
+                <div class="signal-direction" style="color: ${signal.direction === 'BUY' ? '#22c55e' : (signal.direction === 'SELL' ? '#ef4444' : '#f5b041')}">
                     ${signal.direction}
                 </div>
-                <div class="small-text">${signal.reason}</div>
+                <div class="small-text">${signal.reason} | RSI: ${signal.rsi} | MACD: ${signal.macd}</div>
             </div>
             
-            <!-- TECHNICAL INDICATORS (Live Analysis) -->
-            <div class="indicators-grid">
-                <div class="indicator-card">
-                    <div class="indicator-label">RSI (14)</div>
-                    <div class="indicator-value ${signal.rsi < 35 ? 'change-positive' : (signal.rsi > 65 ? 'change-negative' : '')}">${signal.rsi}</div>
-                    <div class="small-text">${signal.rsiStatus}</div>
-                </div>
-                <div class="indicator-card">
-                    <div class="indicator-label">MACD</div>
-                    <div class="indicator-value ${parseFloat(signal.macd) > 0 ? 'change-positive' : 'change-negative'}">${parseFloat(signal.macd) > 0 ? '+' : ''}${signal.macd}</div>
-                    <div class="small-text">Histogram</div>
-                </div>
-                <div class="indicator-card">
-                    <div class="indicator-label">MA (50/200)</div>
-                    <div class="indicator-value">${currentPair === "XAUUSD" ? signal.ma50 : '$' + (parseFloat(signal.ma50)/1000).toFixed(1)}k</div>
-                    <div class="small-text">50MA: ${currentPrice > parseFloat(signal.ma50) ? '↑ Above' : '↓ Below'}</div>
-                </div>
+            <!-- MARKET STATS -->
+            <div class="grid-3">
+                <div class="info-card"><div class="info-label">SPREAD</div><div class="info-value">${(Math.random() * 2 + 0.5).toFixed(1)}</div></div>
+                <div class="info-card"><div class="info-label">VOLATILITY</div><div class="info-value">${(Math.random() * 30 + 15).toFixed(0)}%</div></div>
+                <div class="info-card"><div class="info-label">VOLUME</div><div class="info-value">${(Math.random() * 2 + 0.8).toFixed(2)}x</div></div>
             </div>
             
-            <!-- TRADINGVIEW REAL CHART -->
+            <!-- TRADINGVIEW CHART -->
             <div class="chart-container" id="tv_chart_container"></div>
             
-            <!-- AI ADVANCED ANALYSIS -->
-            <div class="ai-analysis">
-                <div><i class="fas fa-robot"></i> <strong>AI Market Analysis</strong> <span style="float: right;"><i class="fas fa-microchip"></i> Smart Gold v2.0</span></div>
-                <hr>
-                <div class="analysis-text">
-                    📊 <strong>Technical Outlook:</strong> ${signal.rsiStatus}. Momentum ${parseFloat(signal.macd) > 0 ? 'bullish' : 'bearish'}.<br>
-                    🎯 <strong>Key Levels:</strong> Resistance at ${(currentPrice * 1.008).toFixed(2)}, Support at ${(currentPrice * 0.992).toFixed(2)}.<br>
-                    🔥 <strong>AI Prediction:</strong> ${signal.direction.includes('BUY') ? 'Uptrend expected next 4-12h' : (signal.direction.includes('SELL') ? 'Correction likely' : 'Range-bound movement')}.<br>
-                    📈 <strong>Volume Analysis:</strong> ${Math.random() > 0.5 ? 'Above average, strong participation' : 'Moderate volume, wait for breakout'}.
-                </div>
-            </div>
-            
-            <!-- HEDGE BOT PANEL (from original images) -->
+            <!-- HEDGE EA PANEL (Boacuting Bot Core) -->
             <div class="hedge-panel">
                 <div class="hedge-header">
-                    <span><i class="fas fa-code-branch"></i> <strong>EA HEDGE BOT</strong></span>
+                    <span><i class="fas fa-code-branch"></i> <strong>EA HEDGE ENGINE</strong></span>
                     <span class="hedge-badge"><i class="fas fa-play-circle"></i> ACTIVE</span>
                 </div>
                 <div class="hedge-stats">
-                    <div>📊 Strategy: ${hedge.strategy}</div>
-                    <div>🛡️ Drawdown: -${hedge.currentDrawdown}%</div>
-                    <div>📦 Layers: ${hedge.hedgeLayers}</div>
+                    <div>📊 Layer: ${hedge.currentLayer + 1}/${hedgeState.volumeProgression.length}</div>
+                    <div>📉 Drawdown: -${hedge.totalDrawdown.toFixed(1)}%</div>
+                    <div>💰 Margin: $${hedge.marginUsed.toFixed(0)}</div>
+                    <div>🔄 Strategy: Martingale</div>
                 </div>
-                <div class="small-text" style="margin-top: 8px;">${hedge.warning}</div>
-                <div class="small-text" style="margin-top: 6px;">✅ Pros: Reduces loss, balances floating PnL | ⚠️ Cons: Margin lock in strong trends</div>
+                
+                <div class="order-list">
+                    <div class="order-row"><strong>HEDGE ORDERS</strong><span>Volume</span></div>
+                    ${hedge.buyOrders.map(o => `<div class="order-row"><span class="buy-text">BUY</span><span>${o.volume.toFixed(2)}</span></div>`).join('')}
+                    ${hedge.sellOrders.map(o => `<div class="order-row"><span class="sell-text">SELL</span><span>${o.volume.toFixed(2)}</span></div>`).join('')}
+                </div>
+                
+                <div class="small-text" style="margin-top: 8px;">
+                    📈 Hedge logic: When market runs wrong direction, bot opens opposite position.<br>
+                    ⚠️ Risk: Strong trends cause margin lock.
+                </div>
             </div>
             
-            <button id="simulateHedgeBtn"><i class="fas fa-exchange-alt"></i> SIMULATE HEDGE ORDER (DEMO)</button>
+            <!-- AI MARKET ANALYSIS -->
+            <div class="ai-analysis">
+                <div><i class="fas fa-robot"></i> <strong>AI Market Analysis</strong></div>
+                <hr>
+                <div class="small-text">
+                    📊 <strong>Technical:</strong> ${signal.direction === 'BUY' ? 'Bullish momentum building' : (signal.direction === 'SELL' ? 'Bearish pressure increasing' : 'Consolidation phase')}<br>
+                    🎯 <strong>Key Levels:</strong> Resistance: ${(currentPrice * 1.008).toFixed(2)} | Support: ${(currentPrice * 0.992).toFixed(2)}<br>
+                    🔥 <strong>Hedge Recommendation:</strong> ${signal.direction === 'BUY' ? 'Open hedge sell layer at -8 pips' : 'Monitor trend strength before hedging'}
+                </div>
+            </div>
+            
+            <button id="simulateHedgeBtn"><i class="fas fa-exchange-alt"></i> SIMULATE HEDGE ORDER</button>
             <div id="simMsg" class="small-text" style="text-align: center; margin-top: 8px;"></div>
         `;
     }
-
-    // ---------- TRADINGVIEW WIDGET (Real chart) ----------
+    
+    // ========== TRADINGVIEW WIDGET ==========
     function createTradingViewWidget(pair, containerId) {
         if (tvWidget) {
             try { tvWidget.remove(); } catch(e) {}
@@ -505,23 +527,23 @@
         }
         const symbol = pair === "XAUUSD" ? "OANDA:XAUUSD" : "COINBASE:BTCUSD";
         tvWidget = new TradingView.widget({
-            "width": "100%",
-            "height": 380,
-            "symbol": symbol,
-            "interval": "15",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#131722",
-            "enable_publishing": false,
-            "allow_symbol_change": true,
-            "studies": ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "Volume@tv-basicstudies"],
-            "container_id": containerId
+            width: "100%",
+            height: 350,
+            symbol: symbol,
+            interval: "15",
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#131722",
+            enable_publishing: false,
+            allow_symbol_change: true,
+            studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "Volume@tv-basicstudies"],
+            container_id: containerId
         });
     }
-
-    // ---------- RENDER FULL INTERFACE ----------
+    
+    // ========== RENDER ==========
     async function renderFull() {
         await updatePrice();
         const area = document.getElementById("dynamicArea");
@@ -532,35 +554,34 @@
         if (simBtn) {
             simBtn.onclick = () => {
                 const msg = document.getElementById("simMsg");
-                msg.innerHTML = `🛡️ ${currentPair} Hedge Simulation: Opened BUY + SELL layers | Volumes 0.01→0.02→0.04 | Drawdown capped at 5% | Recovery zone active.`;
+                msg.innerHTML = `🛡️ Boacuting Bot: Hedge opened | BUY ${hedgeState.buyOrders[0]?.volume.toFixed(2) || 0} + SELL ${hedgeState.sellOrders[0]?.volume.toFixed(2) || 0} | Volume progression 0.01→0.02→0.04→0.08`;
                 setTimeout(() => { if(msg) msg.innerHTML = ""; }, 3000);
+                
                 if (window.Telegram?.WebApp) {
                     Telegram.WebApp.HapticFeedback.impactOccurred("light");
-                    Telegram.WebApp.showPopup({ title: "Hedge Demo", message: "Hedge order placed (simulation)", buttons: [{ type: "ok" }] });
                 }
             };
         }
     }
-
-    // ---------- PAIR SWITCHING ----------
+    
+    // ========== PAIR SWITCH ==========
     async function switchPair(pair) {
         currentPair = pair;
         await renderFull();
     }
-
-    // ---------- TELEGRAM INTEGRATION & AUTO REFRESH ----------
+    
+    // ========== TELEGRAM INTEGRATION ==========
     function initTelegram() {
         if (window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.expand();
             tg.enableClosingConfirmation();
             tg.setHeaderColor("bg_color");
-            tg.setBackgroundColor("#0a0c12");
             tg.ready();
         }
     }
-
-    // ---------- MAIN ----------
+    
+    // ========== INIT ==========
     async function init() {
         initTelegram();
         await renderFull();
@@ -575,28 +596,15 @@
             });
         });
         
-        // Auto refresh signals & price every 12 seconds
         setInterval(async () => {
             await updatePrice();
-            const signalArea = document.querySelector(".signal-alert");
-            const indicatorsGrid = document.querySelector(".indicators-grid");
-            const aiBox = document.querySelector(".ai-analysis");
-            if (signalArea && indicatorsGrid && aiBox) {
-                const freshSignal = generateAISignal(currentPair, currentPrice);
-                // fast update without full re-render to keep chart
-                const signalDirEl = document.querySelector(".signal-direction");
-                const confidenceEl = document.querySelector(".signal-confidence");
-                if (signalDirEl) signalDirEl.innerHTML = freshSignal.direction;
-                if (confidenceEl) confidenceEl.innerHTML = `<i class="fas fa-chart-line"></i> Confidence ${freshSignal.confidence}%`;
-                const rsiEl = document.querySelector(".indicator-card:first-child .indicator-value");
-                if (rsiEl) rsiEl.innerHTML = freshSignal.rsi;
+            const signalDiv = document.querySelector(".signal-alert");
+            if (signalDiv) {
+                const freshSignal = generateSignal(currentPair, currentPrice);
+                const dirEl = document.querySelector(".signal-direction");
+                if (dirEl) dirEl.innerHTML = freshSignal.direction;
             }
-        }, 14000);
-        
-        // Full refresh every 45 sec (to sync hedge stats)
-        setInterval(async () => {
-            await renderFull();
-        }, 45000);
+        }, 15000);
     }
     
     init();
