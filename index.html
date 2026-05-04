@@ -2,612 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Boacuting Bot | XAUUSD & BTCUSD Hedge Trading Terminal</title>
-    <!-- TradingView Widget Library -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Trading Manager</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --bg-dark: #0a0c12;
-            --bg-card: #0f111a;
-            --bg-elevated: #131722;
-            --accent-gold: #E67E22;
-            --accent-gold-light: #F5B041;
-            --buy-color: #22c55e;
-            --sell-color: #ef4444;
-            --text-primary: #eef2ff;
-            --text-secondary: #8a99b4;
-            --border-color: #232838;
+            --bg: var(--tg-theme-bg-color, #ffffff);
+            --text: var(--tg-theme-text-color, #000000);
+            --hint: var(--tg-theme-hint-color, #999999);
+            --link: var(--tg-theme-link-color, #248bed);
+            --button: var(--tg-theme-button-color, #248bed);
+            --button-text: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
         }
 
         body {
-            background: var(--bg-dark);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            color: var(--text-primary);
-            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text);
             margin: 0;
-        }
-
-        .app-container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: var(--bg-card);
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #0b0e16 0%, #121624 100%);
-            padding: 20px 18px 16px;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .title {
-            font-weight: 800;
-            font-size: 1.4rem;
-            background: linear-gradient(135deg, var(--accent-gold-light), var(--accent-gold));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .badge {
-            background: #1a1f2e;
-            padding: 5px 12px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-        }
-
-        .live-price-card {
-            background: #1a1f2e;
-            padding: 5px 14px;
-            border-radius: 50px;
-            text-align: center;
-        }
-
-        .live-price-value {
-            font-family: monospace;
-            font-weight: 800;
-            font-size: 1rem;
-        }
-
-        .change-positive { color: var(--buy-color); }
-        .change-negative { color: var(--sell-color); }
-
-        .pair-tabs {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-            background: #0f121c;
-            padding: 5px;
-            border-radius: 60px;
-        }
-
-        .pair-btn {
-            flex: 1;
-            text-align: center;
-            padding: 10px 0;
-            font-weight: 600;
-            border-radius: 50px;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.9rem;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .pair-btn.active {
-            background: var(--accent-gold);
-            color: #0b0f17;
-        }
-
-        .content {
             padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        /* Signal Alert */
-        .signal-alert {
-            background: linear-gradient(135deg, #1a2a1f, #0e1a12);
-            border-radius: 20px;
-            padding: 14px;
-            margin-bottom: 16px;
-            border-left: 4px solid var(--buy-color);
-        }
-
-        .signal-title {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-        }
-
-        .signal-direction {
-            font-size: 1.6rem;
-            font-weight: 800;
-        }
-
-        .signal-confidence {
-            background: #2a2e3f;
-            border-radius: 30px;
-            padding: 3px 10px;
-            font-size: 0.7rem;
-        }
-
-        /* Grid Layout */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 12px 0;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 12px 0;
-        }
-
-        .info-card {
-            background: var(--bg-elevated);
-            border-radius: 16px;
-            padding: 10px;
+        .card {
+            background-color: var(--bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             text-align: center;
-            border: 1px solid var(--border-color);
         }
 
-        .info-label {
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
+        .balance-label { font-size: 14px; color: var(--hint); margin-bottom: 4px; }
+        .balance-value { font-size: 32px; font-weight: bold; color: #31b545; } /* Green for profit */
 
-        .info-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        /* Chart */
-        .chart-container {
-            background: var(--bg-elevated);
-            border-radius: 20px;
-            overflow: hidden;
-            height: 350px;
-            margin: 12px 0;
-            border: 1px solid var(--border-color);
-        }
-
-        /* Hedge Panel (Boacuting Bot core) */
-        .hedge-panel {
-            background: var(--bg-elevated);
-            border-radius: 20px;
-            padding: 14px;
-            margin: 12px 0;
-            border: 1px solid #2a3650;
-        }
-
-        .hedge-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .hedge-badge {
-            background: var(--accent-gold);
-            color: #0b0f17;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-
-        .hedge-stats {
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            font-size: 0.7rem;
-            margin: 10px 0;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
-        .order-list {
-            background: #0a0c14;
-            border-radius: 16px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 0.7rem;
+        .stat-box {
+            background-color: var(--bg);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: left;
         }
 
-        .order-row {
+        .stat-label { font-size: 12px; color: var(--hint); }
+        .stat-value { font-size: 18px; font-weight: 600; margin-top: 4px; }
+
+        .profit-split {
+            background-color: #248bed15;
+            border: 1px solid var(--link);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .split-row {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
-            border-bottom: 1px solid #1e2438;
-        }
-
-        .buy-text { color: var(--buy-color); }
-        .sell-text { color: var(--sell-color); }
-
-        /* AI Analysis */
-        .ai-analysis {
-            background: #0e1322;
-            border-radius: 20px;
-            padding: 14px;
-            margin: 12px 0;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
         button {
-            background: var(--accent-gold);
-            width: 100%;
-            padding: 14px;
+            background-color: var(--button);
+            color: var(--button-text);
             border: none;
-            border-radius: 60px;
-            font-weight: 700;
-            color: #0b0f17;
-            margin-top: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        button:active {
-            transform: scale(0.97);
-        }
-
-        .small-text {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-        }
-
-        .disclaimer {
-            text-align: center;
-            padding: 16px;
-            font-size: 0.6rem;
-            color: #5a6680;
-            border-top: 1px solid var(--border-color);
-            margin-top: 16px;
-        }
-
-        hr {
-            border-color: var(--border-color);
-            margin: 10px 0;
+            width: 100%;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="header">
-        <div class="title-row">
-            <div>
-                <span class="title">🤖 BOACUTING BOT</span>
-                <div class="badge" style="margin-top: 4px;">EA HEDGE v4.0 | Martingale</div>
-            </div>
-            <div class="live-price-card">
-                <div class="small-text" id="pairLabel">XAUUSD</div>
-                <div class="live-price-value" id="livePrice">$--</div>
-                <div class="small-text" id="priceChange">--</div>
-            </div>
+
+    <!-- Main Balance Card -->
+    <div class="card">
+        <div class="balance-label">Current Trading Balance</div>
+        <div class="balance-value" id="balance">$30.00</div>
+        <div style="font-size: 12px; color: var(--hint); margin-top: 8px;">Asset: BTC/USDT & Gold</div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-label">Initial Deposit</div>
+            <div class="stat-value" id="deposit">$10.00</div>
         </div>
-        <div class="pair-tabs" id="pairTabs">
-            <button class="pair-btn active" data-pair="XAUUSD">XAUUSD <i class="fas fa-chart-line"></i></button>
-            <button class="pair-btn" data-pair="BTCUSD">BTCUSD <i class="fab fa-bitcoin"></i></button>
+        <div class="stat-box">
+            <div class="stat-label">Total Profit</div>
+            <div class="stat-value" style="color: #31b545;">+$20.00</div>
         </div>
     </div>
 
-    <div class="content" id="mainContent">
-        <div id="dynamicArea">Loading Boacuting Bot terminal...</div>
+    <!-- 50/50 Split Rule -->
+    <div class="profit-split">
+        <div style="font-weight: bold; margin-bottom: 10px; font-size: 14px;">50/50 Profit Share Breakdown</div>
+        <div class="split-row">
+            <span>Your Share (Investor)</span>
+            <span style="font-weight: bold;">$10.00</span>
+        </div>
+        <div class="split-row">
+            <span>Manager Fee (Mohamed)</span>
+            <span style="font-weight: bold;">$10.00</span>
+        </div>
     </div>
-    <div class="disclaimer">
-        <i class="fas fa-shield-alt"></i> Boacuting Bot - Hedge EA | Risk warning: Strong trends may lock margin
-    </div>
-</div>
 
-<script>
-    // ========== BOACUTING BOT CORE ==========
-    let currentPair = "XAUUSD";
-    let currentPrice = 2340.50;
-    let priceChange24h = 0;
-    let tvWidget = null;
-    
-    // Hedge state (simulates EA behavior)
-    let hedgeState = {
-        active: true,
-        currentLayer: 0,
-        buyOrders: [],
-        sellOrders: [],
-        totalDrawdown: 0,
-        marginUsed: 0,
-        strategy: "MARTINGALE_HEDGE",
-        volumeProgression: [0.01, 0.02, 0.04, 0.08, 0.16, 0.32]
-    };
-    
-    // Order history (matching your image)
-    const demoOrders = [
-        { type: "buy", volume: 0.01, price: 4706.064, status: "open" },
-        { type: "sell", volume: 0.02, price: 4704.011, status: "open" },
-        { type: "buy", volume: 0.04, price: 4706.082, status: "open" },
-        { type: "sell", volume: 0.08, price: 4704.053, status: "open" },
-        { type: "buy", volume: 0.16, price: 4706.060, status: "open" }
-    ];
-    
-    // ========== REAL PRICE API ==========
-    async function fetchRealPrice(pair) {
-        try {
-            if (pair === "XAUUSD") {
-                const resp = await fetch("https://api.metals.live/v1/spot/gold");
-                if (resp.ok) {
-                    const data = await resp.json();
-                    return { price: data.price, change: (Math.random() - 0.5) * 1.2 };
+    <button onclick="requestWithdrawal()">Request Profit Payout</button>
+
+    <script>
+        // Initialize Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Opens the app to full height
+
+        function requestWithdrawal() {
+            tg.showConfirm("Do you want to request your $10 profit payout?", (confirmed) => {
+                if (confirmed) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    tg.showAlert("Request sent to Mohamed!");
                 }
-            } else {
-                const resp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true");
-                if (resp.ok) {
-                    const data = await resp.json();
-                    return { price: data.bitcoin.usd, change: data.bitcoin.usd_24h_change || 0 };
-                }
-            }
-        } catch(e) { console.log("API fallback"); }
-        
-        if (pair === "XAUUSD") {
-            let newPrice = currentPrice + (Math.random() - 0.5) * 2.2;
-            newPrice = Math.max(2280, Math.min(2480, newPrice));
-            return { price: newPrice, change: ((newPrice - currentPrice) / currentPrice) * 100 };
-        } else {
-            let newPrice = currentPrice + (Math.random() - 0.5) * 150;
-            newPrice = Math.max(58000, Math.min(75000, newPrice));
-            return { price: newPrice, change: ((newPrice - currentPrice) / currentPrice) * 100 };
-        }
-    }
-    
-    async function updatePrice() {
-        const result = await fetchRealPrice(currentPair);
-        currentPrice = result.price;
-        priceChange24h = result.change;
-        
-        const priceEl = document.getElementById("livePrice");
-        if (priceEl) priceEl.innerHTML = `$${currentPrice.toFixed(2)}`;
-        const changeEl = document.getElementById("priceChange");
-        if (changeEl) {
-            changeEl.innerHTML = `${priceChange24h >= 0 ? '▲' : '▼'} ${Math.abs(priceChange24h).toFixed(2)}%`;
-            changeEl.className = `small-text ${priceChange24h >= 0 ? 'change-positive' : 'change-negative'}`;
-        }
-    }
-    
-    // ========== AI SIGNAL GENERATOR ==========
-    function generateSignal(pair, price) {
-        const rsi = 40 + (Math.random() - 0.5) * 45;
-        const macdHist = (Math.random() - 0.5) * 2;
-        const ma200 = price * 0.996;
-        
-        let direction = "NEUTRAL";
-        let confidence = 55;
-        let reason = "";
-        
-        if (rsi < 38 && macdHist > 0.1) {
-            direction = "BUY";
-            confidence = 74;
-            reason = "Oversold + bullish momentum";
-        } else if (rsi > 62 && macdHist < -0.1) {
-            direction = "SELL";
-            confidence = 71;
-            reason = "Overbought + bearish divergence";
-        } else if (price > ma200 && macdHist > 0.3) {
-            direction = "BUY";
-            confidence = 65;
-            reason = "Uptrend confirmed";
-        } else if (price < ma200 && macdHist < -0.3) {
-            direction = "SELL";
-            confidence = 63;
-            reason = "Downtrend confirmed";
-        } else {
-            direction = "NEUTRAL";
-            confidence = 52;
-            reason = "Sideways, wait for breakout";
-        }
-        
-        return { direction, confidence: Math.floor(confidence), reason, rsi: rsi.toFixed(1), macd: macdHist.toFixed(2) };
-    }
-    
-    // ========== HEDGE CALCULATIONS ==========
-    function updateHedgeState(signal) {
-        // Simulate hedge behavior based on market direction
-        const isTrending = Math.abs(priceChange24h) > 0.8;
-        const trendDirection = priceChange24h > 0 ? "bullish" : "bearish";
-        
-        hedgeState.currentLayer = isTrending ? Math.min(hedgeState.volumeProgression.length - 1, hedgeState.currentLayer + 1) : Math.max(0, hedgeState.currentLayer - 1);
-        
-        let buyVol = 0, sellVol = 0;
-        for (let i = 0; i <= hedgeState.currentLayer; i++) {
-            if (i % 2 === 0) buyVol += hedgeState.volumeProgression[i];
-            else sellVol += hedgeState.volumeProgression[i];
-        }
-        
-        hedgeState.buyOrders = [{ volume: buyVol, price: currentPrice * 0.998, type: "buy" }];
-        hedgeState.sellOrders = [{ volume: sellVol, price: currentPrice * 1.002, type: "sell" }];
-        hedgeState.totalDrawdown = (buyVol + sellVol) * 0.5 * (Math.random() * 2);
-        hedgeState.marginUsed = (buyVol + sellVol) * (currentPair === "XAUUSD" ? 1200 : 120);
-        
-        return hedgeState;
-    }
-    
-    // ========== BOACUTING BOT DASHBOARD ==========
-    function buildDashboard() {
-        const signal = generateSignal(currentPair, currentPrice);
-        const hedge = updateHedgeState(signal);
-        
-        return `
-            <!-- SIGNAL -->
-            <div class="signal-alert" style="border-left-color: ${signal.direction === 'BUY' ? '#22c55e' : (signal.direction === 'SELL' ? '#ef4444' : '#f5b041')}">
-                <div class="signal-title">
-                    <i class="fas fa-brain"></i> BOACUTING AI SIGNAL
-                    <span class="signal-confidence" style="float: right;">Confidence ${signal.confidence}%</span>
-                </div>
-                <div class="signal-direction" style="color: ${signal.direction === 'BUY' ? '#22c55e' : (signal.direction === 'SELL' ? '#ef4444' : '#f5b041')}">
-                    ${signal.direction}
-                </div>
-                <div class="small-text">${signal.reason} | RSI: ${signal.rsi} | MACD: ${signal.macd}</div>
-            </div>
-            
-            <!-- MARKET STATS -->
-            <div class="grid-3">
-                <div class="info-card"><div class="info-label">SPREAD</div><div class="info-value">${(Math.random() * 2 + 0.5).toFixed(1)}</div></div>
-                <div class="info-card"><div class="info-label">VOLATILITY</div><div class="info-value">${(Math.random() * 30 + 15).toFixed(0)}%</div></div>
-                <div class="info-card"><div class="info-label">VOLUME</div><div class="info-value">${(Math.random() * 2 + 0.8).toFixed(2)}x</div></div>
-            </div>
-            
-            <!-- TRADINGVIEW CHART -->
-            <div class="chart-container" id="tv_chart_container"></div>
-            
-            <!-- HEDGE EA PANEL (Boacuting Bot Core) -->
-            <div class="hedge-panel">
-                <div class="hedge-header">
-                    <span><i class="fas fa-code-branch"></i> <strong>EA HEDGE ENGINE</strong></span>
-                    <span class="hedge-badge"><i class="fas fa-play-circle"></i> ACTIVE</span>
-                </div>
-                <div class="hedge-stats">
-                    <div>📊 Layer: ${hedge.currentLayer + 1}/${hedgeState.volumeProgression.length}</div>
-                    <div>📉 Drawdown: -${hedge.totalDrawdown.toFixed(1)}%</div>
-                    <div>💰 Margin: $${hedge.marginUsed.toFixed(0)}</div>
-                    <div>🔄 Strategy: Martingale</div>
-                </div>
-                
-                <div class="order-list">
-                    <div class="order-row"><strong>HEDGE ORDERS</strong><span>Volume</span></div>
-                    ${hedge.buyOrders.map(o => `<div class="order-row"><span class="buy-text">BUY</span><span>${o.volume.toFixed(2)}</span></div>`).join('')}
-                    ${hedge.sellOrders.map(o => `<div class="order-row"><span class="sell-text">SELL</span><span>${o.volume.toFixed(2)}</span></div>`).join('')}
-                </div>
-                
-                <div class="small-text" style="margin-top: 8px;">
-                    📈 Hedge logic: When market runs wrong direction, bot opens opposite position.<br>
-                    ⚠️ Risk: Strong trends cause margin lock.
-                </div>
-            </div>
-            
-            <!-- AI MARKET ANALYSIS -->
-            <div class="ai-analysis">
-                <div><i class="fas fa-robot"></i> <strong>AI Market Analysis</strong></div>
-                <hr>
-                <div class="small-text">
-                    📊 <strong>Technical:</strong> ${signal.direction === 'BUY' ? 'Bullish momentum building' : (signal.direction === 'SELL' ? 'Bearish pressure increasing' : 'Consolidation phase')}<br>
-                    🎯 <strong>Key Levels:</strong> Resistance: ${(currentPrice * 1.008).toFixed(2)} | Support: ${(currentPrice * 0.992).toFixed(2)}<br>
-                    🔥 <strong>Hedge Recommendation:</strong> ${signal.direction === 'BUY' ? 'Open hedge sell layer at -8 pips' : 'Monitor trend strength before hedging'}
-                </div>
-            </div>
-            
-            <button id="simulateHedgeBtn"><i class="fas fa-exchange-alt"></i> SIMULATE HEDGE ORDER</button>
-            <div id="simMsg" class="small-text" style="text-align: center; margin-top: 8px;"></div>
-        `;
-    }
-    
-    // ========== TRADINGVIEW WIDGET ==========
-    function createTradingViewWidget(pair, containerId) {
-        if (tvWidget) {
-            try { tvWidget.remove(); } catch(e) {}
-            tvWidget = null;
-        }
-        const symbol = pair === "XAUUSD" ? "OANDA:XAUUSD" : "COINBASE:BTCUSD";
-        tvWidget = new TradingView.widget({
-            width: "100%",
-            height: 350,
-            symbol: symbol,
-            interval: "15",
-            timezone: "Etc/UTC",
-            theme: "dark",
-            style: "1",
-            locale: "en",
-            toolbar_bg: "#131722",
-            enable_publishing: false,
-            allow_symbol_change: true,
-            studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "Volume@tv-basicstudies"],
-            container_id: containerId
-        });
-    }
-    
-    // ========== RENDER ==========
-    async function renderFull() {
-        await updatePrice();
-        const area = document.getElementById("dynamicArea");
-        area.innerHTML = buildDashboard();
-        createTradingViewWidget(currentPair, "tv_chart_container");
-        
-        const simBtn = document.getElementById("simulateHedgeBtn");
-        if (simBtn) {
-            simBtn.onclick = () => {
-                const msg = document.getElementById("simMsg");
-                msg.innerHTML = `🛡️ Boacuting Bot: Hedge opened | BUY ${hedgeState.buyOrders[0]?.volume.toFixed(2) || 0} + SELL ${hedgeState.sellOrders[0]?.volume.toFixed(2) || 0} | Volume progression 0.01→0.02→0.04→0.08`;
-                setTimeout(() => { if(msg) msg.innerHTML = ""; }, 3000);
-                
-                if (window.Telegram?.WebApp) {
-                    Telegram.WebApp.HapticFeedback.impactOccurred("light");
-                }
-            };
-        }
-    }
-    
-    // ========== PAIR SWITCH ==========
-    async function switchPair(pair) {
-        currentPair = pair;
-        await renderFull();
-    }
-    
-    // ========== TELEGRAM INTEGRATION ==========
-    function initTelegram() {
-        if (window.Telegram?.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.expand();
-            tg.enableClosingConfirmation();
-            tg.setHeaderColor("bg_color");
-            tg.ready();
-        }
-    }
-    
-    // ========== INIT ==========
-    async function init() {
-        initTelegram();
-        await renderFull();
-        
-        const btns = document.querySelectorAll(".pair-btn");
-        btns.forEach(btn => {
-            btn.addEventListener("click", async (e) => {
-                const pair = btn.getAttribute("data-pair");
-                btns.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                await switchPair(pair);
             });
-        });
-        
-        setInterval(async () => {
-            await updatePrice();
-            const signalDiv = document.querySelector(".signal-alert");
-            if (signalDiv) {
-                const freshSignal = generateSignal(currentPair, currentPrice);
-                const dirEl = document.querySelector(".signal-direction");
-                if (dirEl) dirEl.innerHTML = freshSignal.direction;
-            }
-        }, 15000);
-    }
-    
-    init();
-</script>
+        }
+    </script>
 </body>
 </html>
